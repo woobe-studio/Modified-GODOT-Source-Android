@@ -36,7 +36,6 @@ class GDScript : public Script {
 		int index;
 		StringName setter;
 		StringName getter;
-		MultiplayerAPI::RPCMode rpc_mode;
 		GDScriptDataType data_type;
 	};
 
@@ -241,9 +240,6 @@ public:
 	virtual ScriptLanguage *get_language();
 
 	void reload_members();
-
-	virtual MultiplayerAPI::RPCMode get_rpc_mode(const StringName &p_method) const;
-	virtual MultiplayerAPI::RPCMode get_rset_mode(const StringName &p_variable) const;
 
 	GDScriptInstance();
 	~GDScriptInstance();

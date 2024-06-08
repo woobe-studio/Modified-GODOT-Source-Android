@@ -102,10 +102,6 @@ private:
 
 		Node *pause_owner;
 
-		int network_master;
-		Map<StringName, MultiplayerAPI::RPCMode> rpc_methods;
-		Map<StringName, MultiplayerAPI::RPCMode> rpc_properties;
-
 		int process_priority;
 
 		// Keep bitpacked values together to get better packing
@@ -159,8 +155,6 @@ private:
 
 	} data;
 
-	Ref<MultiplayerAPI> multiplayer;
-
 	void _print_tree_pretty(const String &prefix, const bool last);
 	void _print_tree(const Node *p_node);
 
@@ -189,11 +183,6 @@ private:
 
 	Array _get_children() const;
 	Array _get_groups() const;
-
-	Variant _rpc_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
-	Variant _rpc_unreliable_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
-	Variant _rpc_id_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
-	Variant _rpc_unreliable_id_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
 
 	friend class SceneTree;
 
@@ -456,33 +445,6 @@ public:
 
 	void set_display_folded(bool p_folded);
 	bool is_displayed_folded() const;
-	/* NETWORK */
-
-	void set_network_master(int p_peer_id, bool p_recursive = true);
-	int get_network_master() const;
-	bool is_network_master() const;
-
-	void rpc_config(const StringName &p_method, MultiplayerAPI::RPCMode p_mode); // config a local method for RPC
-	void rset_config(const StringName &p_property, MultiplayerAPI::RPCMode p_mode); // config a local property for RPC
-
-	void rpc(const StringName &p_method, VARIANT_ARG_LIST); //rpc call, honors RPCMode
-	void rpc_unreliable(const StringName &p_method, VARIANT_ARG_LIST); //rpc call, honors RPCMode
-	void rpc_id(int p_peer_id, const StringName &p_method, VARIANT_ARG_LIST); //rpc call, honors RPCMode
-	void rpc_unreliable_id(int p_peer_id, const StringName &p_method, VARIANT_ARG_LIST); //rpc call, honors RPCMode
-
-	void rset(const StringName &p_property, const Variant &p_value); //remote set call, honors RPCMode
-	void rset_unreliable(const StringName &p_property, const Variant &p_value); //remote set call, honors RPCMode
-	void rset_id(int p_peer_id, const StringName &p_property, const Variant &p_value); //remote set call, honors RPCMode
-	void rset_unreliable_id(int p_peer_id, const StringName &p_property, const Variant &p_value); //remote set call, honors RPCMode
-
-	void rpcp(int p_peer_id, bool p_unreliable, const StringName &p_method, const Variant **p_arg, int p_argcount);
-	void rsetp(int p_peer_id, bool p_unreliable, const StringName &p_property, const Variant &p_value);
-
-	Ref<MultiplayerAPI> get_multiplayer() const;
-	Ref<MultiplayerAPI> get_custom_multiplayer() const;
-	void set_custom_multiplayer(Ref<MultiplayerAPI> p_multiplayer);
-	const Map<StringName, MultiplayerAPI::RPCMode>::Element *get_node_rpc_mode(const StringName &p_method);
-	const Map<StringName, MultiplayerAPI::RPCMode>::Element *get_node_rset_mode(const StringName &p_property);
 
 	Node();
 	~Node();

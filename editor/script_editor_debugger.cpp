@@ -1098,18 +1098,6 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
 		} else {
 			profiler->add_frame_metric(metric, true);
 		}
-	} else if (p_msg == "network_profile") {
-		int frame_size = 6;
-		for (int i = 0; i < p_data.size(); i += frame_size) {
-			MultiplayerAPI::ProfilingInfo pi;
-			pi.node = p_data[i + 0];
-			pi.node_path = p_data[i + 1];
-			pi.incoming_rpc = p_data[i + 2];
-			pi.incoming_rset = p_data[i + 3];
-			pi.outgoing_rpc = p_data[i + 4];
-			pi.outgoing_rset = p_data[i + 5];
-		}
-	} else if (p_msg == "network_bandwidth") {
 	} else if (p_msg == "kill_me") {
 		editor->call_deferred("stop_child_process");
 	}

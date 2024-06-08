@@ -6,7 +6,7 @@
 #ifndef SCRIPT_LANGUAGE_H
 #define SCRIPT_LANGUAGE_H
 
-#include "core/io/multiplayer_api.h"
+#include "core/reference.h"
 #include "core/map.h"
 #include "core/pair.h"
 #include "core/resource.h"
@@ -171,9 +171,6 @@ public:
 
 	virtual void property_set_fallback(const StringName &p_name, const Variant &p_value, bool *r_valid);
 	virtual Variant property_get_fallback(const StringName &p_name, bool *r_valid);
-
-	virtual MultiplayerAPI::RPCMode get_rpc_mode(const StringName &p_method) const = 0;
-	virtual MultiplayerAPI::RPCMode get_rset_mode(const StringName &p_variable) const = 0;
 
 	virtual ScriptLanguage *get_language() = 0;
 	virtual ~ScriptInstance();
@@ -386,9 +383,6 @@ public:
 	virtual void property_set_fallback(const StringName &p_name, const Variant &p_value, bool *r_valid = nullptr);
 	virtual Variant property_get_fallback(const StringName &p_name, bool *r_valid = nullptr);
 
-	virtual MultiplayerAPI::RPCMode get_rpc_mode(const StringName &p_method) const { return MultiplayerAPI::RPC_MODE_DISABLED; }
-	virtual MultiplayerAPI::RPCMode get_rset_mode(const StringName &p_variable) const { return MultiplayerAPI::RPC_MODE_DISABLED; }
-
 	PlaceHolderScriptInstance(ScriptLanguage *p_language, Ref<Script> p_script, Object *p_owner);
 	~PlaceHolderScriptInstance();
 };
@@ -430,8 +424,6 @@ public:
 
 	virtual bool is_remote() const { return false; }
 	virtual void request_quit() {}
-
-	virtual void set_multiplayer(Ref<MultiplayerAPI> p_multiplayer) {}
 
 	virtual bool is_profiling() const = 0;
 	virtual void add_profiling_frame_data(const StringName &p_name, const Array &p_data) = 0;

@@ -1673,7 +1673,6 @@ GDScriptFunction::GDScriptFunction() :
 		function_list(this) {
 	_stack_size = 0;
 	_call_size = 0;
-	rpc_mode = MultiplayerAPI::RPC_MODE_DISABLED;
 	name = "<anonymous>";
 #ifdef DEBUG_ENABLED
 	_func_cname = nullptr;

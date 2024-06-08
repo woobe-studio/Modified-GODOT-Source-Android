@@ -539,10 +539,6 @@ bool SceneTree::idle(float p_time) {
 
 	idle_process_time = p_time;
 
-	if (multiplayer_poll) {
-		multiplayer->poll();
-	}
-
 	emit_signal("idle_frame");
 
 	MessageQueue::get_singleton()->flush(); //small little hack
@@ -1717,95 +1713,6 @@ Ref<SceneTreeTimer> SceneTree::create_timer(float p_delay_sec, bool p_process_pa
 	return stt;
 }
 
-void SceneTree::_network_peer_connected(int p_id) {
-	emit_signal("network_peer_connected", p_id);
-}
-
-void SceneTree::_network_peer_disconnected(int p_id) {
-	emit_signal("network_peer_disconnected", p_id);
-}
-
-void SceneTree::_connected_to_server() {
-	emit_signal("connected_to_server");
-}
-
-void SceneTree::_connection_failed() {
-	emit_signal("connection_failed");
-}
-
-void SceneTree::_server_disconnected() {
-	emit_signal("server_disconnected");
-}
-
-Ref<MultiplayerAPI> SceneTree::get_multiplayer() const {
-	return multiplayer;
-}
-
-void SceneTree::set_multiplayer_poll_enabled(bool p_enabled) {
-	multiplayer_poll = p_enabled;
-}
-
-bool SceneTree::is_multiplayer_poll_enabled() const {
-	return multiplayer_poll;
-}
-
-void SceneTree::set_multiplayer(Ref<MultiplayerAPI> p_multiplayer) {
-	ERR_FAIL_COND(!p_multiplayer.is_valid());
-
-	if (multiplayer.is_valid()) {
-		multiplayer->disconnect("network_peer_connected", this, "_network_peer_connected");
-		multiplayer->disconnect("network_peer_disconnected", this, "_network_peer_disconnected");
-		multiplayer->disconnect("connected_to_server", this, "_connected_to_server");
-		multiplayer->disconnect("connection_failed", this, "_connection_failed");
-		multiplayer->disconnect("server_disconnected", this, "_server_disconnected");
-	}
-
-	multiplayer = p_multiplayer;
-	multiplayer->set_root_node(root);
-
-	multiplayer->connect("network_peer_connected", this, "_network_peer_connected");
-	multiplayer->connect("network_peer_disconnected", this, "_network_peer_disconnected");
-	multiplayer->connect("connected_to_server", this, "_connected_to_server");
-	multiplayer->connect("connection_failed", this, "_connection_failed");
-	multiplayer->connect("server_disconnected", this, "_server_disconnected");
-}
-
-void SceneTree::set_network_peer(const Ref<NetworkedMultiplayerPeer> &p_network_peer) {
-	multiplayer->set_network_peer(p_network_peer);
-}
-
-Ref<NetworkedMultiplayerPeer> SceneTree::get_network_peer() const {
-	return multiplayer->get_network_peer();
-}
-
-bool SceneTree::is_network_server() const {
-	return multiplayer->is_network_server();
-}
-
-bool SceneTree::has_network_peer() const {
-	return multiplayer->has_network_peer();
-}
-
-int SceneTree::get_network_unique_id() const {
-	return multiplayer->get_network_unique_id();
-}
-
-Vector<int> SceneTree::get_network_connected_peers() const {
-	return multiplayer->get_network_connected_peers();
-}
-
-int SceneTree::get_rpc_sender_id() const {
-	return multiplayer->get_rpc_sender_id();
-}
-
-void SceneTree::set_refuse_new_network_connections(bool p_refuse) {
-	multiplayer->set_refuse_new_network_connections(p_refuse);
-}
-
-bool SceneTree::is_refusing_new_network_connections() const {
-	return multiplayer->is_refusing_new_network_connections();
-}
-
 void SceneTree::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_root"), &SceneTree::get_root);
 	ClassDB::bind_method(D_METHOD("has_group", "name"), &SceneTree::has_group);
@@ -1874,25 +1781,6 @@ void SceneTree::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("_change_scene"), &SceneTree::_change_scene);
 
-	ClassDB::bind_method(D_METHOD("set_multiplayer", "multiplayer"), &SceneTree::set_multiplayer);
-	ClassDB::bind_method(D_METHOD("get_multiplayer"), &SceneTree::get_multiplayer);
-	ClassDB::bind_method(D_METHOD("set_multiplayer_poll_enabled", "enabled"), &SceneTree::set_multiplayer_poll_enabled);
-	ClassDB::bind_method(D_METHOD("is_multiplayer_poll_enabled"), &SceneTree::is_multiplayer_poll_enabled);
-	ClassDB::bind_method(D_METHOD("set_network_peer", "peer"), &SceneTree::set_network_peer);
-	ClassDB::bind_method(D_METHOD("get_network_peer"), &SceneTree::get_network_peer);
-	ClassDB::bind_method(D_METHOD("is_network_server"), &SceneTree::is_network_server);
-	ClassDB::bind_method(D_METHOD("has_network_peer"), &SceneTree::has_network_peer);
-	ClassDB::bind_method(D_METHOD("get_network_connected_peers"), &SceneTree::get_network_connected_peers);
-	ClassDB::bind_method(D_METHOD("get_network_unique_id"), &SceneTree::get_network_unique_id);
-	ClassDB::bind_method(D_METHOD("get_rpc_sender_id"), &SceneTree::get_rpc_sender_id);
-	ClassDB::bind_method(D_METHOD("set_refuse_new_network_connections", "refuse"), &SceneTree::set_refuse_new_network_connections);
-	ClassDB::bind_method(D_METHOD("is_refusing_new_network_connections"), &SceneTree::is_refusing_new_network_connections);
-	ClassDB::bind_method(D_METHOD("_network_peer_connected"), &SceneTree::_network_peer_connected);
-	ClassDB::bind_method(D_METHOD("_network_peer_disconnected"), &SceneTree::_network_peer_disconnected);
-	ClassDB::bind_method(D_METHOD("_connected_to_server"), &SceneTree::_connected_to_server);
-	ClassDB::bind_method(D_METHOD("_connection_failed"), &SceneTree::_connection_failed);
-	ClassDB::bind_method(D_METHOD("_server_disconnected"), &SceneTree::_server_disconnected);
-
 	ClassDB::bind_method(D_METHOD("set_use_font_oversampling", "enable"), &SceneTree::set_use_font_oversampling);
 	ClassDB::bind_method(D_METHOD("is_using_font_oversampling"), &SceneTree::is_using_font_oversampling);
 
@@ -1901,15 +1789,10 @@ void SceneTree::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "debug_collisions_hint"), "set_debug_collisions_hint", "is_debugging_collisions_hint");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "debug_navigation_hint"), "set_debug_navigation_hint", "is_debugging_navigation_hint");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "paused"), "set_pause", "is_paused");
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "refuse_new_network_connections"), "set_refuse_new_network_connections", "is_refusing_new_network_connections");
-	ADD_PROPERTY_DEFAULT("refuse_new_network_connections", false);
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "use_font_oversampling"), "set_use_font_oversampling", "is_using_font_oversampling");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "edited_scene_root", PROPERTY_HINT_RESOURCE_TYPE, "Node", 0), "set_edited_scene_root", "get_edited_scene_root");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "current_scene", PROPERTY_HINT_RESOURCE_TYPE, "Node", 0), "set_current_scene", "get_current_scene");
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "network_peer", PROPERTY_HINT_RESOURCE_TYPE, "NetworkedMultiplayerPeer", 0), "set_network_peer", "get_network_peer");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "root", PROPERTY_HINT_RESOURCE_TYPE, "Node", 0), "", "get_root");
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "multiplayer", PROPERTY_HINT_RESOURCE_TYPE, "MultiplayerAPI", 0), "set_multiplayer", "get_multiplayer");
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "multiplayer_poll"), "set_multiplayer_poll_enabled", "is_multiplayer_poll_enabled");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "physics_interpolation"), "set_physics_interpolation_enabled", "is_physics_interpolation_enabled");
 
 	ADD_SIGNAL(MethodInfo("tree_changed"));
@@ -2066,10 +1949,6 @@ SceneTree::SceneTree() {
 		Engine::get_singleton()->set_physics_jitter_fix(0);
 	}
 
-	// Initialize network state
-	multiplayer_poll = true;
-	set_multiplayer(Ref<MultiplayerAPI>(memnew(MultiplayerAPI)));
-
 	root->set_as_audio_listener(true);
 	root->set_as_audio_listener_2d(true);
 	current_scene = nullptr;
@@ -2149,7 +2028,6 @@ SceneTree::SceneTree() {
 
 			remote_debugger->set_scene_tree(this);
 		}
-		ScriptDebugger::get_singleton()->set_multiplayer(multiplayer);
 	}
 
 	root->set_physics_object_picking(GLOBAL_DEF("physics/common/enable_object_picking", true));

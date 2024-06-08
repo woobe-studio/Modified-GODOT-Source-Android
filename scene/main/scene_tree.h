@@ -6,7 +6,7 @@
 #ifndef SCENE_TREE_H
 #define SCENE_TREE_H
 
-#include "core/io/multiplayer_api.h"
+#include "core/reference.h"
 #include "core/os/main_loop.h"
 #include "core/os/thread_safe.h"
 #include "core/self_list.h"
@@ -161,18 +161,6 @@ private:
 	//void _call_group(uint32_t p_call_flags,const StringName& p_group,const StringName& p_function,const Variant& p_arg1,const Variant& p_arg2);
 
 	List<Ref<SceneTreeTimer>> timers;
-
-	///network///
-
-	Ref<MultiplayerAPI> multiplayer;
-	bool multiplayer_poll;
-
-	void _network_peer_connected(int p_id);
-	void _network_peer_disconnected(int p_id);
-
-	void _connected_to_server();
-	void _connection_failed();
-	void _server_disconnected();
 
 	static SceneTree *singleton;
 	friend class Node;
@@ -369,23 +357,6 @@ public:
 	void drop_files(const Vector<String> &p_files, int p_from_screen = 0);
 	void global_menu_action(const Variant &p_id, const Variant &p_meta);
 	void get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const;
-
-	//network API
-
-	Ref<MultiplayerAPI> get_multiplayer() const;
-	void set_multiplayer_poll_enabled(bool p_enabled);
-	bool is_multiplayer_poll_enabled() const;
-	void set_multiplayer(Ref<MultiplayerAPI> p_multiplayer);
-	void set_network_peer(const Ref<NetworkedMultiplayerPeer> &p_network_peer);
-	Ref<NetworkedMultiplayerPeer> get_network_peer() const;
-	bool is_network_server() const;
-	bool has_network_peer() const;
-	int get_network_unique_id() const;
-	Vector<int> get_network_connected_peers() const;
-	int get_rpc_sender_id() const;
-
-	void set_refuse_new_network_connections(bool p_refuse);
-	bool is_refusing_new_network_connections() const;
 
 	void set_physics_interpolation_enabled(bool p_enabled);
 	bool is_physics_interpolation_enabled() const;

@@ -745,10 +745,8 @@ void ScriptDebuggerRemote::_poll_events() {
 			_send_profiling_data(false);
 			print_verbose("Ending profiling.");
 		} else if (command == "start_network_profiling") {
-			multiplayer->profiling_start();
 			profiling_network = true;
 		} else if (command == "stop_network_profiling") {
-			multiplayer->profiling_end();
 			profiling_network = false;
 		} else if (command == "override_camera_2D:set") {
 			bool enforce = cmd[1];
@@ -927,11 +925,9 @@ void ScriptDebuggerRemote::idle_poll() {
 		uint64_t pt = OS::get_singleton()->get_ticks_msec();
 		if (pt - last_net_bandwidth_time > 200) {
 			last_net_bandwidth_time = pt;
-			_send_network_bandwidth_usage();
 		}
 		if (pt - last_net_prof_time > 100) {
 			last_net_prof_time = pt;
-			_send_network_profiling_data();
 		}
 	}
 
@@ -943,35 +939,6 @@ void ScriptDebuggerRemote::idle_poll() {
 	}
 
 	_poll_events();
-}
-
-void ScriptDebuggerRemote::_send_network_profiling_data() {
-	ERR_FAIL_COND(multiplayer.is_null());
-
-	int n_nodes = multiplayer->get_profiling_frame(&network_profile_info.write[0]);
-
-	packet_peer_stream->put_var("network_profile");
-	packet_peer_stream->put_var(n_nodes * 6);
-	for (int i = 0; i < n_nodes; ++i) {
-		packet_peer_stream->put_var(network_profile_info[i].node);
-		packet_peer_stream->put_var(network_profile_info[i].node_path);
-		packet_peer_stream->put_var(network_profile_info[i].incoming_rpc);
-		packet_peer_stream->put_var(network_profile_info[i].incoming_rset);
-		packet_peer_stream->put_var(network_profile_info[i].outgoing_rpc);
-		packet_peer_stream->put_var(network_profile_info[i].outgoing_rset);
-	}
-}
-
-void ScriptDebuggerRemote::_send_network_bandwidth_usage() {
-	ERR_FAIL_COND(multiplayer.is_null());
-
-	int incoming_bandwidth = multiplayer->get_incoming_bandwidth_usage();
-	int outgoing_bandwidth = multiplayer->get_outgoing_bandwidth_usage();
-
-	packet_peer_stream->put_var("network_bandwidth");
-	packet_peer_stream->put_var(2);
-	packet_peer_stream->put_var(incoming_bandwidth);
-	packet_peer_stream->put_var(outgoing_bandwidth);
 }
 
 void ScriptDebuggerRemote::send_message(const String &p_message, const Array &p_args) {
@@ -1102,10 +1069,6 @@ void ScriptDebuggerRemote::request_quit() {
 	requested_quit = true;
 }
 
-void ScriptDebuggerRemote::set_multiplayer(Ref<MultiplayerAPI> p_multiplayer) {
-	multiplayer = p_multiplayer;
-}
-
 bool ScriptDebuggerRemote::is_profiling() const {
 	return profiling;
 }
@@ -1195,7 +1158,6 @@ ScriptDebuggerRemote::ScriptDebuggerRemote() :
 	add_error_handler(&eh);
 
 	profile_info.resize(GLOBAL_GET("debug/settings/profiler/max_functions"));
-	network_profile_info.resize(GLOBAL_GET("debug/settings/profiler/max_functions"));
 	profile_info_ptrs.resize(profile_info.size());
 }
 

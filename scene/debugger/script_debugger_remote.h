@@ -28,7 +28,6 @@ class ScriptDebuggerRemote : public ScriptDebugger {
 
 	Vector<ScriptLanguage::ProfilingInfo> profile_info;
 	Vector<ScriptLanguage::ProfilingInfo *> profile_info_ptrs;
-	Vector<MultiplayerAPI::ProfilingInfo> network_profile_info;
 
 	Map<StringName, int> profiler_function_signature_map;
 	float frame_time, process_time, physics_time, physics_frame_time;
@@ -105,14 +104,10 @@ class ScriptDebuggerRemote : public ScriptDebugger {
 	void _send_object_id(ObjectID p_id);
 	void _send_video_memory();
 
-	Ref<MultiplayerAPI> multiplayer;
-
 	ErrorHandlerList eh;
 	static void _err_handler(void *, const char *, const char *, int p_line, const char *, const char *, ErrorHandlerType p_type);
 
 	void _send_profiling_data(bool p_for_frame);
-	void _send_network_profiling_data();
-	void _send_network_bandwidth_usage();
 
 	struct FrameData {
 		StringName name;
@@ -156,8 +151,6 @@ public:
 
 	virtual void send_message(const String &p_message, const Array &p_args);
 	virtual void send_error(const String &p_func, const String &p_file, int p_line, const String &p_err, const String &p_descr, ErrorHandlerType p_type, const Vector<ScriptLanguage::StackInfo> &p_stack_info);
-
-	virtual void set_multiplayer(Ref<MultiplayerAPI> p_multiplayer);
 
 	virtual bool is_profiling() const;
 	virtual void add_profiling_frame_data(const StringName &p_name, const Array &p_data);

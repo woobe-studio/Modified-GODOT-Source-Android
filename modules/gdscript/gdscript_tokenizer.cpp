@@ -81,7 +81,6 @@ const char *GDScriptTokenizer::token_names[TK_MAX] = {
 	"yield",
 	"signal",
 	"breakpoint",
-	"rpc",
 	"sync",
 	"master",
 	"puppet",
