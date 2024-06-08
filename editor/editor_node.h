@@ -30,7 +30,6 @@ class DependencyErrorDialog;
 class EditorAbout;
 class EditorExport;
 class EditorFeatureProfileManager;
-class EditorFileServer;
 class EditorInspector;
 class EditorLayoutsDialog;
 class EditorLog;
@@ -401,8 +400,6 @@ private:
 	ProjectExportDialog *project_export;
 	EditorResourcePreview *resource_preview;
 	EditorFolding editor_folding;
-
-	EditorFileServer *file_server;
 
 	struct BottomPanelItem {
 		String name;

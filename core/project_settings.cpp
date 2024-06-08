@@ -7,7 +7,6 @@
 
 #include "core/bind/core_bind.h"
 #include "core/core_string_names.h"
-#include "core/io/file_access_network.h"
 #include "core/io/file_access_pack.h"
 #include "core/io/marshalls.h"
 #include "core/os/dir_access.h"
@@ -338,17 +337,6 @@ Error ProjectSettings::_setup(const String &p_path, const String &p_main_pack, b
 		if (resource_path != "" && resource_path[resource_path.length() - 1] == '/') {
 			resource_path = resource_path.substr(0, resource_path.length() - 1); // Chop end.
 		}
-	}
-
-	// If looking for files in a network client, use it directly
-
-	if (FileAccessNetworkClient::get_singleton()) {
-		Error err = _load_settings_text_or_binary("res://project.godot", "res://project.binary");
-		if (err == OK && !p_ignore_override) {
-			// Optional, we don't mind if it fails
-			_load_settings_text("res://override.cfg");
-		}
-		return err;
 	}
 
 	// Attempt with a user-defined main pack first

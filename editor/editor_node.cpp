@@ -64,7 +64,6 @@
 #include "editor/editor_spin_slider.h"
 #include "editor/editor_themes.h"
 #include "editor/export_template_manager.h"
-#include "editor/fileserver/editor_file_server.h"
 #include "editor/filesystem_dock.h"
 #include "editor/import/resource_importer_bitmask.h"
 #include "editor/import/resource_importer_csv_translation.h"
@@ -2680,10 +2679,8 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
 			bool ischecked = debug_menu->get_popup()->is_item_checked(debug_menu->get_popup()->get_item_index(RUN_FILE_SERVER));
 
 			if (ischecked) {
-				file_server->stop();
 				run_native->set_deploy_dumb(false);
 			} else {
-				file_server->start();
 				run_native->set_deploy_dumb(true);
 			}
 
@@ -6818,8 +6815,6 @@ EditorNode::EditorNode() {
 	add_child(preview_gen);
 	//plugin stuff
 
-	file_server = memnew(EditorFileServer);
-
 	disk_changed = memnew(ConfirmationDialog);
 	{
 		VBoxContainer *vbc = memnew(VBoxContainer);
@@ -7052,7 +7047,6 @@ EditorNode::~EditorNode() {
 	memdelete(editor_plugins_over);
 	memdelete(editor_plugins_force_over);
 	memdelete(editor_plugins_force_input_forwarding);
-	memdelete(file_server);
 	memdelete(progress_hb);
 
 	EditorSettings::destroy();
