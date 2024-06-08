@@ -16,7 +16,6 @@
 #include "core/func_ref.h"
 #include "core/input_map.h"
 #include "core/io/config_file.h"
-#include "core/io/http_client.h"
 #include "core/io/image_loader.h"
 #include "core/io/marshalls.h"
 #include "core/io/packet_peer.h"
@@ -146,7 +145,6 @@ void register_core_types() {
 	ClassDB::register_class<Translation>();
 	ClassDB::register_class<PHashTranslation>();
 	ClassDB::register_class<UndoRedo>();
-	ClassDB::register_class<HTTPClient>();
 	ClassDB::register_class<TriangleMesh>();
 
 	ClassDB::register_virtual_class<ResourceInteractiveLoader>();
