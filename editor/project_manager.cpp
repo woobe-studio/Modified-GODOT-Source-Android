@@ -7,7 +7,6 @@
 
 #include "core/io/config_file.h"
 #include "core/io/resource_saver.h"
-#include "core/io/stream_peer_ssl.h"
 #include "core/io/zip_io.h"
 #include "core/os/dir_access.h"
 #include "core/os/file_access.h"

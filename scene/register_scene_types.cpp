@@ -211,7 +211,7 @@ void register_scene_types() {
 
 	OS::get_singleton()->yield(); //may take time to init
 
-	ClassDB::register_class<TextureRect>();
+	//ClassDB::register_class<TextureRect>();
 	ClassDB::register_class<ColorRect>();
 	//ClassDB::register_class<NinePatchRect>();
 	//ClassDB::register_class<TabContainer>();

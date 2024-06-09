@@ -11,7 +11,6 @@
 #include "core/core_string_names.h"
 #include "core/crypto/aes_context.h"
 #include "core/crypto/crypto.h"
-#include "core/crypto/hashing_context.h"
 #include "core/engine.h"
 #include "core/func_ref.h"
 #include "core/input_map.h"
@@ -21,7 +20,6 @@
 #include "core/io/packet_peer.h"
 #include "core/io/resource_format_binary.h"
 #include "core/io/resource_importer.h"
-#include "core/io/stream_peer_ssl.h"
 #include "core/io/tcp_server.h"
 #include "core/io/translation_loader_po.h"
 #include "core/io/xml_parser.h"
@@ -114,18 +112,14 @@ void register_core_types() {
 
 	ClassDB::register_class<FuncRef>();
 	ClassDB::register_virtual_class<StreamPeer>();
-	ClassDB::register_class<StreamPeerBuffer>();
 	ClassDB::register_class<StreamPeerTCP>();
 	ClassDB::register_class<TCP_Server>();
 
 	// Crypto
-	ClassDB::register_class<HashingContext>();
 	ClassDB::register_class<AESContext>();
 	ClassDB::register_custom_instance_class<X509Certificate>();
 	ClassDB::register_custom_instance_class<CryptoKey>();
-	ClassDB::register_custom_instance_class<HMACContext>();
 	ClassDB::register_custom_instance_class<Crypto>();
-	ClassDB::register_custom_instance_class<StreamPeerSSL>();
 
 	resource_format_saver_crypto.instance();
 	ResourceSaver::add_resource_format_saver(resource_format_saver_crypto);
