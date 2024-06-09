@@ -694,11 +694,6 @@ void VisualServerScene::instance_set_scenario(RID p_instance, RID p_scenario) {
 			instance->spatial_partition_id = 0;
 		}
 
-		// handle occlusion changes
-		if (instance->occlusion_handle) {
-			_instance_destroy_occlusion_rep(instance);
-		}
-
 		// remove any interpolation data associated with the instance in this scenario
 		_interpolation_data.notify_free_instance(p_instance, *instance);
 
@@ -1331,33 +1326,12 @@ void VisualServerScene::instance_set_portal_mode(RID p_instance, VisualServer::I
 void VisualServerScene::_instance_create_occlusion_rep(Instance *p_instance) {
 	ERR_FAIL_COND(!p_instance);
 	ERR_FAIL_COND(!p_instance->scenario);
-
-	switch (p_instance->portal_mode) {
-		default: {
-			p_instance->occlusion_handle = 0;
-		} break;
-		case VisualServer::InstancePortalMode::INSTANCE_PORTAL_MODE_ROAMING: {
-			p_instance->occlusion_handle = p_instance->scenario->_portal_renderer.instance_moving_create(p_instance, p_instance->self, false, p_instance->transformed_aabb);
-		} break;
-		case VisualServer::InstancePortalMode::INSTANCE_PORTAL_MODE_GLOBAL: {
-			p_instance->occlusion_handle = p_instance->scenario->_portal_renderer.instance_moving_create(p_instance, p_instance->self, true, p_instance->transformed_aabb);
-		} break;
-	}
 }
 
 void VisualServerScene::_instance_destroy_occlusion_rep(Instance *p_instance) {
 	ERR_FAIL_COND(!p_instance);
 	ERR_FAIL_COND(!p_instance->scenario);
 
-	// not an error, can occur
-	if (!p_instance->occlusion_handle) {
-		return;
-	}
-
-	p_instance->scenario->_portal_renderer.instance_moving_destroy(p_instance->occlusion_handle);
-
-	// unset
-	p_instance->occlusion_handle = 0;
 }
 
 void *VisualServerScene::_instance_get_from_rid(RID p_instance) {
@@ -1396,7 +1370,6 @@ void VisualServerScene::portal_set_scenario(RID p_portal, RID p_scenario) {
 
 	// if the portal is in a scenario already, remove it
 	if (portal->scenario) {
-		portal->scenario->_portal_renderer.portal_destroy(portal->scenario_portal_id);
 		portal->scenario = nullptr;
 		portal->scenario_portal_id = 0;
 	}
@@ -1405,8 +1378,6 @@ void VisualServerScene::portal_set_scenario(RID p_portal, RID p_scenario) {
 	if (scenario) {
 		portal->scenario = scenario;
 
-		// defer the actual creation to here
-		portal->scenario_portal_id = scenario->_portal_renderer.portal_create();
 	}
 }
 
@@ -1414,7 +1385,6 @@ void VisualServerScene::portal_set_geometry(RID p_portal, const Vector<Vector3> 
 	Portal *portal = portal_owner.getornull(p_portal);
 	ERR_FAIL_COND(!portal);
 	ERR_FAIL_COND(!portal->scenario);
-	portal->scenario->_portal_renderer.portal_set_geometry(portal->scenario_portal_id, p_points, p_margin);
 }
 
 void VisualServerScene::portal_link(RID p_portal, RID p_room_from, RID p_room_to, bool p_two_way) {
@@ -1427,14 +1397,12 @@ void VisualServerScene::portal_link(RID p_portal, RID p_room_from, RID p_room_to
 	Room *room_to = room_owner.getornull(p_room_to);
 	ERR_FAIL_COND(!room_to);
 
-	portal->scenario->_portal_renderer.portal_link(portal->scenario_portal_id, room_from->scenario_room_id, room_to->scenario_room_id, p_two_way);
 }
 
 void VisualServerScene::portal_set_active(RID p_portal, bool p_active) {
 	Portal *portal = portal_owner.getornull(p_portal);
 	ERR_FAIL_COND(!portal);
 	ERR_FAIL_COND(!portal->scenario);
-	portal->scenario->_portal_renderer.portal_set_active(portal->scenario_portal_id, p_active);
 }
 
 RID VisualServerScene::ghost_create() {
@@ -1479,32 +1447,18 @@ void VisualServerScene::ghost_update(RID p_ghost, const AABB &p_aabb) {
 	ERR_FAIL_COND(!ci->scenario);
 
 	ci->aabb = p_aabb;
-
-	if (ci->rghost_handle) {
-		ci->scenario->_portal_renderer.rghost_update(ci->rghost_handle, p_aabb);
-	}
 }
 
 void VisualServerScene::_ghost_create_occlusion_rep(Ghost *p_ghost) {
 	ERR_FAIL_COND(!p_ghost);
 	ERR_FAIL_COND(!p_ghost->scenario);
 
-	if (!p_ghost->rghost_handle) {
-		p_ghost->rghost_handle = p_ghost->scenario->_portal_renderer.rghost_create(p_ghost->object_id, p_ghost->aabb);
-	}
 }
 
 void VisualServerScene::_ghost_destroy_occlusion_rep(Ghost *p_ghost) {
 	ERR_FAIL_COND(!p_ghost);
 	ERR_FAIL_COND(!p_ghost->scenario);
 
-	// not an error, can occur
-	if (!p_ghost->rghost_handle) {
-		return;
-	}
-
-	p_ghost->scenario->_portal_renderer.rghost_destroy(p_ghost->rghost_handle);
-	p_ghost->rghost_handle = 0;
 }
 
 RID VisualServerScene::roomgroup_create() {
@@ -1518,7 +1472,6 @@ void VisualServerScene::roomgroup_prepare(RID p_roomgroup, ObjectID p_roomgroup_
 	RoomGroup *roomgroup = roomgroup_owner.getornull(p_roomgroup);
 	ERR_FAIL_COND(!roomgroup);
 	ERR_FAIL_COND(!roomgroup->scenario);
-	roomgroup->scenario->_portal_renderer.roomgroup_prepare(roomgroup->scenario_roomgroup_id, p_roomgroup_object_id);
 }
 
 void VisualServerScene::roomgroup_set_scenario(RID p_roomgroup, RID p_scenario) {
@@ -1533,7 +1486,6 @@ void VisualServerScene::roomgroup_set_scenario(RID p_roomgroup, RID p_scenario) 
 
 	// if the portal is in a scenario already, remove it
 	if (rg->scenario) {
-		rg->scenario->_portal_renderer.roomgroup_destroy(rg->scenario_roomgroup_id);
 		rg->scenario = nullptr;
 		rg->scenario_roomgroup_id = 0;
 	}
@@ -1543,7 +1495,6 @@ void VisualServerScene::roomgroup_set_scenario(RID p_roomgroup, RID p_scenario) 
 		rg->scenario = scenario;
 
 		// defer the actual creation to here
-		rg->scenario_roomgroup_id = scenario->_portal_renderer.roomgroup_create();
 	}
 }
 
@@ -1557,7 +1508,6 @@ void VisualServerScene::roomgroup_add_room(RID p_roomgroup, RID p_room) {
 	ERR_FAIL_COND(!room->scenario);
 
 	ERR_FAIL_COND(roomgroup->scenario != room->scenario);
-	roomgroup->scenario->_portal_renderer.roomgroup_add_room(roomgroup->scenario_roomgroup_id, room->scenario_room_id);
 }
 
 // Occluders
@@ -1576,7 +1526,6 @@ void VisualServerScene::occluder_instance_link_resource(RID p_occluder_instance,
 	OccluderResource *res = occluder_resource_owner.getornull(p_occluder_resource);
 	ERR_FAIL_COND(!res);
 
-	oi->scenario->_portal_renderer.occluder_instance_link(oi->scenario_occluder_id, res->occluder_resource_id);
 }
 
 void VisualServerScene::occluder_instance_set_scenario(RID p_occluder_instance, RID p_scenario) {
@@ -1591,7 +1540,6 @@ void VisualServerScene::occluder_instance_set_scenario(RID p_occluder_instance, 
 
 	// if the portal is in a scenario already, remove it
 	if (oi->scenario) {
-		oi->scenario->_portal_renderer.occluder_instance_destroy(oi->scenario_occluder_id);
 		oi->scenario = nullptr;
 		oi->scenario_occluder_id = 0;
 	}
@@ -1599,7 +1547,6 @@ void VisualServerScene::occluder_instance_set_scenario(RID p_occluder_instance, 
 	// create when entering the world
 	if (scenario) {
 		oi->scenario = scenario;
-		oi->scenario_occluder_id = scenario->_portal_renderer.occluder_instance_create();
 	}
 }
 
@@ -1607,21 +1554,18 @@ void VisualServerScene::occluder_instance_set_active(RID p_occluder_instance, bo
 	OccluderInstance *oi = occluder_instance_owner.getornull(p_occluder_instance);
 	ERR_FAIL_COND(!oi);
 	ERR_FAIL_COND(!oi->scenario);
-	oi->scenario->_portal_renderer.occluder_instance_set_active(oi->scenario_occluder_id, p_active);
 }
 
 void VisualServerScene::occluder_instance_set_transform(RID p_occluder_instance, const Transform &p_xform) {
 	OccluderInstance *oi = occluder_instance_owner.getornull(p_occluder_instance);
 	ERR_FAIL_COND(!oi);
 	ERR_FAIL_COND(!oi->scenario);
-	oi->scenario->_portal_renderer.occluder_instance_set_transform(oi->scenario_occluder_id, p_xform);
 }
 
 RID VisualServerScene::occluder_resource_create() {
 	OccluderResource *res = memnew(OccluderResource);
 	ERR_FAIL_COND_V(!res, RID());
 
-	res->occluder_resource_id = _portal_resources.occluder_resource_create();
 
 	RID occluder_resource_rid = occluder_resource_owner.make_rid(res);
 	return occluder_resource_rid;
@@ -1630,34 +1574,24 @@ RID VisualServerScene::occluder_resource_create() {
 void VisualServerScene::occluder_resource_prepare(RID p_occluder_resource, VisualServer::OccluderType p_type) {
 	OccluderResource *res = occluder_resource_owner.getornull(p_occluder_resource);
 	ERR_FAIL_COND(!res);
-	_portal_resources.occluder_resource_prepare(res->occluder_resource_id, (VSOccluder_Instance::Type)p_type);
 }
 
 void VisualServerScene::occluder_resource_spheres_update(RID p_occluder_resource, const Vector<Plane> &p_spheres) {
 	OccluderResource *res = occluder_resource_owner.getornull(p_occluder_resource);
 	ERR_FAIL_COND(!res);
-	_portal_resources.occluder_resource_update_spheres(res->occluder_resource_id, p_spheres);
 }
 
 void VisualServerScene::occluder_resource_mesh_update(RID p_occluder_resource, const Geometry::OccluderMeshData &p_mesh_data) {
 	OccluderResource *res = occluder_resource_owner.getornull(p_occluder_resource);
 	ERR_FAIL_COND(!res);
-	_portal_resources.occluder_resource_update_mesh(res->occluder_resource_id, p_mesh_data);
 }
 
 void VisualServerScene::set_use_occlusion_culling(bool p_enable) {
-	// this is not scenario specific, and is global
-	// (mainly for debugging)
-	PortalRenderer::use_occlusion_culling = p_enable;
 }
 
 Geometry::MeshData VisualServerScene::occlusion_debug_get_current_polys(RID p_scenario) const {
 	Scenario *scenario = scenario_owner.getornull(p_scenario);
-	if (!scenario) {
-		return Geometry::MeshData();
-	}
-
-	return scenario->_portal_renderer.occlusion_debug_get_current_polys();
+    return Geometry::MeshData();
 }
 
 // Rooms
@@ -1687,7 +1621,6 @@ void VisualServerScene::room_set_scenario(RID p_room, RID p_scenario) {
 
 	// if the room has an existing scenario, remove from it
 	if (room->scenario) {
-		room->scenario->_portal_renderer.room_destroy(room->scenario_room_id);
 		room->scenario = nullptr;
 		room->scenario_room_id = 0;
 	}
@@ -1697,7 +1630,6 @@ void VisualServerScene::room_set_scenario(RID p_room, RID p_scenario) {
 		room->scenario = scenario;
 
 		// defer the actual creation to here
-		room->scenario_room_id = scenario->_portal_renderer.room_create();
 	}
 }
 
@@ -1706,7 +1638,6 @@ void VisualServerScene::room_add_ghost(RID p_room, ObjectID p_object_id, const A
 	ERR_FAIL_COND(!room);
 	ERR_FAIL_COND(!room->scenario);
 
-	room->scenario->_portal_renderer.room_add_ghost(room->scenario_room_id, p_object_id, p_aabb);
 }
 
 void VisualServerScene::room_add_instance(RID p_room, RID p_instance, const AABB &p_aabb, const Vector<Vector3> &p_object_pts) {
@@ -1741,57 +1672,48 @@ void VisualServerScene::room_add_instance(RID p_room, RID p_instance, const AABB
 		} break;
 	}
 
-	instance->occlusion_handle = room->scenario->_portal_renderer.room_add_instance(room->scenario_room_id, p_instance, bb, dynamic, p_object_pts);
 }
 
 void VisualServerScene::room_prepare(RID p_room, int32_t p_priority) {
 	Room *room = room_owner.getornull(p_room);
 	ERR_FAIL_COND(!room);
 	ERR_FAIL_COND(!room->scenario);
-	room->scenario->_portal_renderer.room_prepare(room->scenario_room_id, p_priority);
 }
 
 void VisualServerScene::room_set_bound(RID p_room, ObjectID p_room_object_id, const Vector<Plane> &p_convex, const AABB &p_aabb, const Vector<Vector3> &p_verts) {
 	Room *room = room_owner.getornull(p_room);
 	ERR_FAIL_COND(!room);
 	ERR_FAIL_COND(!room->scenario);
-	room->scenario->_portal_renderer.room_set_bound(room->scenario_room_id, p_room_object_id, p_convex, p_aabb, p_verts);
 }
 
 void VisualServerScene::rooms_unload(RID p_scenario, String p_reason) {
 	Scenario *scenario = scenario_owner.getornull(p_scenario);
 	ERR_FAIL_COND(!scenario);
-	scenario->_portal_renderer.rooms_unload(p_reason);
 }
 
 void VisualServerScene::rooms_and_portals_clear(RID p_scenario) {
 	Scenario *scenario = scenario_owner.getornull(p_scenario);
 	ERR_FAIL_COND(!scenario);
-	scenario->_portal_renderer.rooms_and_portals_clear();
 }
 
 void VisualServerScene::rooms_finalize(RID p_scenario, bool p_generate_pvs, bool p_cull_using_pvs, bool p_use_secondary_pvs, bool p_use_signals, String p_pvs_filename, bool p_use_simple_pvs, bool p_log_pvs_generation) {
 	Scenario *scenario = scenario_owner.getornull(p_scenario);
 	ERR_FAIL_COND(!scenario);
-	scenario->_portal_renderer.rooms_finalize(p_generate_pvs, p_cull_using_pvs, p_use_secondary_pvs, p_use_signals, p_pvs_filename, p_use_simple_pvs, p_log_pvs_generation);
 }
 
 void VisualServerScene::rooms_override_camera(RID p_scenario, bool p_override, const Vector3 &p_point, const Vector<Plane> *p_convex) {
 	Scenario *scenario = scenario_owner.getornull(p_scenario);
 	ERR_FAIL_COND(!scenario);
-	scenario->_portal_renderer.rooms_override_camera(p_override, p_point, p_convex);
 }
 
 void VisualServerScene::rooms_set_active(RID p_scenario, bool p_active) {
 	Scenario *scenario = scenario_owner.getornull(p_scenario);
 	ERR_FAIL_COND(!scenario);
-	scenario->_portal_renderer.rooms_set_active(p_active);
 }
 
 void VisualServerScene::rooms_set_params(RID p_scenario, int p_portal_depth_limit, real_t p_roaming_expansion_margin) {
 	Scenario *scenario = scenario_owner.getornull(p_scenario);
 	ERR_FAIL_COND(!scenario);
-	scenario->_portal_renderer.rooms_set_params(p_portal_depth_limit, p_roaming_expansion_margin);
 }
 
 void VisualServerScene::rooms_set_debug_feature(RID p_scenario, VisualServer::RoomsDebugFeature p_feature, bool p_active) {
@@ -1801,7 +1723,6 @@ void VisualServerScene::rooms_set_debug_feature(RID p_scenario, VisualServer::Ro
 		default: {
 		} break;
 		case VisualServer::ROOMS_DEBUG_SPRAWL: {
-			scenario->_portal_renderer.set_debug_sprawl(p_active);
 		} break;
 	}
 }
@@ -1809,13 +1730,12 @@ void VisualServerScene::rooms_set_debug_feature(RID p_scenario, VisualServer::Ro
 void VisualServerScene::rooms_update_gameplay_monitor(RID p_scenario, const Vector<Vector3> &p_camera_positions) {
 	Scenario *scenario = scenario_owner.getornull(p_scenario);
 	ERR_FAIL_COND(!scenario);
-	scenario->_portal_renderer.rooms_update_gameplay_monitor(p_camera_positions);
 }
 
 bool VisualServerScene::rooms_is_loaded(RID p_scenario) const {
 	Scenario *scenario = scenario_owner.getornull(p_scenario);
 	ERR_FAIL_COND_V(!scenario, false);
-	return scenario->_portal_renderer.rooms_is_loaded();
+	return false;
 }
 
 Vector<ObjectID> VisualServerScene::instances_cull_aabb(const AABB &p_aabb, RID p_scenario) const {
@@ -1890,21 +1810,11 @@ Vector<ObjectID> VisualServerScene::instances_cull_convex(const Vector<Plane> &p
 // thin wrapper to allow rooms / portals to take over culling if active
 int VisualServerScene::_cull_convex_from_point(Scenario *p_scenario, const Transform &p_cam_transform, const CameraMatrix &p_cam_projection, const Vector<Plane> &p_convex, Instance **p_result_array, int p_result_max, int32_t &r_previous_room_id_hint, uint32_t p_mask) {
 	int res = -1;
-	if (p_scenario->_portal_renderer.is_active()) {
-		// Note that the portal renderer ASSUMES that the planes exactly match the convention in
-		// CameraMatrix of enum Planes (6 planes, in order, near, far etc)
-		// If this is not the case, it should not be used.
-		res = p_scenario->_portal_renderer.cull_convex(p_cam_transform, p_cam_projection, p_convex, (VSInstance **)p_result_array, p_result_max, p_mask, r_previous_room_id_hint);
-	}
 
 	// fallback to BVH  / octree if portals not active
 	if (res == -1) {
 		res = p_scenario->sps->cull_convex(p_convex, p_result_array, p_result_max, p_mask);
 
-		// Opportunity for occlusion culling on the main scene. This will be a noop if no occluders.
-		if (p_scenario->_portal_renderer.occlusion_is_active()) {
-			res = p_scenario->_portal_renderer.occlusion_cull(p_cam_transform, p_cam_projection, p_convex, (VSInstance **)p_result_array, res);
-		}
 	}
 	return res;
 }
@@ -1915,15 +1825,6 @@ void VisualServerScene::_rooms_instance_update(Instance *p_instance, const AABB 
 	// Must match the value in PortalRenderer in VisualServer
 	const uint32_t OCCLUSION_HANDLE_ROOM_BIT = 1 << 31;
 
-	// if the instance is a moving object in the room / portal system, update it
-	// Note that if rooms and portals is not in use, occlusion_handle should be zero in all cases unless the portal_mode
-	// has been set to global or roaming. (which is unlikely as the default is static).
-	// The exception is editor user interface elements.
-	// These are always set to global and will always keep their aabb up to date in the portal renderer unnecessarily.
-	// There is no easy way around this, but it should be very cheap, and have no impact outside the editor.
-	if (p_instance->occlusion_handle && (p_instance->occlusion_handle != OCCLUSION_HANDLE_ROOM_BIT)) {
-		p_instance->scenario->_portal_renderer.instance_moving_update(p_instance->occlusion_handle, p_aabb);
-	}
 }
 
 void VisualServerScene::instance_geometry_set_flag(RID p_instance, VS::InstanceFlags p_flags, bool p_enabled) {
@@ -4477,7 +4378,6 @@ bool VisualServerScene::free(RID p_rid) {
 		memdelete(occ_inst);
 	} else if (occluder_resource_owner.owns(p_rid)) {
 		OccluderResource *occ_res = occluder_resource_owner.get(p_rid);
-		occ_res->destroy(_portal_resources);
 		occluder_resource_owner.free(p_rid);
 		memdelete(occ_res);
 	} else {

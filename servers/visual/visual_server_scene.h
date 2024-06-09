@@ -15,7 +15,6 @@
 #include "core/os/thread.h"
 #include "core/safe_refcount.h"
 #include "core/self_list.h"
-#include "portals/portal_renderer.h"
 #include "core/math/camera_matrix.h"
 #include "core/os/thread_safe.h"
 #include "scene/main/viewport.h"
@@ -240,7 +239,6 @@ public:
 		RID self;
 
 		SpatialPartitioningScene *sps;
-		PortalRenderer _portal_renderer;
 
 		List<Instance *> directional_lights;
 		RID environment;
@@ -277,8 +275,6 @@ public:
 		//scenario stuff
 		SpatialPartitionID spatial_partition_id;
 
-		// rooms & portals
-		OcclusionHandle occlusion_handle; // handle of instance in occlusion system (or 0)
 		VisualServer::InstancePortalMode portal_mode;
 
 		Scenario *scenario;
@@ -338,7 +334,6 @@ public:
 			object_id = 0;
 			visible = true;
 
-			occlusion_handle = 0;
 			portal_mode = VisualServer::InstancePortalMode::INSTANCE_PORTAL_MODE_STATIC;
 
 			lod_begin = 0;
@@ -620,21 +615,7 @@ public:
 	// Portals
 	virtual void instance_set_portal_mode(RID p_instance, VisualServer::InstancePortalMode p_mode);
 	bool _instance_get_transformed_aabb(RID p_instance, AABB &r_aabb);
-	bool _instance_get_transformed_aabb_for_occlusion(VSInstance *p_instance, AABB &r_aabb) const {
-		r_aabb = ((Instance *)p_instance)->transformed_aabb;
-		return ((Instance *)p_instance)->portal_mode != VisualServer::INSTANCE_PORTAL_MODE_GLOBAL;
-	}
 	void *_instance_get_from_rid(RID p_instance);
-	bool _instance_cull_check(VSInstance *p_instance, uint32_t p_cull_mask) const {
-		uint32_t pairable_type = 1 << ((Instance *)p_instance)->base_type;
-		return pairable_type & p_cull_mask;
-	}
-	ObjectID _instance_get_object_ID(VSInstance *p_instance) const {
-		if (p_instance) {
-			return ((Instance *)p_instance)->object_id;
-		}
-		return 0;
-	}
 
 private:
 	void _instance_create_occlusion_rep(Instance *p_instance);
@@ -645,14 +626,9 @@ public:
 		// all interactions with actual ghosts are indirect, as the ghost is part of the scenario
 		Scenario *scenario = nullptr;
 		uint32_t object_id = 0;
-		RGhostHandle rghost_handle = 0; // handle in occlusion system (or 0)
 		AABB aabb;
 		virtual ~Ghost() {
 			if (scenario) {
-				if (rghost_handle) {
-					scenario->_portal_renderer.rghost_destroy(rghost_handle);
-					rghost_handle = 0;
-				}
 				scenario = nullptr;
 			}
 		}
@@ -676,7 +652,6 @@ public:
 		Scenario *scenario = nullptr;
 		virtual ~Portal() {
 			if (scenario) {
-				scenario->_portal_renderer.portal_destroy(scenario_portal_id);
 				scenario = nullptr;
 				scenario_portal_id = 0;
 			}
@@ -698,7 +673,6 @@ public:
 		Scenario *scenario = nullptr;
 		virtual ~RoomGroup() {
 			if (scenario) {
-				scenario->_portal_renderer.roomgroup_destroy(scenario_roomgroup_id);
 				scenario = nullptr;
 				scenario_roomgroup_id = 0;
 			}
@@ -718,7 +692,6 @@ public:
 		Scenario *scenario = nullptr;
 		virtual ~OccluderInstance() {
 			if (scenario) {
-				scenario->_portal_renderer.occluder_instance_destroy(scenario_occluder_id);
 				scenario = nullptr;
 				scenario_occluder_id = 0;
 			}
@@ -728,10 +701,6 @@ public:
 
 	struct OccluderResource : RID_Data {
 		uint32_t occluder_resource_id = 0;
-		void destroy(PortalResources &r_portal_resources) {
-			r_portal_resources.occluder_resource_destroy(occluder_resource_id);
-			occluder_resource_id = 0;
-		}
 		virtual ~OccluderResource() {
 			DEV_ASSERT(occluder_resource_id == 0);
 		}
@@ -752,12 +721,6 @@ public:
 
 	// editor only .. slow
 	virtual Geometry::MeshData occlusion_debug_get_current_polys(RID p_scenario) const;
-	const PortalResources &get_portal_resources() const {
-		return _portal_resources;
-	}
-	PortalResources &get_portal_resources() {
-		return _portal_resources;
-	}
 
 	/* ROOMS API */
 
@@ -767,7 +730,6 @@ public:
 		Scenario *scenario = nullptr;
 		virtual ~Room() {
 			if (scenario) {
-				scenario->_portal_renderer.room_destroy(scenario_room_id);
 				scenario = nullptr;
 				scenario_room_id = 0;
 			}
@@ -884,7 +846,6 @@ public:
 private:
 	bool _use_bvh;
 	VisualServerCallbacks *_visual_server_callbacks;
-	PortalResources _portal_resources;
 
 public:
 	VisualServerScene();
