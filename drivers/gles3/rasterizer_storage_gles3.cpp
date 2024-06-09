@@ -6991,7 +6991,7 @@ void RasterizerStorageGLES3::_render_target_allocate(RenderTarget *rt) {
 	if (!rt->flags[RENDER_TARGET_NO_3D] && (!rt->flags[RENDER_TARGET_NO_3D_EFFECTS] || rt->msaa != VS::VIEWPORT_MSAA_DISABLED)) {
 		rt->buffers.active = true;
 
-		static const int msaa_value[] = { 0, 2, 4, 8, 16, 4, 16 }; // MSAA_EXT_nX is a GLES2 temporary hack ignored in GLES3 for now...
+		static const int msaa_value[] = { 0, 2, 4, 8, 16, 4, 16 };
 		int msaa = msaa_value[rt->msaa];
 
 		int max_samples = 0;
@@ -7300,7 +7300,6 @@ RID RasterizerStorageGLES3::render_target_create() {
 }
 
 void RasterizerStorageGLES3::render_target_set_position(RID p_render_target, int p_x, int p_y) {
-	//only used in GLES2
 }
 
 void RasterizerStorageGLES3::render_target_set_size(RID p_render_target, int p_width, int p_height) {

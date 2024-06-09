@@ -341,7 +341,6 @@ void VisualServerViewport::viewport_attach_to_screen(RID p_viewport, const Rect2
 	Viewport *viewport = viewport_owner.getornull(p_viewport);
 	ERR_FAIL_COND(!viewport);
 
-	// If using GLES2 we can optimize this operation by rendering directly to system_fbo
 	// instead of rendering to fbo and copying to system_fbo after
 	if (VSG::rasterizer->is_low_end() && viewport->viewport_render_direct_to_screen) {
 		VSG::storage->render_target_set_size(viewport->render_target, p_rect.size.x, p_rect.size.y);

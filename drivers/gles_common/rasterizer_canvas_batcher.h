@@ -1092,9 +1092,6 @@ PREAMBLE(void)::batch_initialize() {
 		bdata.settings_diagnose_frame = GLOBAL_GET("rendering/batching/debug/diagnose_frame");
 	}
 
-	// the maximum num quads in a batch is limited by GLES2. We can have only 16 bit indices,
-	// which means we can address a vertex buffer of max size 65535. 4 vertices are needed per quad.
-
 	// Note this determines the memory use by the vertex buffer vector. max quads (65536/4)-1
 	// but can be reduced to save memory if really required (will result in more batches though)
 	const int max_possible_quads = (65536 / 4) - 1;

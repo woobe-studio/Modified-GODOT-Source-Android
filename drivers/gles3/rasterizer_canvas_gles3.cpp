@@ -2152,7 +2152,6 @@ void RasterizerCanvasGLES3::initialize() {
 			indices.set(i_pos + 4, q_pos + 2);
 			indices.set(i_pos + 5, q_pos + 3);
 
-			// we can only use 16 bit indices in GLES2!
 #ifdef DEBUG_ENABLED
 			CRASH_COND((q_pos + 3) > 65535);
 #endif

@@ -7,7 +7,6 @@
 
 #include "core/array.h"
 #include "core/project_settings.h"
-#include "drivers/gles2/rasterizer_gles2.h"
 #include "drivers/gles3/rasterizer_gles3.h"
 #include "drivers/unix/dir_access_unix.h"
 #include "drivers/unix/file_access_unix.h"
@@ -64,8 +63,6 @@ const char *OS_Android::get_video_driver_name(int p_driver) const {
 	switch (p_driver) {
 		case VIDEO_DRIVER_GLES3:
 			return "GLES3";
-		case VIDEO_DRIVER_GLES2:
-			return "GLES2";
 	}
 	ERR_FAIL_V_MSG(nullptr, "Invalid video driver index: " + itos(p_driver) + ".");
 }
@@ -128,24 +125,12 @@ Error OS_Android::initialize(const VideoMode &p_desired, int p_video_driver, int
 				RasterizerGLES3::make_current();
 				break;
 			} else {
-				if (GLOBAL_GET("rendering/quality/driver/fallback_to_gles2")) {
-					p_video_driver = VIDEO_DRIVER_GLES2;
-					use_gl3 = false;
-					continue;
-				} else {
-					gl_initialization_error = true;
-					break;
-				}
+                gl_initialization_error = true;
+                break;
 			}
 		} else {
-			if (RasterizerGLES2::is_viable() == OK) {
-				RasterizerGLES2::register_config();
-				RasterizerGLES2::make_current();
-				break;
-			} else {
-				gl_initialization_error = true;
-				break;
-			}
+            gl_initialization_error = true;
+            break;
 		}
 	}
 

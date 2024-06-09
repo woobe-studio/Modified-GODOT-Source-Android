@@ -80,8 +80,7 @@ protected:
 
 public:
 	enum VideoDriver {
-		VIDEO_DRIVER_GLES3,
-		VIDEO_DRIVER_GLES2,
+		VIDEO_DRIVER_GLES3
 	};
 
 	enum PowerState {

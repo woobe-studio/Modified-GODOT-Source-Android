@@ -9,8 +9,6 @@
 
 #include <wrl.h>
 
-// ANGLE doesn't provide a specific lib for GLES3, so we keep using GLES2
-#include "GLES2/gl2.h"
 #include "os_uwp.h"
 
 /** clang-format does not play nice with this C++/CX hybrid, needs investigation. */

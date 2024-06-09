@@ -585,13 +585,8 @@ void EditorExportPlatformJavaScript::get_preset_features(const Ref<EditorExportP
 
 	if (p_preset->get("vram_texture_compression/for_mobile")) {
 		String driver = ProjectSettings::get_singleton()->get("rendering/quality/driver/driver_name");
-		if (driver == "GLES2") {
-			r_features->push_back("etc");
-		} else if (driver == "GLES3") {
+		if (driver == "GLES3") {
 			r_features->push_back("etc2");
-			if (ProjectSettings::get_singleton()->get("rendering/quality/driver/fallback_to_gles2")) {
-				r_features->push_back("etc");
-			}
 		}
 	}
 	ExportMode mode = (ExportMode)(int)p_preset->get("variant/export_type");

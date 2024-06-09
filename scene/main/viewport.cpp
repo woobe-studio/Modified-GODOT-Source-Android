@@ -2825,7 +2825,6 @@ void Viewport::_validate_property(PropertyInfo &property) const {
 	}
 
 	if (!VisualServer::get_singleton()->is_low_end() && (property.name == "render_direct_to_screen")) {
-		// Only available in GLES2.
 		property.usage = PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL;
 	}
 }
