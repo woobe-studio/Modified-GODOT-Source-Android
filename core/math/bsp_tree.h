@@ -47,18 +47,12 @@ private:
 
 public:
 	bool is_empty() const { return nodes.size() == 0; }
-	Vector<Node> get_nodes() const;
-	Vector<Plane> get_planes() const;
 	AABB get_aabb() const;
 
-	bool point_is_inside(const Vector3 &p_point) const;
-	int get_points_inside(const Vector3 *p_points, int p_point_count) const;
 	template <class T>
 	bool convex_is_inside(const T &p_convex) const;
 
 	operator Variant() const;
-
-	void from_aabb(const AABB &p_aabb);
 
 	BSP_Tree();
 	BSP_Tree(const Variant &p_variant);

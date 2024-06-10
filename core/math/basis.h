@@ -48,9 +48,6 @@ public:
 	void rotate(const Vector3 &p_axis, real_t p_angle);
 	Basis rotated(const Vector3 &p_axis, real_t p_angle) const;
 
-	void rotate_local(const Vector3 &p_axis, real_t p_angle);
-	Basis rotated_local(const Vector3 &p_axis, real_t p_angle) const;
-
 	void rotate(const Vector3 &p_euler);
 	Basis rotated(const Vector3 &p_euler) const;
 
@@ -58,12 +55,8 @@ public:
 	Basis rotated(const Quat &p_quat) const;
 
 	Vector3 get_rotation_euler() const;
-	void get_rotation_axis_angle(Vector3 &p_axis, real_t &p_angle) const;
-	void get_rotation_axis_angle_local(Vector3 &p_axis, real_t &p_angle) const;
 	Quat get_rotation_quat() const;
 	Vector3 get_rotation() const { return get_rotation_euler(); };
-
-	Vector3 rotref_posscale_decomposition(Basis &rotref) const;
 
 	Vector3 get_euler_xyz() const;
 	void set_euler_xyz(const Vector3 &p_euler);
@@ -100,7 +93,6 @@ public:
 
 	Vector3 get_scale() const;
 	Vector3 get_scale_abs() const;
-	Vector3 get_scale_local() const;
 
 	void set_axis_angle_scale(const Vector3 &p_axis, real_t p_angle, const Vector3 &p_scale);
 	void set_euler_scale(const Vector3 &p_euler, const Vector3 &p_scale);
@@ -210,8 +202,6 @@ public:
 	void orthonormalize();
 	Basis orthonormalized() const;
 
-	bool is_symmetric() const;
-	Basis diagonalize();
 
 	// The following normal xform functions are correct for non-uniform scales.
 	// Use these two functions in combination to xform a series of normals.

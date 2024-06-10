@@ -87,80 +87,6 @@ bool Basis::is_rotation() const {
 	return Math::is_equal_approx(determinant(), 1, (real_t)UNIT_EPSILON) && is_orthogonal();
 }
 
-bool Basis::is_symmetric() const {
-	if (!Math::is_equal_approx_ratio(elements[0][1], elements[1][0], (real_t)UNIT_EPSILON)) {
-		return false;
-	}
-	if (!Math::is_equal_approx_ratio(elements[0][2], elements[2][0], (real_t)UNIT_EPSILON)) {
-		return false;
-	}
-	if (!Math::is_equal_approx_ratio(elements[1][2], elements[2][1], (real_t)UNIT_EPSILON)) {
-		return false;
-	}
-
-	return true;
-}
-
-Basis Basis::diagonalize() {
-//NOTE: only implemented for symmetric matrices
-//with the Jacobi iterative method method
-#ifdef MATH_CHECKS
-	ERR_FAIL_COND_V(!is_symmetric(), Basis());
-#endif
-	const int ite_max = 1024;
-
-	real_t off_matrix_norm_2 = elements[0][1] * elements[0][1] + elements[0][2] * elements[0][2] + elements[1][2] * elements[1][2];
-
-	int ite = 0;
-	Basis acc_rot;
-	while (off_matrix_norm_2 > (real_t)CMP_EPSILON2 && ite++ < ite_max) {
-		real_t el01_2 = elements[0][1] * elements[0][1];
-		real_t el02_2 = elements[0][2] * elements[0][2];
-		real_t el12_2 = elements[1][2] * elements[1][2];
-		// Find the pivot element
-		int i, j;
-		if (el01_2 > el02_2) {
-			if (el12_2 > el01_2) {
-				i = 1;
-				j = 2;
-			} else {
-				i = 0;
-				j = 1;
-			}
-		} else {
-			if (el12_2 > el02_2) {
-				i = 1;
-				j = 2;
-			} else {
-				i = 0;
-				j = 2;
-			}
-		}
-
-		// Compute the rotation angle
-		real_t angle;
-		if (Math::is_equal_approx(elements[j][j], elements[i][i])) {
-			angle = Math_PI / 4;
-		} else {
-			angle = 0.5f * Math::atan(2 * elements[i][j] / (elements[j][j] - elements[i][i]));
-		}
-
-		// Compute the rotation matrix
-		Basis rot;
-		rot.elements[i][i] = rot.elements[j][j] = Math::cos(angle);
-		rot.elements[i][j] = -(rot.elements[j][i] = Math::sin(angle));
-
-		// Update the off matrix norm
-		off_matrix_norm_2 -= elements[i][j] * elements[i][j];
-
-		// Apply the rotation
-		*this = rot * *this * rot.transposed();
-		acc_rot = rot * acc_rot;
-	}
-
-	return acc_rot;
-}
-
 Basis Basis::inverse() const {
 	Basis inv = *this;
 	inv.invert();
@@ -219,55 +145,12 @@ Vector3 Basis::get_scale_abs() const {
 			Vector3(elements[0][2], elements[1][2], elements[2][2]).length());
 }
 
-Vector3 Basis::get_scale_local() const {
-	real_t det_sign = SGN(determinant());
-	return det_sign * Vector3(elements[0].length(), elements[1].length(), elements[2].length());
-}
 
 // get_scale works with get_rotation, use get_scale_abs if you need to enforce positive signature.
 Vector3 Basis::get_scale() const {
 	// FIXME: We are assuming M = R.S (R is rotation and S is scaling), and use polar decomposition to extract R and S.
-	// A polar decomposition is M = O.P, where O is an orthogonal matrix (meaning rotation and reflection) and
-	// P is a positive semi-definite matrix (meaning it contains absolute values of scaling along its diagonal).
-	//
-	// Despite being different from what we want to achieve, we can nevertheless make use of polar decomposition
-	// here as follows. We can split O into a rotation and a reflection as O = R.Q, and obtain M = R.S where
-	// we defined S = Q.P. Now, R is a proper rotation matrix and S is a (signed) scaling matrix,
-	// which can involve negative scalings. However, there is a catch: unlike the polar decomposition of M = O.P,
-	// the decomposition of O into a rotation and reflection matrix as O = R.Q is not unique.
-	// Therefore, we are going to do this decomposition by sticking to a particular convention.
-	// This may lead to confusion for some users though.
-	//
-	// The convention we use here is to absorb the sign flip into the scaling matrix.
-	// The same convention is also used in other similar functions such as get_rotation_axis_angle, get_rotation, ...
-	//
-	// A proper way to get rid of this issue would be to store the scaling values (or at least their signs)
-	// as a part of Basis. However, if we go that path, we need to disable direct (write) access to the
-	// matrix elements.
-	//
-	// The rotation part of this decomposition is returned by get_rotation* functions.
 	real_t det_sign = SGN(determinant());
 	return det_sign * get_scale_abs();
-}
-
-// Decomposes a Basis into a rotation-reflection matrix (an element of the group O(3)) and a positive scaling matrix as B = O.S.
-// Returns the rotation-reflection matrix via reference argument, and scaling information is returned as a Vector3.
-// This (internal) function is too specific and named too ugly to expose to users, and probably there's no need to do so.
-Vector3 Basis::rotref_posscale_decomposition(Basis &rotref) const {
-#ifdef MATH_CHECKS
-	ERR_FAIL_COND_V(determinant() == 0, Vector3());
-
-	Basis m = transposed() * (*this);
-	ERR_FAIL_COND_V(!m.is_diagonal(), Vector3());
-#endif
-	Vector3 scale = get_scale();
-	Basis inv_scale = Basis().scaled(scale.inverse()); // this will also absorb the sign of scale
-	rotref = (*this) * inv_scale;
-
-#ifdef MATH_CHECKS
-	ERR_FAIL_COND_V(!rotref.is_orthogonal(), Vector3());
-#endif
-	return scale.abs();
 }
 
 // Multiplies the matrix from left by the rotation matrix: M -> R.M
@@ -282,15 +165,6 @@ Basis Basis::rotated(const Vector3 &p_axis, real_t p_angle) const {
 
 void Basis::rotate(const Vector3 &p_axis, real_t p_angle) {
 	*this = rotated(p_axis, p_angle);
-}
-
-void Basis::rotate_local(const Vector3 &p_axis, real_t p_angle) {
-	// performs a rotation in object-local coordinate system:
-	// M -> (M.R.Minv).M = M.R.
-	*this = rotated_local(p_axis, p_angle);
-}
-Basis Basis::rotated_local(const Vector3 &p_axis, real_t p_angle) const {
-	return (*this) * Basis(p_axis, p_angle);
 }
 
 Basis Basis::rotated(const Vector3 &p_euler) const {
@@ -337,46 +211,6 @@ Quat Basis::get_rotation_quat() const {
 	return m.get_quat();
 }
 
-void Basis::get_rotation_axis_angle(Vector3 &p_axis, real_t &p_angle) const {
-	// Assumes that the matrix can be decomposed into a proper rotation and scaling matrix as M = R.S,
-	// and returns the Euler angles corresponding to the rotation part, complementing get_scale().
-	// See the comment in get_scale() for further information.
-	Basis m = orthonormalized();
-	real_t det = m.determinant();
-	if (det < 0) {
-		// Ensure that the determinant is 1, such that result is a proper rotation matrix which can be represented by Euler angles.
-		m.scale(Vector3(-1, -1, -1));
-	}
-
-	m.get_axis_angle(p_axis, p_angle);
-}
-
-void Basis::get_rotation_axis_angle_local(Vector3 &p_axis, real_t &p_angle) const {
-	// Assumes that the matrix can be decomposed into a proper rotation and scaling matrix as M = R.S,
-	// and returns the Euler angles corresponding to the rotation part, complementing get_scale().
-	// See the comment in get_scale() for further information.
-	Basis m = transposed();
-	m.orthonormalize();
-	real_t det = m.determinant();
-	if (det < 0) {
-		// Ensure that the determinant is 1, such that result is a proper rotation matrix which can be represented by Euler angles.
-		m.scale(Vector3(-1, -1, -1));
-	}
-
-	m.get_axis_angle(p_axis, p_angle);
-	p_angle = -p_angle;
-}
-
-// get_euler_xyz returns a vector containing the Euler angles in the format
-// (a1,a2,a3), where a3 is the angle of the first rotation, and a1 is the last
-// (following the convention they are commonly defined in the literature).
-//
-// The current implementation uses XYZ convention (Z is the first rotation),
-// so euler.z is the angle of the (first) rotation around Z axis and so on,
-//
-// And thus, assuming the matrix is a rotation matrix, this function returns
-// the angles in the decomposition R = X(a1).Y(a2).Z(a3) where Z(a) rotates
-// around the z-axis by a and so on.
 Vector3 Basis::get_euler_xyz() const {
 	// Euler angles in XYZ convention.
 	// See https://en.wikipedia.org/wiki/Euler_angles#Rotation_matrix
