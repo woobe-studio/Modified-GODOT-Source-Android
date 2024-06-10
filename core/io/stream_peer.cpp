@@ -361,3 +361,4 @@ void StreamPeer::_bind_methods() {
 
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "big_endian"), "set_big_endian", "is_big_endian_enabled");
 }
+////////////////////////////////
