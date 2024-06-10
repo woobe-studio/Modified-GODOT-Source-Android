@@ -274,37 +274,6 @@ TransformInterpolator::Method TransformInterpolator::_test_basis(Basis p_basis, 
 	return r_needed_normalize ? INTERP_SCALED_SLERP : INTERP_SLERP;
 }
 
-// This check doesn't seem to be needed but is preserved in case of bugs.
-bool TransformInterpolator::_basis_is_orthogonal_any_scale(const Basis &p_basis) {
-	Vector3 cross = p_basis.get_axis(0).cross(p_basis.get_axis(1));
-	real_t l = _vec3_normalize(cross);
-	// too small numbers, revert to lerp
-	if (l < 0.001f) {
-		return false;
-	}
-
-	const real_t epsilon = 0.9995f;
-
-	real_t dot = cross.dot(p_basis.get_axis(2));
-	if (dot < epsilon) {
-		return false;
-	}
-
-	cross = p_basis.get_axis(1).cross(p_basis.get_axis(2));
-	l = _vec3_normalize(cross);
-	// too small numbers, revert to lerp
-	if (l < 0.001f) {
-		return false;
-	}
-
-	dot = cross.dot(p_basis.get_axis(0));
-	if (dot < epsilon) {
-		return false;
-	}
-
-	return true;
-}
-
 bool TransformInterpolator::_basis_is_orthogonal(const Basis &p_basis, real_t p_epsilon) {
 	Basis identity;
 	Basis m = p_basis * p_basis.transposed();

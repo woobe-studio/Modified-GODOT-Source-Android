@@ -40,9 +40,6 @@ Transform Transform::rotated(const Vector3 &p_axis, real_t p_angle) const {
 	return Transform(Basis(p_axis, p_angle), Vector3()) * (*this);
 }
 
-void Transform::rotate_basis(const Vector3 &p_axis, real_t p_angle) {
-	basis.rotate(p_axis, p_angle);
-}
 
 Transform Transform::looking_at(const Vector3 &p_target, const Vector3 &p_up) const {
 	Transform t = *this;

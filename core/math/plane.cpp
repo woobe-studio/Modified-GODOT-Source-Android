@@ -31,23 +31,6 @@ Vector3 Plane::get_any_point() const {
 	return get_normal() * d;
 }
 
-Vector3 Plane::get_any_perpendicular_normal() const {
-	static const Vector3 p1 = Vector3(1, 0, 0);
-	static const Vector3 p2 = Vector3(0, 1, 0);
-	Vector3 p;
-
-	if (ABS(normal.dot(p1)) > 0.99f) { // if too similar to p1
-		p = p2; // use p2
-	} else {
-		p = p1; // use p1
-	}
-
-	p -= normal * normal.dot(p);
-	p.normalize();
-
-	return p;
-}
-
 /* intersections */
 
 bool Plane::intersect_3(const Plane &p_plane1, const Plane &p_plane2, Vector3 *r_result) const {

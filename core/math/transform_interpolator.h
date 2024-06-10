@@ -40,7 +40,6 @@ private:
 	static Quat _quat_slerp_unchecked(const Quat &p_from, const Quat &p_to, real_t p_fraction);
 	static Quat _basis_to_quat_unchecked(const Basis &p_basis);
 	static bool _basis_is_orthogonal(const Basis &p_basis, real_t p_epsilon = 0.01f);
-	static bool _basis_is_orthogonal_any_scale(const Basis &p_basis);
 
 	static void interpolate_basis_linear(const Basis &p_prev, const Basis &p_curr, Basis &r_result, real_t p_fraction);
 	static void interpolate_basis_scaled_slerp(Basis p_prev, Basis p_curr, Basis &r_result, real_t p_fraction);
