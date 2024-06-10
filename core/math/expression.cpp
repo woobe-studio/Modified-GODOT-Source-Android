@@ -1886,36 +1886,6 @@ Expression::ENode *Expression::_parse_expression() {
 	return expression[0].node;
 }
 
-bool Expression::_compile_expression() {
-	if (!expression_dirty) {
-		return error_set;
-	}
-
-	if (nodes) {
-		memdelete(nodes);
-		nodes = nullptr;
-		root = nullptr;
-	}
-
-	error_str = String();
-	error_set = false;
-	str_ofs = 0;
-
-	root = _parse_expression();
-
-	if (error_set) {
-		root = nullptr;
-		if (nodes) {
-			memdelete(nodes);
-		}
-		nodes = nullptr;
-		return true;
-	}
-
-	expression_dirty = false;
-	return false;
-}
-
 bool Expression::_execute(const Array &p_inputs, Object *p_instance, Expression::ENode *p_node, Variant &r_ret, String &r_error_str) {
 	switch (p_node->type) {
 		case Expression::ENode::TYPE_INPUT: {

@@ -7,81 +7,6 @@
 
 #include "core/math/geometry.h"
 
-int Face3::split_by_plane(const Plane &p_plane, Face3 p_res[3], bool p_is_point_over[3]) const {
-	ERR_FAIL_COND_V(is_degenerate(), 0);
-
-	Vector3 above[4];
-	int above_count = 0;
-
-	Vector3 below[4];
-	int below_count = 0;
-
-	for (int i = 0; i < 3; i++) {
-		if (p_plane.has_point(vertex[i], (real_t)CMP_EPSILON)) { // point is in plane
-
-			ERR_FAIL_COND_V(above_count >= 4, 0);
-			above[above_count++] = vertex[i];
-			ERR_FAIL_COND_V(below_count >= 4, 0);
-			below[below_count++] = vertex[i];
-
-		} else {
-			if (p_plane.is_point_over(vertex[i])) {
-				//Point is over
-				ERR_FAIL_COND_V(above_count >= 4, 0);
-				above[above_count++] = vertex[i];
-
-			} else {
-				//Point is under
-				ERR_FAIL_COND_V(below_count >= 4, 0);
-				below[below_count++] = vertex[i];
-			}
-
-			/* Check for Intersection between this and the next vertex*/
-
-			Vector3 inters;
-			if (!p_plane.intersects_segment(vertex[i], vertex[(i + 1) % 3], &inters)) {
-				continue;
-			}
-
-			/* Intersection goes to both */
-			ERR_FAIL_COND_V(above_count >= 4, 0);
-			above[above_count++] = inters;
-			ERR_FAIL_COND_V(below_count >= 4, 0);
-			below[below_count++] = inters;
-		}
-	}
-
-	int polygons_created = 0;
-
-	ERR_FAIL_COND_V(above_count >= 4 && below_count >= 4, 0); //bug in the algo
-
-	if (above_count >= 3) {
-		p_res[polygons_created] = Face3(above[0], above[1], above[2]);
-		p_is_point_over[polygons_created] = true;
-		polygons_created++;
-
-		if (above_count == 4) {
-			p_res[polygons_created] = Face3(above[2], above[3], above[0]);
-			p_is_point_over[polygons_created] = true;
-			polygons_created++;
-		}
-	}
-
-	if (below_count >= 3) {
-		p_res[polygons_created] = Face3(below[0], below[1], below[2]);
-		p_is_point_over[polygons_created] = false;
-		polygons_created++;
-
-		if (below_count == 4) {
-			p_res[polygons_created] = Face3(below[2], below[3], below[0]);
-			p_is_point_over[polygons_created] = false;
-			polygons_created++;
-		}
-	}
-
-	return polygons_created;
-}
-
 bool Face3::intersects_ray(const Vector3 &p_from, const Vector3 &p_dir, Vector3 *p_intersection) const {
 	return Geometry::ray_intersects_triangle(p_from, p_dir, vertex[0], vertex[1], vertex[2], p_intersection);
 }
@@ -95,62 +20,13 @@ bool Face3::is_degenerate() const {
 	return (normal.length_squared() < (real_t)CMP_EPSILON2);
 }
 
-Face3::Side Face3::get_side_of(const Face3 &p_face, ClockDirection p_clock_dir) const {
-	int over = 0, under = 0;
-
-	Plane plane = get_plane(p_clock_dir);
-
-	for (int i = 0; i < 3; i++) {
-		const Vector3 &v = p_face.vertex[i];
-
-		if (plane.has_point(v)) { //coplanar, don't bother
-			continue;
-		}
-
-		if (plane.is_point_over(v)) {
-			over++;
-		} else {
-			under++;
-		}
-	}
-
-	if (over > 0 && under == 0) {
-		return SIDE_OVER;
-	} else if (under > 0 && over == 0) {
-		return SIDE_UNDER;
-	} else if (under == 0 && over == 0) {
-		return SIDE_COPLANAR;
-	} else {
-		return SIDE_SPANNING;
-	}
-}
-
-Vector3 Face3::get_random_point_inside() const {
-	real_t a = Math::random(0, 1);
-	real_t b = Math::random(0, 1);
-	if (a > b) {
-		SWAP(a, b);
-	}
-
-	return vertex[0] * a + vertex[1] * (b - a) + vertex[2] * (1.0 - b);
-}
-
 Plane Face3::get_plane(ClockDirection p_dir) const {
 	return Plane(vertex[0], vertex[1], vertex[2], p_dir);
 }
 
-Vector3 Face3::get_median_point() const {
-	return (vertex[0] + vertex[1] + vertex[2]) / 3.0;
-}
 
 real_t Face3::get_area() const {
 	return vec3_cross(vertex[0] - vertex[1], vertex[0] - vertex[2]).length() * 0.5;
-}
-
-ClockDirection Face3::get_clock_dir() const {
-	Vector3 normal = vec3_cross(vertex[0] - vertex[1], vertex[0] - vertex[2]);
-	//printf("normal is %g,%g,%g x %g,%g,%g- wtfu is %g\n",tofloat(normal.x),tofloat(normal.y),tofloat(normal.z),tofloat(vertex[0].x),tofloat(vertex[0].y),tofloat(vertex[0].z),tofloat( normal.dot( vertex[0] ) ) );
-	return (normal.dot(vertex[0]) >= 0) ? CLOCKWISE : COUNTERCLOCKWISE;
 }
 
 bool Face3::intersects_aabb(const AABB &p_aabb) const {

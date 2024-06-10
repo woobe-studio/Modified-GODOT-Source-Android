@@ -98,34 +98,6 @@ void CameraMatrix::set_perspective(real_t p_fovy_degrees, real_t p_aspect, real_
 	*this = *this * cm;
 }
 
-void CameraMatrix::set_for_hmd(int p_eye, real_t p_aspect, real_t p_intraocular_dist, real_t p_display_width, real_t p_display_to_lens, real_t p_oversample, real_t p_z_near, real_t p_z_far) {
-	// we first calculate our base frustum on our values without taking our lens magnification into account.
-	real_t f1 = (p_intraocular_dist * 0.5) / p_display_to_lens;
-	real_t f2 = ((p_display_width - p_intraocular_dist) * 0.5) / p_display_to_lens;
-	real_t f3 = (p_display_width / 4.0) / p_display_to_lens;
-
-	// now we apply our oversample factor to increase our FOV. how much we oversample is always a balance we strike between performance and how much
-	// we're willing to sacrifice in FOV.
-	real_t add = ((f1 + f2) * (p_oversample - 1.0)) / 2.0;
-	f1 += add;
-	f2 += add;
-	f3 *= p_oversample;
-
-	// always apply KEEP_WIDTH aspect ratio
-	f3 /= p_aspect;
-
-	switch (p_eye) {
-		case 1: { // left eye
-			set_frustum(-f2 * p_z_near, f1 * p_z_near, -f3 * p_z_near, f3 * p_z_near, p_z_near, p_z_far);
-		}; break;
-		case 2: { // right eye
-			set_frustum(-f1 * p_z_near, f2 * p_z_near, -f3 * p_z_near, f3 * p_z_near, p_z_near, p_z_far);
-		}; break;
-		default: { // mono, does not apply here!
-		}; break;
-	};
-};
-
 void CameraMatrix::set_orthogonal(real_t p_left, real_t p_right, real_t p_bottom, real_t p_top, real_t p_znear, real_t p_zfar) {
 	set_identity();
 
@@ -564,31 +536,6 @@ void CameraMatrix::make_scale(const Vector3 &p_scale) {
 	matrix[0][0] = p_scale.x;
 	matrix[1][1] = p_scale.y;
 	matrix[2][2] = p_scale.z;
-}
-
-void CameraMatrix::scale_translate_to_fit(const AABB &p_aabb) {
-	Vector3 min = p_aabb.position;
-	Vector3 max = p_aabb.position + p_aabb.size;
-
-	matrix[0][0] = 2 / (max.x - min.x);
-	matrix[1][0] = 0;
-	matrix[2][0] = 0;
-	matrix[3][0] = -(max.x + min.x) / (max.x - min.x);
-
-	matrix[0][1] = 0;
-	matrix[1][1] = 2 / (max.y - min.y);
-	matrix[2][1] = 0;
-	matrix[3][1] = -(max.y + min.y) / (max.y - min.y);
-
-	matrix[0][2] = 0;
-	matrix[1][2] = 0;
-	matrix[2][2] = 2 / (max.z - min.z);
-	matrix[3][2] = -(max.z + min.z) / (max.z - min.z);
-
-	matrix[0][3] = 0;
-	matrix[1][3] = 0;
-	matrix[2][3] = 0;
-	matrix[3][3] = 1;
 }
 
 CameraMatrix::operator Transform() const {

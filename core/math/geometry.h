@@ -937,10 +937,7 @@ public:
 		return (intersections & 1);
 	}
 
-	static PoolVector<PoolVector<Face3>> separate_objects(PoolVector<Face3> p_array);
-
 	// Create a "wrap" that encloses the given geometry.
-	static PoolVector<Face3> wrap_geometry(PoolVector<Face3> p_array, real_t *p_error = nullptr);
 
 	struct MeshData {
 		struct Face {
@@ -958,7 +955,6 @@ public:
 
 		Vector<Vector3> vertices;
 
-		void optimize_vertices();
 		void clear();
 	};
 
@@ -1064,12 +1060,9 @@ public:
 	static Vector<Vector<Vector2>> decompose_polygon_in_convex(Vector<Point2> polygon);
 
 	static MeshData build_convex_mesh(const PoolVector<Plane> &p_planes);
-	static PoolVector<Plane> build_sphere_planes(real_t p_radius, int p_lats, int p_lons, Vector3::Axis p_axis = Vector3::AXIS_Z);
 	static PoolVector<Plane> build_box_planes(const Vector3 &p_extents);
 	static PoolVector<Plane> build_cylinder_planes(real_t p_radius, real_t p_height, int p_sides, Vector3::Axis p_axis = Vector3::AXIS_Z);
 	static PoolVector<Plane> build_capsule_planes(real_t p_radius, real_t p_height, int p_sides, int p_lats, Vector3::Axis p_axis = Vector3::AXIS_Z);
-	static void sort_polygon_winding(Vector<Vector2> &r_verts, bool p_clockwise = true);
-	static real_t find_polygon_area(const Vector3 *p_verts, int p_num_verts);
 
 	static void make_atlas(const Vector<Size2i> &p_rects, Vector<Point2i> &r_result, Size2i &r_size);
 
@@ -1078,11 +1071,8 @@ public:
 		int y;
 		bool packed;
 	};
-	static Vector<PackRectsResult> partial_pack_rects(const Vector<Vector2i> &p_sizes, const Size2i &p_atlas_size);
 
 	static Vector<Vector3> compute_convex_mesh_points(const Plane *p_planes, int p_plane_count, real_t p_epsilon = CMP_EPSILON);
-	static bool convex_hull_intersects_convex_hull(const Plane *p_planes_a, int p_plane_count_a, const Plane *p_planes_b, int p_plane_count_b);
-	static real_t calculate_convex_hull_volume(const Geometry::MeshData &p_md);
 
 private:
 	static Vector<Vector<Point2>> _polypaths_do_operation(PolyBooleanOperation p_op, const Vector<Point2> &p_polypath_a, const Vector<Point2> &p_polypath_b, bool is_a_open = false);

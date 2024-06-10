@@ -111,7 +111,6 @@ private:
 	int str_ofs;
 	bool expression_dirty;
 
-	bool _compile_expression();
 
 	enum TokenType {
 		TK_CURLY_BRACKET_OPEN,
