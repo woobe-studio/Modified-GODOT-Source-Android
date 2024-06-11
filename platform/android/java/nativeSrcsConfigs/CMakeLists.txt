@@ -12,7 +12,8 @@ set(GODOT_ROOT_DIR ../../../..)
 file(GLOB_RECURSE SOURCES ${GODOT_ROOT_DIR}/*.c**)
 file(GLOB_RECURSE HEADERS ${GODOT_ROOT_DIR}/*.h**)
 
-add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS}
+        ../../../../scene/2d/text_label.cpp)
 target_include_directories(${PROJECT_NAME}
         SYSTEM PUBLIC
         ${GODOT_ROOT_DIR}

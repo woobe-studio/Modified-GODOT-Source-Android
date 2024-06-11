@@ -27,6 +27,7 @@
 #include "scene/2d/touch_screen_button.h"
 #include "scene/2d/visibility_notifier_2d.h"
 #include "scene/2d/y_sort.h"
+#include "scene/2d/text_label.h"
 #include "scene/2d/world_environment.h"
 #include "scene/resources/environment.h"
 
@@ -309,6 +310,7 @@ void register_scene_types() {
 	//ClassDB::register_class<VisibilityNotifier2D>();
 	//ClassDB::register_class<VisibilityEnabler2D>();
 	ClassDB::register_class<YSort>();
+    ClassDB::register_class<TextLabel>();
 
 	OS::get_singleton()->yield(); //may take time to init
 
