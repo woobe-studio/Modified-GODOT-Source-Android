@@ -15,7 +15,6 @@
 #include "editor/plugins/animation_player_editor_plugin.h"
 #include "editor/plugins/script_editor_plugin.h"
 #include "editor/script_editor_debugger.h"
-#include "scene/2d/light_2d.h"
 #include "core/rid.h"
 #include "scene/2d/node_2d.h"
 #include "scene/resources/texture.h"
@@ -6277,9 +6276,7 @@ void CanvasItemEditorViewport::_perform_drop_data() {
 			Ref<Texture> texture = Ref<Texture>(Object::cast_to<Texture>(*res));
 			if (texture != nullptr && texture.is_valid()) {
 				Node *child;
-				if (default_type == "Light2D") {
-					child = memnew(Light2D);
-				} else if (default_type == "TouchScreenButton") {
+                if (default_type == "TouchScreenButton") {
 					child = memnew(TouchScreenButton);
 				} else if (default_type == "TextureRect") {
 					child = memnew(TextureRect);
@@ -6445,7 +6442,6 @@ CanvasItemEditorViewport::CanvasItemEditorViewport(EditorNode *p_node, CanvasIte
 	default_type = "Sprite";
 	// Node2D
 	types.push_back("Sprite");
-	types.push_back("Light2D");
 	types.push_back("TouchScreenButton");
 	// Control
 	types.push_back("TextureRect");

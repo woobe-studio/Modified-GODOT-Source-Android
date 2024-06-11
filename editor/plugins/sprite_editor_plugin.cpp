@@ -8,7 +8,6 @@
 #include "canvas_item_editor_plugin.h"
 #include "editor/editor_scale.h"
 #include "scene/2d/collision_polygon_2d.h"
-#include "scene/2d/light_occluder_2d.h"
 #include "scene/gui/box_container.h"
 #include "thirdparty/misc/clipper.hpp"
 
@@ -112,13 +111,6 @@ void SpriteEditor::_menu_option(int p_option) {
 
 		} break;
 		case MENU_OPTION_CREATE_LIGHT_OCCLUDER_2D: {
-			debug_uv_dialog->get_ok()->set_text(TTR("Create LightOccluder2D"));
-			debug_uv_dialog->set_title(TTR("LightOccluder2D Preview"));
-
-			_update_mesh_data();
-			debug_uv_dialog->popup_centered();
-			debug_uv->update();
-
 		} break;
 	}
 }
@@ -273,7 +265,6 @@ void SpriteEditor::_create_node() {
 			_create_collision_polygon_2d_node();
 		} break;
 		case MENU_OPTION_CREATE_LIGHT_OCCLUDER_2D: {
-			_create_light_occluder_2d_node();
 		} break;
 	}
 }
@@ -296,39 +287,6 @@ void SpriteEditor::_create_collision_polygon_2d_node() {
 		ur->add_do_method(this, "_add_as_sibling_or_child", node, collision_polygon_2d_instance);
 		ur->add_do_reference(collision_polygon_2d_instance);
 		ur->add_undo_method(node != this->get_tree()->get_edited_scene_root() ? node->get_parent() : this->get_tree()->get_edited_scene_root(), "remove_child", collision_polygon_2d_instance);
-		ur->commit_action();
-	}
-}
-
-void SpriteEditor::_create_light_occluder_2d_node() {
-	if (computed_outline_lines.empty()) {
-		err_dialog->set_text(TTR("Invalid geometry, can't create light occluder."));
-		err_dialog->popup_centered_minsize();
-		return;
-	}
-
-	for (int i = 0; i < computed_outline_lines.size(); i++) {
-		Vector<Vector2> outline = computed_outline_lines[i];
-
-		Ref<OccluderPolygon2D> polygon;
-		polygon.instance();
-
-		PoolVector2Array a;
-		a.resize(outline.size());
-		PoolVector2Array::Write aw = a.write();
-		for (int io = 0; io < outline.size(); io++) {
-			aw[io] = outline[io];
-		}
-		polygon->set_polygon(a);
-
-		LightOccluder2D *light_occluder_2d_instance = memnew(LightOccluder2D);
-		light_occluder_2d_instance->set_occluder_polygon(polygon);
-
-		UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
-		ur->create_action(TTR("Create LightOccluder2D Sibling"));
-		ur->add_do_method(this, "_add_as_sibling_or_child", node, light_occluder_2d_instance);
-		ur->add_do_reference(light_occluder_2d_instance);
-		ur->add_undo_method(node != this->get_tree()->get_edited_scene_root() ? node->get_parent() : this->get_tree()->get_edited_scene_root(), "remove_child", light_occluder_2d_instance);
 		ur->commit_action();
 	}
 }
@@ -389,7 +347,6 @@ SpriteEditor::SpriteEditor() {
 	options->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Sprite", "EditorIcons"));
 
 	options->get_popup()->add_item(TTR("Create CollisionPolygon2D Sibling"), MENU_OPTION_CREATE_COLLISION_POLY_2D);
-	options->get_popup()->add_item(TTR("Create LightOccluder2D Sibling"), MENU_OPTION_CREATE_LIGHT_OCCLUDER_2D);
 	options->set_switch_on_hover(true);
 
 	options->get_popup()->connect("id_pressed", this, "_menu_option");

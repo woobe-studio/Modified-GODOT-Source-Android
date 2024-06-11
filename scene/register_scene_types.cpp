@@ -14,8 +14,6 @@
 #include "scene/2d/canvas_item.h"
 #include "scene/2d/collision_polygon_2d.h"
 #include "scene/2d/collision_shape_2d.h"
-#include "scene/2d/light_2d.h"
-#include "scene/2d/light_occluder_2d.h"
 #include "scene/2d/line_2d.h"
 #include "scene/2d/navigation_2d.h"
 #include "scene/2d/navigation_agent_2d.h"
@@ -310,9 +308,6 @@ void register_scene_types() {
 	ClassDB::register_class<RayCast2D>();
 	//ClassDB::register_class<VisibilityNotifier2D>();
 	//ClassDB::register_class<VisibilityEnabler2D>();
-	ClassDB::register_class<Light2D>();
-	ClassDB::register_class<LightOccluder2D>();
-	ClassDB::register_class<OccluderPolygon2D>();
 	ClassDB::register_class<YSort>();
 
 	OS::get_singleton()->yield(); //may take time to init

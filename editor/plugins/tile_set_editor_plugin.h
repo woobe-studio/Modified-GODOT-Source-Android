@@ -71,7 +71,6 @@ class TileSetEditor : public HSplitContainer {
 
 	struct SubtileData {
 		Array collisions;
-		Ref<OccluderPolygon2D> occlusion_shape;
 		Ref<NavigationPolygon> navigation_shape;
 	};
 
@@ -106,7 +105,6 @@ class TileSetEditor : public HSplitContainer {
 	Vector2 snap_separation;
 
 	Ref<Shape2D> edited_collision_shape;
-	Ref<OccluderPolygon2D> edited_occlusion_shape;
 	Ref<NavigationPolygon> edited_navigation_shape;
 
 	int current_item_index;

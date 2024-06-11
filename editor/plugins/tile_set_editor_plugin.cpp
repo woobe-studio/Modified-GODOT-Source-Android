@@ -74,7 +74,6 @@ void TileSetEditor::_import_node(Node *p_node, Ref<TileSet> p_library) {
 
 		Vector<TileSet::ShapeData> collisions;
 		Ref<NavigationPolygon> nav_poly;
-		Ref<OccluderPolygon2D> occluder;
 		bool found_collisions = false;
 
 		for (int j = 0; j < mi->get_child_count(); j++) {
@@ -82,10 +81,6 @@ void TileSetEditor::_import_node(Node *p_node, Ref<TileSet> p_library) {
 
 			if (Object::cast_to<NavigationPolygonInstance>(child2)) {
 				nav_poly = Object::cast_to<NavigationPolygonInstance>(child2)->get_navigation_polygon();
-			}
-
-			if (Object::cast_to<LightOccluder2D>(child2)) {
-				occluder = Object::cast_to<LightOccluder2D>(child2)->get_occluder_polygon();
 			}
 
 			if (!Object::cast_to<StaticBody2D>(child2)) {
@@ -126,8 +121,6 @@ void TileSetEditor::_import_node(Node *p_node, Ref<TileSet> p_library) {
 
 		p_library->tile_set_texture_offset(id, mi->get_offset());
 		p_library->tile_set_navigation_polygon(id, nav_poly);
-		p_library->tile_set_light_occluder(id, occluder);
-		p_library->tile_set_occluder_offset(id, -phys_offset);
 		p_library->tile_set_navigation_polygon_offset(id, -phys_offset);
 		p_library->tile_set_z_index(id, mi->get_z_index());
 	}
@@ -303,7 +296,6 @@ void TileSetEditor::_notification(int p_what) {
 
 			tool_editmode[EDITMODE_REGION]->set_icon(get_icon("RegionEdit", "EditorIcons"));
 			tool_editmode[EDITMODE_COLLISION]->set_icon(get_icon("StaticBody2D", "EditorIcons"));
-			tool_editmode[EDITMODE_OCCLUSION]->set_icon(get_icon("LightOccluder2D", "EditorIcons"));
 			tool_editmode[EDITMODE_NAVIGATION]->set_icon(get_icon("Navigation2D", "EditorIcons"));
 			tool_editmode[EDITMODE_BITMASK]->set_icon(get_icon("PackedDataContainer", "EditorIcons"));
 			tool_editmode[EDITMODE_PRIORITY]->set_icon(get_icon("MaterialPreviewLight1", "EditorIcons"));
@@ -1610,26 +1602,6 @@ void TileSetEditor::_on_workspace_input(const Ref<InputEvent> &p_ie) {
 										undo_redo->commit_action();
 									}
 								} else if (edit_mode == EDITMODE_OCCLUSION) {
-									if (dragging_point >= 0) {
-										dragging_point = -1;
-
-										PoolVector<Vector2> polygon;
-										polygon.resize(current_shape.size());
-										PoolVector<Vector2>::Write w = polygon.write();
-
-										for (int i = 0; i < current_shape.size(); i++) {
-											w[i] = current_shape[i] - shape_anchor;
-										}
-
-										w.release();
-
-										undo_redo->create_action(TTR("Edit Occlusion Polygon"));
-										undo_redo->add_do_method(edited_occlusion_shape.ptr(), "set_polygon", polygon);
-										undo_redo->add_undo_method(edited_occlusion_shape.ptr(), "set_polygon", edited_occlusion_shape->get_polygon());
-										undo_redo->add_do_method(this, "_select_edited_shape_coord");
-										undo_redo->add_undo_method(this, "_select_edited_shape_coord");
-										undo_redo->commit_action();
-									}
 								} else if (edit_mode == EDITMODE_NAVIGATION) {
 									if (dragging_point >= 0) {
 										dragging_point = -1;
@@ -1881,19 +1853,6 @@ void TileSetEditor::_on_tool_clicked(int p_tool) {
 					}
 				} break;
 				case EDITMODE_OCCLUSION: {
-					if (!edited_occlusion_shape.is_null()) {
-						undo_redo->create_action(TTR("Remove Occlusion Polygon"));
-						if (tileset->tile_get_tile_mode(get_current_tile()) == TileSet::SINGLE_TILE) {
-							undo_redo->add_do_method(tileset.ptr(), "tile_set_light_occluder", get_current_tile(), Ref<OccluderPolygon2D>());
-							undo_redo->add_undo_method(tileset.ptr(), "tile_set_light_occluder", get_current_tile(), tileset->tile_get_light_occluder(get_current_tile()));
-						} else {
-							undo_redo->add_do_method(tileset.ptr(), "autotile_set_light_occluder", get_current_tile(), Ref<OccluderPolygon2D>(), edited_shape_coord);
-							undo_redo->add_undo_method(tileset.ptr(), "autotile_set_light_occluder", get_current_tile(), tileset->autotile_get_light_occluder(get_current_tile(), edited_shape_coord), edited_shape_coord);
-						}
-						undo_redo->add_do_method(this, "_select_edited_shape_coord");
-						undo_redo->add_undo_method(this, "_select_edited_shape_coord");
-						undo_redo->commit_action();
-					}
 				} break;
 				case EDITMODE_NAVIGATION: {
 					if (!edited_navigation_shape.is_null()) {
@@ -2007,7 +1966,6 @@ void TileSetEditor::_update_tile_data() {
 			data.collisions.push_back(sd[i].shape);
 		}
 		data.navigation_shape = tileset->tile_get_navigation_polygon(get_current_tile());
-		data.occlusion_shape = tileset->tile_get_light_occluder(get_current_tile());
 		current_tile_data[Vector2i()] = data;
 	} else {
 		Vector2 cell_count = _get_subtiles_count(get_current_tile());
@@ -2021,7 +1979,6 @@ void TileSetEditor::_update_tile_data() {
 					}
 				}
 				data.navigation_shape = tileset->autotile_get_navigation_polygon(get_current_tile(), coord);
-				data.occlusion_shape = tileset->tile_get_light_occluder(get_current_tile());
 				current_tile_data[coord] = data;
 			}
 		}
@@ -2359,7 +2316,6 @@ void TileSetEditor::_undo_tile_removal(int p_id) {
 	undo_redo->add_undo_method(tileset.ptr(), "tile_set_texture_offset", p_id, tileset->tile_get_texture_offset(p_id));
 	undo_redo->add_undo_method(tileset.ptr(), "tile_set_material", p_id, tileset->tile_get_material(p_id));
 	undo_redo->add_undo_method(tileset.ptr(), "tile_set_modulate", p_id, tileset->tile_get_modulate(p_id));
-	undo_redo->add_undo_method(tileset.ptr(), "tile_set_occluder_offset", p_id, tileset->tile_get_occluder_offset(p_id));
 	undo_redo->add_undo_method(tileset.ptr(), "tile_set_navigation_polygon_offset", p_id, tileset->tile_get_navigation_polygon_offset(p_id));
 	undo_redo->add_undo_method(tileset.ptr(), "tile_set_shape_offset", p_id, 0, tileset->tile_get_shape_offset(p_id, 0));
 	undo_redo->add_undo_method(tileset.ptr(), "tile_set_shape_transform", p_id, 0, tileset->tile_get_shape_transform(p_id, 0));
@@ -2369,13 +2325,8 @@ void TileSetEditor::_undo_tile_removal(int p_id) {
 	// Necessary to get the version that returns a Array instead of a Vector.
 	undo_redo->add_undo_method(tileset.ptr(), "tile_set_shapes", p_id, tileset->call("tile_get_shapes", p_id));
 	if (tileset->tile_get_tile_mode(p_id) == TileSet::SINGLE_TILE) {
-		undo_redo->add_undo_method(tileset.ptr(), "tile_set_light_occluder", p_id, tileset->tile_get_light_occluder(p_id));
 		undo_redo->add_undo_method(tileset.ptr(), "tile_set_navigation_polygon", p_id, tileset->tile_get_navigation_polygon(p_id));
 	} else {
-		Map<Vector2, Ref<OccluderPolygon2D>> oclusion_map = tileset->autotile_get_light_oclusion_map(p_id);
-		for (Map<Vector2, Ref<OccluderPolygon2D>>::Element *E = oclusion_map.front(); E; E = E->next()) {
-			undo_redo->add_undo_method(tileset.ptr(), "autotile_set_light_occluder", p_id, E->value(), E->key());
-		}
 		Map<Vector2, Ref<NavigationPolygon>> navigation_map = tileset->autotile_get_navigation_map(p_id);
 		for (Map<Vector2, Ref<NavigationPolygon>>::Element *E = navigation_map.front(); E; E = E->next()) {
 			undo_redo->add_undo_method(tileset.ptr(), "autotile_set_navigation_polygon", p_id, E->value(), E->key());
@@ -2690,90 +2641,6 @@ void TileSetEditor::draw_polygon_shapes() {
 			}
 		} break;
 		case EDITMODE_OCCLUSION: {
-			if (tileset->tile_get_tile_mode(get_current_tile()) == TileSet::SINGLE_TILE) {
-				Ref<OccluderPolygon2D> shape = edited_occlusion_shape;
-				if (shape.is_valid()) {
-					Color c_bg = Color(0, 1, 1, 0.5);
-					Color c_border = Color(0, 1, 1);
-
-					Vector<Vector2> polygon;
-					Vector<Color> colors;
-					Vector2 anchor = WORKSPACE_MARGIN;
-					anchor += tileset->tile_get_region(get_current_tile()).position;
-					if (!creating_shape && shape == edited_occlusion_shape && current_shape.size() > 2) {
-						for (int j = 0; j < current_shape.size(); j++) {
-							polygon.push_back(current_shape[j]);
-							colors.push_back(c_bg);
-						}
-					} else {
-						for (int j = 0; j < shape->get_polygon().size(); j++) {
-							polygon.push_back(shape->get_polygon()[j] + anchor);
-							colors.push_back(c_bg);
-						}
-					}
-					workspace->draw_polygon(polygon, colors);
-
-					if (!creating_shape && polygon.size() > 1) {
-						for (int j = 0; j < polygon.size() - 1; j++) {
-							workspace->draw_line(polygon[j], polygon[j + 1], c_border, 1, true);
-						}
-						workspace->draw_line(polygon[polygon.size() - 1], polygon[0], c_border, 1, true);
-					}
-					if (shape == edited_occlusion_shape) {
-						draw_handles = true;
-					}
-				}
-			} else {
-				Map<Vector2, Ref<OccluderPolygon2D>> map = tileset->autotile_get_light_oclusion_map(t_id);
-				for (Map<Vector2, Ref<OccluderPolygon2D>>::Element *E = map.front(); E; E = E->next()) {
-					Vector2 coord = E->key();
-					Vector2 anchor = tileset->autotile_get_size(t_id);
-					anchor.x += tileset->autotile_get_spacing(t_id);
-					anchor.y += tileset->autotile_get_spacing(t_id);
-					anchor.x *= coord.x;
-					anchor.y *= coord.y;
-					anchor += WORKSPACE_MARGIN;
-					anchor += tileset->tile_get_region(t_id).position;
-					Ref<OccluderPolygon2D> shape = E->value();
-					if (shape.is_valid()) {
-						Color c_bg;
-						Color c_border;
-						if (coord == edited_shape_coord && shape == edited_occlusion_shape) {
-							c_bg = Color(0, 1, 1, 0.5);
-							c_border = Color(0, 1, 1);
-						} else {
-							c_bg = Color(0.9, 0.7, 0.07, 0.5);
-							c_border = Color(0.9, 0.7, 0.07, 1);
-						}
-						Vector<Vector2> polygon;
-						Vector<Color> colors;
-						if (!creating_shape && shape == edited_occlusion_shape && current_shape.size() > 2) {
-							for (int j = 0; j < current_shape.size(); j++) {
-								polygon.push_back(current_shape[j]);
-								colors.push_back(c_bg);
-							}
-						} else {
-							for (int j = 0; j < shape->get_polygon().size(); j++) {
-								polygon.push_back(shape->get_polygon()[j] + anchor);
-								colors.push_back(c_bg);
-							}
-						}
-						workspace->draw_polygon(polygon, colors);
-
-						if (coord == edited_shape_coord) {
-							if (!creating_shape && polygon.size() > 1) {
-								for (int j = 0; j < polygon.size() - 1; j++) {
-									workspace->draw_line(polygon[j], polygon[j + 1], c_border, 1, true);
-								}
-								workspace->draw_line(polygon[polygon.size() - 1], polygon[0], c_border, 1, true);
-							}
-							if (shape == edited_occlusion_shape) {
-								draw_handles = true;
-							}
-						}
-					}
-				}
-			}
 		} break;
 		case EDITMODE_NAVIGATION: {
 			if (tileset->tile_get_tile_mode(get_current_tile()) == TileSet::SINGLE_TILE) {
@@ -2934,31 +2801,6 @@ void TileSetEditor::close_shape(const Vector2 &shape_anchor) {
 			workspace->update();
 		}
 	} else if (edit_mode == EDITMODE_OCCLUSION) {
-		Ref<OccluderPolygon2D> shape = memnew(OccluderPolygon2D);
-
-		PoolVector<Vector2> polygon;
-		polygon.resize(current_shape.size());
-		PoolVector<Vector2>::Write w = polygon.write();
-
-		for (int i = 0; i < current_shape.size(); i++) {
-			w[i] = current_shape[i] - shape_anchor;
-		}
-
-		w.release();
-		shape->set_polygon(polygon);
-
-		undo_redo->create_action(TTR("Create Occlusion Polygon"));
-		if (tileset->tile_get_tile_mode(get_current_tile()) == TileSet::AUTO_TILE || tileset->tile_get_tile_mode(get_current_tile()) == TileSet::ATLAS_TILE) {
-			undo_redo->add_do_method(tileset.ptr(), "autotile_set_light_occluder", get_current_tile(), shape, edited_shape_coord);
-			undo_redo->add_undo_method(tileset.ptr(), "autotile_set_light_occluder", get_current_tile(), tileset->autotile_get_light_occluder(get_current_tile(), edited_shape_coord), edited_shape_coord);
-		} else {
-			undo_redo->add_do_method(tileset.ptr(), "tile_set_light_occluder", get_current_tile(), shape);
-			undo_redo->add_undo_method(tileset.ptr(), "tile_set_light_occluder", get_current_tile(), tileset->tile_get_light_occluder(get_current_tile()));
-		}
-		tools[TOOL_SELECT]->set_pressed(true);
-		undo_redo->add_do_method(this, "_select_edited_shape_coord");
-		undo_redo->add_undo_method(this, "_select_edited_shape_coord");
-		undo_redo->commit_action();
 	} else if (edit_mode == EDITMODE_NAVIGATION) {
 		Ref<NavigationPolygon> shape = memnew(NavigationPolygon);
 
@@ -3005,9 +2847,6 @@ void TileSetEditor::select_coord(const Vector2 &coord) {
 		if (edited_collision_shape != tileset->tile_get_shape(get_current_tile(), 0)) {
 			_set_edited_collision_shape(tileset->tile_get_shape(get_current_tile(), 0));
 		}
-		if (edited_occlusion_shape != tileset->tile_get_light_occluder(get_current_tile())) {
-			edited_occlusion_shape = tileset->tile_get_light_occluder(get_current_tile());
-		}
 		if (edited_navigation_shape != tileset->tile_get_navigation_polygon(get_current_tile())) {
 			edited_navigation_shape = tileset->tile_get_navigation_polygon(get_current_tile());
 		}
@@ -3021,11 +2860,6 @@ void TileSetEditor::select_coord(const Vector2 &coord) {
 			}
 		} else if (edit_mode == EDITMODE_OCCLUSION) {
 			current_shape.resize(0);
-			if (edited_occlusion_shape.is_valid()) {
-				for (int i = 0; i < edited_occlusion_shape->get_polygon().size(); i++) {
-					current_shape.push_back(edited_occlusion_shape->get_polygon()[i] + current_tile_region.position);
-				}
-			}
 		} else if (edit_mode == EDITMODE_NAVIGATION) {
 			current_shape.resize(0);
 			if (edited_navigation_shape.is_valid()) {
@@ -3052,9 +2886,6 @@ void TileSetEditor::select_coord(const Vector2 &coord) {
 		if (!found_collision_shape) {
 			_set_edited_collision_shape(Ref<ConvexPolygonShape2D>(nullptr));
 		}
-		if (edited_occlusion_shape != tileset->autotile_get_light_occluder(get_current_tile(), coord)) {
-			edited_occlusion_shape = tileset->autotile_get_light_occluder(get_current_tile(), coord);
-		}
 		if (edited_navigation_shape != tileset->autotile_get_navigation_polygon(get_current_tile(), coord)) {
 			edited_navigation_shape = tileset->autotile_get_navigation_polygon(get_current_tile(), coord);
 		}
@@ -3074,11 +2905,6 @@ void TileSetEditor::select_coord(const Vector2 &coord) {
 			}
 		} else if (edit_mode == EDITMODE_OCCLUSION) {
 			current_shape.resize(0);
-			if (edited_occlusion_shape.is_valid()) {
-				for (int i = 0; i < edited_occlusion_shape->get_polygon().size(); i++) {
-					current_shape.push_back(edited_occlusion_shape->get_polygon()[i] + shape_anchor);
-				}
-			}
 		} else if (edit_mode == EDITMODE_NAVIGATION) {
 			current_shape.resize(0);
 			if (edited_navigation_shape.is_valid()) {
@@ -3519,8 +3345,6 @@ bool TilesetEditorContext::_get(const StringName &p_name, Variant &r_ret) const 
 		r_ret = tileset_editor->edited_navigation_shape;
 		v = true;
 	} else if (name == "selected_occlusion") {
-		r_ret = tileset_editor->edited_occlusion_shape;
-		v = true;
 	} else if (name == "tileset_script") {
 		r_ret = tileset->get_script();
 		v = true;
@@ -3553,7 +3377,6 @@ void TilesetEditorContext::_get_property_list(List<PropertyInfo> *p_list) const 
 			p_list->push_back(PropertyInfo(Variant::VECTOR2, PNAME("tile_subtile_size")));
 			p_list->push_back(PropertyInfo(Variant::INT, PNAME("tile_subtile_spacing"), PROPERTY_HINT_RANGE, "0, 1024, 1"));
 		}
-		p_list->push_back(PropertyInfo(Variant::VECTOR2, PNAME("tile_occluder_offset")));
 		p_list->push_back(PropertyInfo(Variant::VECTOR2, PNAME("tile_navigation_offset")));
 		p_list->push_back(PropertyInfo(Variant::VECTOR2, PNAME("tile_shape_offset"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR));
 		p_list->push_back(PropertyInfo(Variant::VECTOR2, PNAME("tile_shape_transform"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR));
@@ -3568,9 +3391,6 @@ void TilesetEditorContext::_get_property_list(List<PropertyInfo> *p_list) const 
 	}
 	if (tileset_editor->edit_mode == TileSetEditor::EDITMODE_NAVIGATION && tileset_editor->edited_navigation_shape.is_valid()) {
 		p_list->push_back(PropertyInfo(Variant::OBJECT, PNAME("selected_navigation"), PROPERTY_HINT_RESOURCE_TYPE, tileset_editor->edited_navigation_shape->get_class()));
-	}
-	if (tileset_editor->edit_mode == TileSetEditor::EDITMODE_OCCLUSION && tileset_editor->edited_occlusion_shape.is_valid()) {
-		p_list->push_back(PropertyInfo(Variant::OBJECT, PNAME("selected_occlusion"), PROPERTY_HINT_RESOURCE_TYPE, tileset_editor->edited_occlusion_shape->get_class()));
 	}
 	if (!tileset.is_null()) {
 		p_list->push_back(PropertyInfo(Variant::OBJECT, PNAME("tileset_script"), PROPERTY_HINT_RESOURCE_TYPE, "Script"));

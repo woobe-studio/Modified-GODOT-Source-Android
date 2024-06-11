@@ -668,30 +668,6 @@ void TileMap::update_dirty_quadrants() {
 					}
 				}
 			}
-
-			Ref<OccluderPolygon2D> occluder;
-			if (tile_set->tile_get_tile_mode(c.id) == TileSet::AUTO_TILE || tile_set->tile_get_tile_mode(c.id) == TileSet::ATLAS_TILE) {
-				occluder = tile_set->autotile_get_light_occluder(c.id, Vector2(c.autotile_coord_x, c.autotile_coord_y));
-			} else {
-				occluder = tile_set->tile_get_light_occluder(c.id);
-			}
-			if (occluder.is_valid()) {
-				Vector2 occluder_ofs = tile_set->tile_get_occluder_offset(c.id);
-				Transform2D xform;
-				xform.set_origin(offset.floor() + q.pos);
-				_fix_cell_transform(xform, c, occluder_ofs, s);
-
-				RID orid = RID_PRIME(VS::get_singleton()->canvas_light_occluder_create());
-				VS::get_singleton()->canvas_light_occluder_set_transform(orid, get_global_transform() * xform);
-				VS::get_singleton()->canvas_light_occluder_set_polygon(orid, occluder->get_rid());
-				VS::get_singleton()->canvas_light_occluder_attach_to_canvas(orid, get_canvas());
-				VS::get_singleton()->canvas_light_occluder_set_light_mask(orid, occluder_light_mask);
-				VS::get_singleton()->canvas_light_occluder_set_enabled(orid, is_visible());
-				Quadrant::Occluder oc;
-				oc.xform = xform;
-				oc.id = orid;
-				q.occluder_instances[E->key()] = oc;
-			}
 		}
 
 		dirty_quadrant_list.remove(dirty_quadrant_list.first());

@@ -8,7 +8,6 @@
 
 #include "core/array.h"
 #include "core/resource.h"
-#include "scene/2d/light_occluder_2d.h"
 #include "scene/2d/navigation_polygon.h"
 #include "scene/resources/convex_polygon_shape_2d.h"
 #include "scene/resources/shape_2d.h"
@@ -71,7 +70,6 @@ public:
 		int spacing;
 		Vector2 icon_coord;
 		Map<Vector2, uint32_t> flags;
-		Map<Vector2, Ref<OccluderPolygon2D>> occluder_map;
 		Map<Vector2, Ref<NavigationPolygon>> navpoly_map;
 		Map<Vector2, int> priority_map;
 		Map<Vector2, int> z_index_map;
@@ -93,7 +91,6 @@ private:
 		Rect2i region;
 		Vector<ShapeData> shapes_data;
 		Vector2 occluder_offset;
-		Ref<OccluderPolygon2D> occluder;
 		Vector2 navigation_polygon_offset;
 		Ref<NavigationPolygon> navigation_polygon;
 		Ref<ShaderMaterial> material;
@@ -196,16 +193,6 @@ public:
 
 	void tile_set_modulate(int p_id, const Color &p_modulate);
 	Color tile_get_modulate(int p_id) const;
-
-	void tile_set_occluder_offset(int p_id, const Vector2 &p_offset);
-	Vector2 tile_get_occluder_offset(int p_id) const;
-
-	void tile_set_light_occluder(int p_id, const Ref<OccluderPolygon2D> &p_light_occluder);
-	Ref<OccluderPolygon2D> tile_get_light_occluder(int p_id) const;
-
-	void autotile_set_light_occluder(int p_id, const Ref<OccluderPolygon2D> &p_light_occluder, const Vector2 &p_coord);
-	Ref<OccluderPolygon2D> autotile_get_light_occluder(int p_id, const Vector2 &p_coord) const;
-	const Map<Vector2, Ref<OccluderPolygon2D>> &autotile_get_light_oclusion_map(int p_id) const;
 
 	void tile_set_navigation_polygon_offset(int p_id, const Vector2 &p_offset);
 	Vector2 tile_get_navigation_polygon_offset(int p_id) const;
