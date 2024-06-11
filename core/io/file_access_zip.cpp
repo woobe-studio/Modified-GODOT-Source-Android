@@ -3,6 +3,6 @@
 /**************************************************************************/
 
 
-#ifdef MINIZIP_ENABLED}
+#ifdef MINIZIP_ENABLED
 
 #endif

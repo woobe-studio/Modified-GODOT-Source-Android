@@ -195,7 +195,6 @@ void editor_register_and_generate_icons(Ref<Theme> p_theme, bool p_dark_theme = 
 		exceptions.insert("GuiChecked");
 		exceptions.insert("GuiRadioChecked");
 		exceptions.insert("GuiCloseCustomizable");
-		exceptions.insert("GuiGraphNodePort");
 		exceptions.insert("GuiResizer");
 		exceptions.insert("ZoomMore");
 		exceptions.insert("ZoomLess");
@@ -1114,126 +1113,6 @@ Ref<Theme> create_editor_theme(const Ref<Theme> p_theme) {
 	theme->set_stylebox("bg", "ProgressBar", make_stylebox(theme->get_icon("GuiProgressBar", "EditorIcons"), 4, 4, 4, 4, 0, 0, 0, 0));
 	theme->set_stylebox("fg", "ProgressBar", make_stylebox(theme->get_icon("GuiProgressFill", "EditorIcons"), 6, 6, 6, 6, 2, 1, 2, 1));
 	theme->set_color("font_color", "ProgressBar", font_color);
-
-	// GraphEdit
-	theme->set_stylebox("bg", "GraphEdit", style_tree_bg);
-	if (dark_theme) {
-		theme->set_color("grid_major", "GraphEdit", Color(1.0, 1.0, 1.0, 0.15));
-		theme->set_color("grid_minor", "GraphEdit", Color(1.0, 1.0, 1.0, 0.07));
-	} else {
-		theme->set_color("grid_major", "GraphEdit", Color(0.0, 0.0, 0.0, 0.15));
-		theme->set_color("grid_minor", "GraphEdit", Color(0.0, 0.0, 0.0, 0.07));
-	}
-	theme->set_color("selection_fill", "GraphEdit", theme->get_color("box_selection_fill_color", "Editor"));
-	theme->set_color("selection_stroke", "GraphEdit", theme->get_color("box_selection_stroke_color", "Editor"));
-	theme->set_color("activity", "GraphEdit", accent_color);
-	theme->set_icon("minus", "GraphEdit", theme->get_icon("ZoomLess", "EditorIcons"));
-	theme->set_icon("more", "GraphEdit", theme->get_icon("ZoomMore", "EditorIcons"));
-	theme->set_icon("reset", "GraphEdit", theme->get_icon("ZoomReset", "EditorIcons"));
-	theme->set_icon("snap", "GraphEdit", theme->get_icon("SnapGrid", "EditorIcons"));
-	theme->set_icon("minimap", "GraphEdit", theme->get_icon("GridMinimap", "EditorIcons"));
-	theme->set_constant("bezier_len_pos", "GraphEdit", 80 * EDSCALE);
-	theme->set_constant("bezier_len_neg", "GraphEdit", 160 * EDSCALE);
-
-	// GraphEditMinimap
-	Ref<StyleBoxFlat> style_minimap_bg = make_flat_stylebox(dark_color_1, 0, 0, 0, 0);
-	style_minimap_bg->set_border_color(dark_color_3);
-	style_minimap_bg->set_border_width_all(1);
-	theme->set_stylebox("bg", "GraphEditMinimap", style_minimap_bg);
-
-	Ref<StyleBoxFlat> style_minimap_camera;
-	Ref<StyleBoxFlat> style_minimap_node;
-	if (dark_theme) {
-		style_minimap_camera = make_flat_stylebox(Color(0.65, 0.65, 0.65, 0.2), 0, 0, 0, 0);
-		style_minimap_camera->set_border_color(Color(0.65, 0.65, 0.65, 0.45));
-		style_minimap_node = make_flat_stylebox(Color(1, 1, 1), 0, 0, 0, 0);
-	} else {
-		style_minimap_camera = make_flat_stylebox(Color(0.38, 0.38, 0.38, 0.2), 0, 0, 0, 0);
-		style_minimap_camera->set_border_color(Color(0.38, 0.38, 0.38, 0.45));
-		style_minimap_node = make_flat_stylebox(Color(0, 0, 0), 0, 0, 0, 0);
-	}
-	style_minimap_camera->set_border_width_all(1);
-	style_minimap_node->set_corner_radius_all(1);
-	theme->set_stylebox("camera", "GraphEditMinimap", style_minimap_camera);
-	theme->set_stylebox("node", "GraphEditMinimap", style_minimap_node);
-
-	Ref<Texture> minimap_resizer_icon = theme->get_icon("GuiResizer", "EditorIcons");
-	Color minimap_resizer_color;
-	if (dark_theme) {
-		minimap_resizer_color = Color(1, 1, 1, 0.65);
-	} else {
-		minimap_resizer_color = Color(0, 0, 0, 0.65);
-	}
-	theme->set_icon("resizer", "GraphEditMinimap", flip_icon(minimap_resizer_icon, true, true));
-	theme->set_color("resizer_color", "GraphEditMinimap", minimap_resizer_color);
-
-	// GraphNode
-	const float mv = dark_theme ? 0.0 : 1.0;
-	const float mv2 = 1.0 - mv;
-	const int gn_margin_side = 28;
-	Ref<StyleBoxFlat> graphsb = make_flat_stylebox(Color(mv, mv, mv, 0.7), gn_margin_side, 24, gn_margin_side, 5);
-	graphsb->set_border_width_all(border_width);
-	graphsb->set_border_color(Color(mv2, mv2, mv2, 0.9));
-	Ref<StyleBoxFlat> graphsbselected = make_flat_stylebox(Color(mv, mv, mv, 0.9), gn_margin_side, 24, gn_margin_side, 5);
-	graphsbselected->set_border_width_all(border_width);
-	graphsbselected->set_border_color(Color(accent_color.r, accent_color.g, accent_color.b, 0.9));
-	graphsbselected->set_shadow_size(8 * EDSCALE);
-	graphsbselected->set_shadow_color(shadow_color);
-	Ref<StyleBoxFlat> graphsbcomment = make_flat_stylebox(Color(mv, mv, mv, 0.3), gn_margin_side, 24, gn_margin_side, 5);
-	graphsbcomment->set_border_width_all(border_width);
-	graphsbcomment->set_border_color(Color(mv2, mv2, mv2, 0.9));
-	Ref<StyleBoxFlat> graphsbcommentselected = make_flat_stylebox(Color(mv, mv, mv, 0.4), gn_margin_side, 24, gn_margin_side, 5);
-	graphsbcommentselected->set_border_width_all(border_width);
-	graphsbcommentselected->set_border_color(Color(mv2, mv2, mv2, 0.9));
-	Ref<StyleBoxFlat> graphsbbreakpoint = graphsbselected->duplicate();
-	graphsbbreakpoint->set_draw_center(false);
-	graphsbbreakpoint->set_border_color(warning_color);
-	graphsbbreakpoint->set_shadow_color(warning_color * Color(1.0, 1.0, 1.0, 0.1));
-	Ref<StyleBoxFlat> graphsbposition = graphsbselected->duplicate();
-	graphsbposition->set_draw_center(false);
-	graphsbposition->set_border_color(error_color);
-	graphsbposition->set_shadow_color(error_color * Color(1.0, 1.0, 1.0, 0.2));
-	Ref<StyleBoxFlat> smgraphsb = make_flat_stylebox(Color(mv, mv, mv, 0.7), gn_margin_side, 24, gn_margin_side, 5);
-	smgraphsb->set_border_width_all(border_width);
-	smgraphsb->set_border_color(Color(mv2, mv2, mv2, 0.9));
-	Ref<StyleBoxFlat> smgraphsbselected = make_flat_stylebox(Color(mv, mv, mv, 0.9), gn_margin_side, 24, gn_margin_side, 5);
-	smgraphsbselected->set_border_width_all(border_width);
-	smgraphsbselected->set_border_color(Color(accent_color.r, accent_color.g, accent_color.b, 0.9));
-	smgraphsbselected->set_shadow_size(8 * EDSCALE);
-	smgraphsbselected->set_shadow_color(shadow_color);
-
-	if (use_gn_headers) {
-		graphsb->set_border_width(MARGIN_TOP, 24 * EDSCALE);
-		graphsbselected->set_border_width(MARGIN_TOP, 24 * EDSCALE);
-		graphsbcomment->set_border_width(MARGIN_TOP, 24 * EDSCALE);
-		graphsbcommentselected->set_border_width(MARGIN_TOP, 24 * EDSCALE);
-	}
-
-	theme->set_stylebox("frame", "GraphNode", graphsb);
-	theme->set_stylebox("selectedframe", "GraphNode", graphsbselected);
-	theme->set_stylebox("comment", "GraphNode", graphsbcomment);
-	theme->set_stylebox("commentfocus", "GraphNode", graphsbcommentselected);
-	theme->set_stylebox("breakpoint", "GraphNode", graphsbbreakpoint);
-	theme->set_stylebox("position", "GraphNode", graphsbposition);
-	theme->set_stylebox("state_machine_frame", "GraphNode", smgraphsb);
-	theme->set_stylebox("state_machine_selectedframe", "GraphNode", smgraphsbselected);
-
-	Color default_node_color = Color(mv2, mv2, mv2);
-	theme->set_color("title_color", "GraphNode", default_node_color);
-	default_node_color.a = 0.7;
-	theme->set_color("close_color", "GraphNode", default_node_color);
-	theme->set_color("resizer_color", "GraphNode", default_node_color);
-
-	theme->set_constant("port_offset", "GraphNode", 14 * EDSCALE);
-	theme->set_constant("title_h_offset", "GraphNode", -16 * EDSCALE);
-	theme->set_constant("title_offset", "GraphNode", 20 * EDSCALE);
-	theme->set_constant("close_h_offset", "GraphNode", 20 * EDSCALE);
-	theme->set_constant("close_offset", "GraphNode", 20 * EDSCALE);
-	theme->set_constant("separation", "GraphNode", 1 * EDSCALE);
-
-	theme->set_icon("close", "GraphNode", theme->get_icon("GuiCloseCustomizable", "EditorIcons"));
-	theme->set_icon("resizer", "GraphNode", theme->get_icon("GuiResizer", "EditorIcons"));
-	theme->set_icon("port", "GraphNode", theme->get_icon("GuiGraphNodePort", "EditorIcons"));
 
 	// GridContainer
 	theme->set_constant("vseparation", "GridContainer", (extra_spacing + default_margin_size) * EDSCALE);

@@ -38,47 +38,48 @@
 
 #include "scene/gui/box_container.h"
 #include "scene/gui/button.h"
-#include "scene/gui/center_container.h"
+#include "scene/gui/center_container.h" //
 #include "scene/gui/check_box.h"
 #include "scene/gui/check_button.h"
-#include "scene/gui/color_picker.h"
+#include "scene/gui/color_picker.h" //
+
 #include "scene/gui/color_rect.h"
+
 #include "scene/gui/control.h"
+
 #include "scene/gui/dialogs.h"
 #include "scene/gui/file_dialog.h"
-#include "scene/gui/flow_container.h"
-#include "scene/gui/graph_edit.h"
-#include "scene/gui/graph_node.h"
-#include "scene/gui/grid_container.h"
-#include "scene/gui/item_list.h"
+#include "scene/gui/flow_container.h" //
+#include "scene/gui/grid_container.h" //
+#include "scene/gui/item_list.h" //
 #include "scene/gui/label.h"
 #include "scene/gui/line_edit.h"
-#include "scene/gui/link_button.h"
+#include "scene/gui/link_button.h" //
 #include "scene/gui/margin_container.h"
 #include "scene/gui/menu_button.h"
-#include "scene/gui/nine_patch_rect.h"
+#include "scene/gui/nine_patch_rect.h" //
 #include "scene/gui/option_button.h"
-#include "scene/gui/panel.h"
+#include "scene/gui/panel.h" //
 #include "scene/gui/panel_container.h"
 #include "scene/gui/popup_menu.h"
-#include "scene/gui/progress_bar.h"
-#include "scene/gui/rich_text_effect.h"
-#include "scene/gui/rich_text_label.h"
-#include "scene/gui/scroll_bar.h"
-#include "scene/gui/scroll_container.h"
-#include "scene/gui/separator.h"
-#include "scene/gui/slider.h"
+#include "scene/gui/progress_bar.h" //
+#include "scene/gui/rich_text_effect.h" //
+#include "scene/gui/rich_text_label.h" //
+#include "scene/gui/scroll_bar.h" //
+#include "scene/gui/scroll_container.h" //
+#include "scene/gui/separator.h" //
+#include "scene/gui/slider.h" //
 #include "scene/gui/spin_box.h"
 #include "scene/gui/split_container.h"
 #include "scene/gui/tab_container.h"
-#include "scene/gui/tabs.h"
+#include "scene/gui/tabs.h" //
 #include "scene/gui/text_edit.h"
-#include "scene/gui/texture_button.h"
-#include "scene/gui/texture_progress.h"
+#include "scene/gui/texture_button.h" //
+#include "scene/gui/texture_progress.h" //
 #include "scene/gui/texture_rect.h"
 #include "scene/gui/tool_button.h"
 #include "scene/gui/tree.h"
-#include "scene/gui/viewport_container.h"
+#include "scene/gui/viewport_container.h" //
 
 #include "scene/main/canvas_layer.h"
 #include "scene/main/instance_placeholder.h"
@@ -264,8 +265,6 @@ void register_scene_types() {
 // 	ClassDB::register_virtual_class<SplitContainer>();
 // 	ClassDB::register_class<HSplitContainer>();
 // 	ClassDB::register_class<VSplitContainer>();
-// 	ClassDB::register_class<GraphNode>();
-// 	ClassDB::register_class<GraphEdit>();
 /*
 	OS::get_singleton()->yield(); //may take time to init
 

@@ -583,39 +583,6 @@ void fill_default_theme(Ref<Theme> &theme, const Ref<Font> &default_font, const 
 	theme->set_constant("hseparation", "PopupMenu", 4 * scale);
 	theme->set_constant("vseparation", "PopupMenu", 4 * scale);
 
-	// GraphNode
-
-	Ref<StyleBoxTexture> graphsb = make_stylebox(graph_node_png, 6, 24, 6, 5, 16, 24, 16, 6);
-	Ref<StyleBoxTexture> graphsbcomment = make_stylebox(graph_node_comment_png, 6, 24, 6, 5, 16, 24, 16, 6);
-	Ref<StyleBoxTexture> graphsbcommentselected = make_stylebox(graph_node_comment_focus_png, 6, 24, 6, 5, 16, 24, 16, 6);
-	Ref<StyleBoxTexture> graphsbselected = make_stylebox(graph_node_selected_png, 6, 24, 6, 5, 16, 24, 16, 6);
-	Ref<StyleBoxTexture> graphsbdefault = make_stylebox(graph_node_default_png, 4, 4, 4, 4, 6, 4, 4, 4);
-	Ref<StyleBoxTexture> graphsbdeffocus = make_stylebox(graph_node_default_focus_png, 4, 4, 4, 4, 6, 4, 4, 4);
-	Ref<StyleBoxTexture> graph_bpoint = make_stylebox(graph_node_breakpoint_png, 6, 24, 6, 5, 16, 24, 16, 6);
-	Ref<StyleBoxTexture> graph_position = make_stylebox(graph_node_position_png, 6, 24, 6, 5, 16, 24, 16, 6);
-
-	//graphsb->set_expand_margin_size(MARGIN_LEFT,10);
-	//graphsb->set_expand_margin_size(MARGIN_RIGHT,10);
-	theme->set_stylebox("frame", "GraphNode", graphsb);
-	theme->set_stylebox("selectedframe", "GraphNode", graphsbselected);
-	theme->set_stylebox("defaultframe", "GraphNode", graphsbdefault);
-	theme->set_stylebox("defaultfocus", "GraphNode", graphsbdeffocus);
-	theme->set_stylebox("comment", "GraphNode", graphsbcomment);
-	theme->set_stylebox("commentfocus", "GraphNode", graphsbcommentselected);
-	theme->set_stylebox("breakpoint", "GraphNode", graph_bpoint);
-	theme->set_stylebox("position", "GraphNode", graph_position);
-	theme->set_constant("separation", "GraphNode", 1 * scale);
-	theme->set_icon("port", "GraphNode", make_icon(graph_port_png));
-	theme->set_icon("close", "GraphNode", make_icon(graph_node_close_png));
-	theme->set_icon("resizer", "GraphNode", make_icon(window_resizer_png));
-	theme->set_font("title_font", "GraphNode", default_font);
-	theme->set_color("title_color", "GraphNode", Color(0, 0, 0, 1));
-	theme->set_color("close_color", "GraphNode", Color(0, 0, 0, 1));
-	theme->set_color("resizer_color", "GraphNode", Color(0, 0, 0, 1));
-	theme->set_constant("title_offset", "GraphNode", 20 * scale);
-	theme->set_constant("close_offset", "GraphNode", 18 * scale);
-	theme->set_constant("port_offset", "GraphNode", 3 * scale);
-
 	// Tree
 
 	Ref<StyleBoxTexture> tree_selected = make_stylebox(selection_png, 4, 4, 4, 4, 8, 0, 8, 0);
@@ -874,38 +841,6 @@ void fill_default_theme(Ref<Theme> &theme, const Ref<Font> &default_font, const 
 
 	Ref<StyleBoxTexture> sb_pc = make_stylebox(tab_container_bg_png, 4, 4, 4, 4, 7, 7, 7, 7);
 	theme->set_stylebox("panel", "PanelContainer", sb_pc);
-
-	theme->set_icon("minus", "GraphEdit", make_icon(icon_zoom_less_png));
-	theme->set_icon("reset", "GraphEdit", make_icon(icon_zoom_reset_png));
-	theme->set_icon("more", "GraphEdit", make_icon(icon_zoom_more_png));
-	theme->set_icon("snap", "GraphEdit", make_icon(icon_snap_grid_png));
-	theme->set_icon("minimap", "GraphEdit", make_icon(icon_grid_minimap_png));
-	theme->set_stylebox("bg", "GraphEdit", make_stylebox(tree_bg_png, 4, 4, 4, 5));
-	theme->set_color("grid_minor", "GraphEdit", Color(1, 1, 1, 0.05));
-	theme->set_color("grid_major", "GraphEdit", Color(1, 1, 1, 0.2));
-	theme->set_color("selection_fill", "GraphEdit", Color(1, 1, 1, 0.3));
-	theme->set_color("selection_stroke", "GraphEdit", Color(1, 1, 1, 0.8));
-	theme->set_color("activity", "GraphEdit", Color(1, 1, 1));
-	theme->set_constant("bezier_len_pos", "GraphEdit", 80 * scale);
-	theme->set_constant("bezier_len_neg", "GraphEdit", 160 * scale);
-
-	// Visual Node Ports
-
-	theme->set_constant("port_grab_distance_horizontal", "GraphEdit", 24 * scale);
-	theme->set_constant("port_grab_distance_vertical", "GraphEdit", 26 * scale);
-
-	theme->set_stylebox("bg", "GraphEditMinimap", make_flat_stylebox(Color(0.24, 0.24, 0.24), 0, 0, 0, 0));
-	Ref<StyleBoxFlat> style_minimap_camera = make_flat_stylebox(Color(0.65, 0.65, 0.65, 0.2), 0, 0, 0, 0);
-	style_minimap_camera->set_border_color(Color(0.65, 0.65, 0.65, 0.45));
-	style_minimap_camera->set_border_width_all(1);
-	theme->set_stylebox("camera", "GraphEditMinimap", style_minimap_camera);
-	Ref<StyleBoxFlat> style_minimap_node = make_flat_stylebox(Color(1, 1, 1), 0, 0, 0, 0);
-	style_minimap_node->set_corner_radius_all(2);
-	theme->set_stylebox("node", "GraphEditMinimap", style_minimap_node);
-
-	Ref<Texture> resizer_icon = make_icon(window_resizer_png);
-	theme->set_icon("resizer", "GraphEditMinimap", flip_icon(resizer_icon, true, true));
-	theme->set_color("resizer_color", "GraphEditMinimap", Color(1, 1, 1, 0.85));
 
 	// Theme
 
