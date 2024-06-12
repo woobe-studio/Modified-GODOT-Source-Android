@@ -25,7 +25,6 @@
 #include "core/io/xml_parser.h"
 #include "core/math/expression.h"
 #include "core/math/random_number_generator.h"
-#include "core/math/triangle_mesh.h"
 #include "core/os/input.h"
 #include "core/os/main_loop.h"
 #include "core/os/time.h"
@@ -133,7 +132,6 @@ void register_core_types() {
 	ClassDB::register_class<Translation>();
 	ClassDB::register_class<PHashTranslation>();
 	ClassDB::register_class<UndoRedo>();
-	ClassDB::register_class<TriangleMesh>();
 
 	ClassDB::register_virtual_class<ResourceInteractiveLoader>();
 

@@ -243,18 +243,6 @@ static String _fixstr(const String &p_what, const String &p_str) {
 	return what;
 }
 
-static void _gen_shape_list(const Ref<Mesh> &mesh, List<Ref<Shape>> &r_shape_list, bool p_convex) {
-	if (!p_convex) {
-	} else {
-		Vector<Ref<Shape>> cd = mesh->convex_decompose();
-		if (cd.size()) {
-			for (int i = 0; i < cd.size(); i++) {
-				r_shape_list.push_back(cd[i]);
-			}
-		}
-	}
-}
-
 Node *ResourceImporterScene::_fix_node(Node *p_node, Node *p_root, Map<Ref<Mesh>, List<Ref<Shape>>> &collision_map, LightBakeMode p_light_bake_mode, List<Pair<NodePath, Node *>> &r_node_renames) {
 	// Children first.
 	for (int i = 0; i < p_node->get_child_count(); i++) {

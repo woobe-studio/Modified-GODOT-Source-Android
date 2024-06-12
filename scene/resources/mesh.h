@@ -7,7 +7,6 @@
 #define MESH_H
 
 #include "core/math/face3.h"
-#include "core/math/triangle_mesh.h"
 #include "core/resource.h"
 #include "scene/resources/material.h"
 #include "scene/resources/shape.h"
@@ -16,7 +15,6 @@
 class Mesh : public Resource {
 	GDCLASS(Mesh, Resource);
 
-	mutable Ref<TriangleMesh> triangle_mesh; //cached
 	mutable Vector<Vector3> debug_lines;
 	Size2 lightmap_size_hint;
 
@@ -107,7 +105,6 @@ public:
 	virtual void set_blend_shape_name(int p_index, const StringName &p_name) = 0;
 
 	PoolVector<Face3> get_faces() const;
-	Ref<TriangleMesh> generate_triangle_mesh() const;
 
 	Ref<Mesh> create_outline(float p_margin) const;
 
@@ -119,9 +116,6 @@ public:
 
 	typedef Vector<PoolVector<Vector3>> (*ConvexDecompositionFunc)(const real_t *p_vertices, int p_vertex_count, const uint32_t *p_triangles, int p_triangle_count, int p_max_convex_hulls, Vector<PoolVector<uint32_t>> *r_convex_indices);
 
-	static ConvexDecompositionFunc convex_decomposition_function;
-
-	Vector<Ref<Shape>> convex_decompose(int p_max_convex_hulls = -1) const;
 
 	Mesh();
 };

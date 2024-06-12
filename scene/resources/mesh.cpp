@@ -12,82 +12,6 @@
 
 #include <stdlib.h>
 
-Mesh::ConvexDecompositionFunc Mesh::convex_decomposition_function = nullptr;
-
-Ref<TriangleMesh> Mesh::generate_triangle_mesh() const {
-	if (triangle_mesh.is_valid()) {
-		return triangle_mesh;
-	}
-
-	int facecount = 0;
-
-	for (int i = 0; i < get_surface_count(); i++) {
-		if (surface_get_primitive_type(i) != PRIMITIVE_TRIANGLES) {
-			continue;
-		}
-
-		if (surface_get_format(i) & ARRAY_FORMAT_INDEX) {
-			facecount += surface_get_array_index_len(i);
-		} else {
-			facecount += surface_get_array_len(i);
-		}
-	}
-
-	if (facecount == 0 || (facecount % 3) != 0) {
-		return triangle_mesh;
-	}
-
-	PoolVector<Vector3> faces;
-	faces.resize(facecount);
-	PoolVector<Vector3>::Write facesw = faces.write();
-
-	int widx = 0;
-
-	for (int i = 0; i < get_surface_count(); i++) {
-		if (surface_get_primitive_type(i) != PRIMITIVE_TRIANGLES) {
-			continue;
-		}
-
-		Array a = surface_get_arrays(i);
-		ERR_FAIL_COND_V(a.empty(), Ref<TriangleMesh>());
-
-		int vc = surface_get_array_len(i);
-		PoolVector<Vector3> vertices = a[ARRAY_VERTEX];
-		PoolVector<Vector3>::Read vr = vertices.read();
-
-		if (surface_get_format(i) & ARRAY_FORMAT_INDEX) {
-			int ic = surface_get_array_index_len(i);
-			PoolVector<int> indices = a[ARRAY_INDEX];
-			PoolVector<int>::Read ir = indices.read();
-
-			for (int j = 0; j < ic; j++) {
-				int index = ir[j];
-				facesw[widx++] = vr[index];
-			}
-
-		} else {
-			for (int j = 0; j < vc; j++) {
-				facesw[widx++] = vr[j];
-			}
-		}
-	}
-
-	facesw.release();
-
-	triangle_mesh = Ref<TriangleMesh>(memnew(TriangleMesh));
-	triangle_mesh->create(faces);
-
-	return triangle_mesh;
-}
-
-PoolVector<Face3> Mesh::get_faces() const {
-	Ref<TriangleMesh> tm = generate_triangle_mesh();
-	if (tm.is_valid()) {
-		return tm->get_faces();
-	}
-	return PoolVector<Face3>();
-}
-
 Ref<Mesh> Mesh::create_outline(float p_margin) const {
 	Array arrays;
 	int index_accum = 0;
@@ -359,39 +283,7 @@ void Mesh::_bind_methods() {
 }
 
 void Mesh::clear_cache() const {
-	triangle_mesh.unref();
 	debug_lines.clear();
-}
-
-Vector<Ref<Shape>> Mesh::convex_decompose(int p_max_convex_hulls) const {
-	ERR_FAIL_COND_V(!convex_decomposition_function, Vector<Ref<Shape>>());
-
-	Ref<TriangleMesh> tm = generate_triangle_mesh();
-	ERR_FAIL_COND_V(!tm.is_valid(), Vector<Ref<Shape>>());
-
-	const PoolVector<TriangleMesh::Triangle> &triangles = tm->get_triangles();
-	int triangle_count = triangles.size();
-
-	PoolVector<uint32_t> indices;
-	{
-		indices.resize(triangle_count * 3);
-		PoolVector<uint32_t>::Write w = indices.write();
-		PoolVector<TriangleMesh::Triangle>::Read triangles_read = triangles.read();
-		for (int i = 0; i < triangle_count; i++) {
-			for (int j = 0; j < 3; j++) {
-				w[i * 3 + j] = triangles_read[i].indices[j];
-			}
-		}
-	}
-
-	const PoolVector<Vector3> &vertices = tm->get_vertices();
-	int vertex_count = vertices.size();
-
-	Vector<PoolVector<Vector3>> decomposed = convex_decomposition_function((real_t *)vertices.read().ptr(), vertex_count, indices.read().ptr(), triangle_count, p_max_convex_hulls, nullptr);
-
-	Vector<Ref<Shape>> ret;
-
-	return ret;
 }
 
 Mesh::Mesh() {
@@ -1219,8 +1111,6 @@ void ArrayMesh::_bind_methods() {
 	ClassDB::set_method_flags(get_class_static(), _scs_create("regen_normalmaps"), METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);
 	ClassDB::bind_method(D_METHOD("lightmap_unwrap", "transform", "texel_size"), &ArrayMesh::lightmap_unwrap);
 	ClassDB::set_method_flags(get_class_static(), _scs_create("lightmap_unwrap"), METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);
-	ClassDB::bind_method(D_METHOD("get_faces"), &ArrayMesh::get_faces);
-	ClassDB::bind_method(D_METHOD("generate_triangle_mesh"), &ArrayMesh::generate_triangle_mesh);
 
 	ClassDB::bind_method(D_METHOD("set_custom_aabb", "aabb"), &ArrayMesh::set_custom_aabb);
 	ClassDB::bind_method(D_METHOD("get_custom_aabb"), &ArrayMesh::get_custom_aabb);
