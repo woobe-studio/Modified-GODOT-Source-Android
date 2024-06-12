@@ -9,7 +9,6 @@
 #include "core/math/face3.h"
 #include "core/resource.h"
 #include "scene/resources/material.h"
-#include "scene/resources/shape.h"
 #include "servers/visual_server.h"
 
 class Mesh : public Resource {
