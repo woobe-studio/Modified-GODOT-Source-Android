@@ -135,9 +135,6 @@ MAKE_TYPE_INFO(PoolColorArray, Variant::POOL_COLOR_ARRAY)
 MAKE_TYPE_INFO(StringName, Variant::STRING)
 MAKE_TYPE_INFO(IP_Address, Variant::STRING)
 
-class BSP_Tree;
-MAKE_TYPE_INFO(BSP_Tree, Variant::DICTIONARY)
-
 //for RefPtr
 template <>
 struct GetTypeInfo<RefPtr> {

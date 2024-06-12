@@ -7,7 +7,6 @@
 #define VISUAL_SERVER_H
 
 #include "core/image.h"
-#include "core/math/bsp_tree.h"
 #include "core/math/geometry.h"
 #include "core/math/transform_2d.h"
 #include "core/object.h"

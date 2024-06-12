@@ -8,7 +8,6 @@
 #include "core/crypto/crypto.h"
 #include "core/input_map.h"
 #include "core/io/file_access_pack.h"
-#include "core/io/file_access_zip.h"
 #include "core/io/image_loader.h"
 #include "core/io/ip.h"
 #include "core/io/resource_loader.h"

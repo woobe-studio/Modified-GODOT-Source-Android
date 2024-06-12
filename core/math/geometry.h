@@ -6,7 +6,6 @@
 #ifndef GEOMETRY_H
 #define GEOMETRY_H
 
-#include "core/math/delaunay.h"
 #include "core/math/face3.h"
 #include "core/math/rect2.h"
 #include "core/math/triangulate.h"
@@ -867,18 +866,6 @@ public:
 		ERR_FAIL_COND_V_MSG(p_end_type == END_POLYGON, Vector<Vector<Point2>>(), "Attempt to offset a polyline like a polygon (use offset_polygon_2d instead).");
 
 		return _polypath_offset(p_polygon, p_delta, p_join_type, p_end_type);
-	}
-
-	static Vector<int> triangulate_delaunay_2d(const Vector<Vector2> &p_points) {
-		Vector<Delaunay2D::Triangle> tr = Delaunay2D::triangulate(p_points);
-		Vector<int> triangles;
-
-		for (int i = 0; i < tr.size(); i++) {
-			triangles.push_back(tr[i].points[0]);
-			triangles.push_back(tr[i].points[1]);
-			triangles.push_back(tr[i].points[2]);
-		}
-		return triangles;
 	}
 
 	static Vector<int> triangulate_polygon(const Vector<Vector2> &p_polygon) {
