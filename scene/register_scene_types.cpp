@@ -57,7 +57,6 @@
 #include "scene/gui/link_button.h" //
 #include "scene/gui/margin_container.h"
 #include "scene/gui/menu_button.h"
-#include "scene/gui/nine_patch_rect.h" //
 #include "scene/gui/option_button.h"
 #include "scene/gui/panel.h" //
 #include "scene/gui/panel_container.h"
@@ -213,7 +212,6 @@ void register_scene_types() {
 
 	//ClassDB::register_class<TextureRect>();
 	ClassDB::register_class<ColorRect>();
-	//ClassDB::register_class<NinePatchRect>();
 	//ClassDB::register_class<TabContainer>();
 	//ClassDB::register_class<Tabs>();
 	//ClassDB::register_virtual_class<Separator>();

@@ -22,7 +22,10 @@
 #include "scene/2d/touch_screen_button.h"
 #include "scene/gui/flow_container.h"
 #include "scene/gui/grid_container.h"
-#include "scene/gui/nine_patch_rect.h"
+
+#ifndef ADVANCED_GUI_DISABLED
+    #include "scene/gui/nine_patch_rect.h"
+#endif
 #include "scene/gui/viewport_container.h"
 #include "scene/main/canvas_layer.h"
 #include "scene/main/viewport.h"
@@ -6177,7 +6180,11 @@ void CanvasItemEditorViewport::_create_nodes(Node *parent, Node *child, String &
 	editor_data->get_undo_redo().add_do_property(child, property, texture);
 
 	// make visible for certain node type
-	if (default_type == "NinePatchRect") {
+    bool is_ninepatch = false;
+    #ifndef ADVANCED_GUI_DISABLED
+        is_ninepatch = true;
+    #endif
+	if (is_ninepatch && default_type == "NinePatchRect") {
 		editor_data->get_undo_redo().add_do_property(child, "rect/size", texture_size);
 	}
 
@@ -6274,13 +6281,17 @@ void CanvasItemEditorViewport::_perform_drop_data() {
 			}
 		} else {
 			Ref<Texture> texture = Ref<Texture>(Object::cast_to<Texture>(*res));
+            bool is_ninepatch = false;
+            #ifndef ADVANCED_GUI_DISABLED
+                is_ninepatch = true;
+            #endif
 			if (texture != nullptr && texture.is_valid()) {
 				Node *child;
                 if (default_type == "TouchScreenButton") {
 					child = memnew(TouchScreenButton);
 				} else if (default_type == "TextureRect") {
 					child = memnew(TextureRect);
-				} else if (default_type == "NinePatchRect") {
+				} else if (is_ninepatch && default_type == "NinePatchRect") {
 					child = memnew(NinePatchRect);
 				} else {
 					child = memnew(Sprite); // default
@@ -6445,7 +6456,9 @@ CanvasItemEditorViewport::CanvasItemEditorViewport(EditorNode *p_node, CanvasIte
 	types.push_back("TouchScreenButton");
 	// Control
 	types.push_back("TextureRect");
-	types.push_back("NinePatchRect");
+    #ifndef ADVANCED_GUI_DISABLED
+        types.push_back("NinePatchRect");
+    #endif
 
 	target_node = nullptr;
 	editor = p_node;

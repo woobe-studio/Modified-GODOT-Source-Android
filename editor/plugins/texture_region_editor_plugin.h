@@ -58,8 +58,10 @@ class TextureRegionEditor : public VBoxContainer {
 	Vector2 snap_separation;
 
 	Sprite *node_sprite;
-	NinePatchRect *node_ninepatch;
-	Ref<StyleBoxTexture> obj_styleBox;
+    #ifndef ADVANCED_GUI_DISABLED
+	    NinePatchRect *node_ninepatch;
+    #endif
+    Ref<StyleBoxTexture> obj_styleBox;
 	Ref<AtlasTexture> atlas_tex;
 
 	Rect2 rect;
