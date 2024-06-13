@@ -478,23 +478,6 @@ void ResourceImporterScene::_filter_tracks(Node *scene, const String &p_text) {
 	}
 }
 
-void ResourceImporterScene::_optimize_animations(Node *scene, float p_max_lin_error, float p_max_ang_error, float p_max_angle) {
-	if (!scene->has_node(String("AnimationPlayer"))) {
-		return;
-	}
-	Node *n = scene->get_node(String("AnimationPlayer"));
-	ERR_FAIL_COND(!n);
-	AnimationPlayer *anim = Object::cast_to<AnimationPlayer>(n);
-	ERR_FAIL_COND(!anim);
-
-	List<StringName> anim_names;
-	anim->get_animation_list(&anim_names);
-	for (List<StringName>::Element *E = anim_names.front(); E; E = E->next()) {
-		Ref<Animation> a = anim->get_animation(E->get());
-		a->optimize(p_max_lin_error, p_max_ang_error, Math::deg2rad(p_max_angle));
-	}
-}
-
 static String _make_extname(const String &p_str) {
 	String ext_name = p_str.replace(".", "_");
 	ext_name = ext_name.replace(":", "_");
@@ -982,54 +965,6 @@ Error ResourceImporterScene::import(const String &p_source_file, const String &p
 		texel_size = MAX(0.001, texel_size);
 
 		Map<String, unsigned int> used_meshes;
-
-		EditorProgress progress2("gen_lightmaps", TTR("Generating Lightmaps"), meshes.size());
-		int step = 0;
-		for (Map<Ref<ArrayMesh>, Transform>::Element *E = meshes.front(); E; E = E->next()) {
-			Ref<ArrayMesh> mesh = E->key();
-			String name = mesh->get_name();
-			if (name == "") { //should not happen but..
-				name = "Mesh " + itos(step);
-			}
-
-			progress2.step(TTR("Generating for Mesh:") + " " + name + " (" + itos(step) + "/" + itos(meshes.size()) + ")", step);
-
-			int *ret_cache_data = cache_data;
-			unsigned int ret_cache_size = cache_size;
-			bool ret_used_cache = true; // Tell the unwrapper to use the cache
-			Error err2 = mesh->lightmap_unwrap_cached(ret_cache_data, ret_cache_size, ret_used_cache, E->get(), texel_size);
-
-			if (err2 != OK) {
-				EditorNode::add_io_error("Mesh '" + name + "' failed lightmap generation. Please fix geometry.");
-			} else {
-				String hash = String::md5((unsigned char *)ret_cache_data);
-				used_meshes.insert(hash, ret_cache_size);
-
-				if (!ret_used_cache) {
-					// Cache was not used, add the generated entry to the current cache
-
-					unsigned int new_cache_size = cache_size + ret_cache_size + (cache_size == 0 ? 4 : 0);
-					int *new_cache_data = (int *)memalloc(new_cache_size);
-
-					if (cache_size == 0) {
-						// Cache was empty
-						new_cache_data[0] = 0;
-						cache_size = 4;
-					} else {
-						memcpy(new_cache_data, cache_data, cache_size);
-						memfree(cache_data);
-					}
-
-					memcpy(&new_cache_data[cache_size / sizeof(int)], ret_cache_data, ret_cache_size);
-
-					cache_data = new_cache_data;
-					cache_size = new_cache_size;
-
-					cache_data[0]++; // Increase entry count
-				}
-			}
-			step++;
-		}
 
 		Error err2;
 		FileAccess *file = FileAccess::open(cache_file_path, FileAccess::WRITE, &err2);

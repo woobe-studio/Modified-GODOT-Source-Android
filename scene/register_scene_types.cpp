@@ -25,7 +25,6 @@
 #include "scene/2d/sprite.h"
 #include "scene/2d/tile_map.h"
 #include "scene/2d/touch_screen_button.h"
-#include "scene/2d/visibility_notifier_2d.h"
 #include "scene/2d/y_sort.h"
 #include "scene/2d/text_label.h"
 #include "scene/2d/world_environment.h"
@@ -52,7 +51,6 @@
 #include "scene/gui/flow_container.h" //
 #include "scene/gui/grid_container.h" //
 #include "scene/gui/item_list.h" //
-#include "scene/gui/label.h"
 #include "scene/gui/line_edit.h"
 #include "scene/gui/link_button.h" //
 #include "scene/gui/margin_container.h"
@@ -105,11 +103,9 @@
 #include "scene/resources/rectangle_shape_2d.h"
 #include "scene/resources/resource_format_text.h"
 #include "scene/resources/segment_shape_2d.h"
-#include "scene/resources/surface_tool.h"
 #include "scene/resources/text_file.h"
 #include "scene/resources/texture.h"
 #include "scene/resources/tile_set.h"
-#include "scene/resources/world.h"
 #include "scene/resources/world_2d.h"
 
 #include "scene/scene_string_names.h"
@@ -190,7 +186,6 @@ void register_scene_types() {
 	//ClassDB::register_class<ShortCut>();
 	ClassDB::register_class<Control>();
 	//ClassDB::register_class<Button>();
-	ClassDB::register_class<Label>();
 	//ClassDB::register_virtual_class<ScrollBar>();
 	//ClassDB::register_class<HScrollBar>();
 	//ClassDB::register_class<VScrollBar>();
@@ -304,8 +299,6 @@ void register_scene_types() {
 	ClassDB::register_class<CollisionShape2D>();
 	ClassDB::register_class<CollisionPolygon2D>();
 	ClassDB::register_class<RayCast2D>();
-	//ClassDB::register_class<VisibilityNotifier2D>();
-	//ClassDB::register_class<VisibilityEnabler2D>();
 	ClassDB::register_class<YSort>();
     ClassDB::register_class<TextLabel>();
 
@@ -320,8 +313,6 @@ void register_scene_types() {
 
 	 ClassDB::register_virtual_class<Mesh>();
 	// ClassDB::register_class<ArrayMesh>();
-	// ClassDB::register_class<MultiMesh>();
-	// ClassDB::register_class<SurfaceTool>();
 
 	OS::get_singleton()->yield(); //may take time to init
 
@@ -337,7 +328,6 @@ void register_scene_types() {
 
 #endif
 	ClassDB::register_class<PhysicsMaterial>();
-	//ClassDB::register_class<World>();
 	ClassDB::register_class<Environment>();
 	ClassDB::register_class<World2D>();
 	ClassDB::register_virtual_class<Texture>();

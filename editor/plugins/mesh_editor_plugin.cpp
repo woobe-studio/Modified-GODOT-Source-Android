@@ -69,9 +69,9 @@ void MeshEditor::_bind_methods() {
 
 MeshEditor::MeshEditor() {
 	viewport = memnew(Viewport);
-	Ref<World> world;
-	world.instance();
-	viewport->set_world(world); //use own world
+	Ref<World2D> world_2d;
+    world_2d.instance();
+	viewport->set_world_2d(world_2d); //use own world
 	add_child(viewport);
 	viewport->set_disable_input(true);
 	viewport->set_msaa(Viewport::MSAA_2X);

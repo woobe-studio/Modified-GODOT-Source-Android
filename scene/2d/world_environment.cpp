@@ -9,35 +9,35 @@
 void WorldEnvironment::_notification(int p_what) {
 	if (p_what == Node::NOTIFICATION_ENTER_TREE) {
 		if (environment.is_valid()) {
-			if (get_viewport()->find_world()->get_environment().is_valid()) {
-				WARN_PRINT("World already has an environment (Another WorldEnvironment?), overriding.");
+			if (get_viewport()->find_world_2d()->get_environment().is_valid()) {
+				WARN_PRINT("World 2D already has an environment (Another WorldEnvironment?), overriding.");
 			}
-			get_viewport()->find_world()->set_environment(environment);
-			add_to_group("_world_environment_" + itos(get_viewport()->find_world()->get_scenario().get_id()));
+			get_viewport()->find_world_2d()->set_environment(environment);
+			add_to_group("_world_environment_" + itos(get_viewport()->find_world_2d()->get_scenario().get_id()));
 		}
 
 	} else if (p_what == Node::NOTIFICATION_EXIT_TREE) {
-		if (environment.is_valid() && get_viewport()->find_world()->get_environment() == environment) {
-			get_viewport()->find_world()->set_environment(Ref<Environment>());
-			remove_from_group("_world_environment_" + itos(get_viewport()->find_world()->get_scenario().get_id()));
+		if (environment.is_valid() && get_viewport()->find_world_2d()->get_environment() == environment) {
+			get_viewport()->find_world_2d()->set_environment(Ref<Environment>());
+			remove_from_group("_world_environment_" + itos(get_viewport()->find_world_2d()->get_scenario().get_id()));
 		}
 	}
 }
 
 void WorldEnvironment::set_environment(const Ref<Environment> &p_environment) {
-	if (is_inside_tree() && environment.is_valid() && get_viewport()->find_world()->get_environment() == environment) {
-		get_viewport()->find_world()->set_environment(Ref<Environment>());
-		remove_from_group("_world_environment_" + itos(get_viewport()->find_world()->get_scenario().get_id()));
+	if (is_inside_tree() && environment.is_valid() && get_viewport()->find_world_2d()->get_environment() == environment) {
+		get_viewport()->find_world_2d()->set_environment(Ref<Environment>());
+		remove_from_group("_world_environment_" + itos(get_viewport()->find_world_2d()->get_scenario().get_id()));
 		//clean up
 	}
 
 	environment = p_environment;
 	if (is_inside_tree() && environment.is_valid()) {
-		if (get_viewport()->find_world()->get_environment().is_valid()) {
-			WARN_PRINT("World already has an environment (Another WorldEnvironment?), overriding.");
+		if (get_viewport()->find_world_2d()->get_environment().is_valid()) {
+			WARN_PRINT("World 2D already has an environment (Another WorldEnvironment?), overriding.");
 		}
-		get_viewport()->find_world()->set_environment(environment);
-		add_to_group("_world_environment_" + itos(get_viewport()->find_world()->get_scenario().get_id()));
+		get_viewport()->find_world_2d()->set_environment(environment);
+		add_to_group("_world_environment_" + itos(get_viewport()->find_world_2d()->get_scenario().get_id()));
 	}
 
 	update_configuration_warning();
@@ -62,7 +62,7 @@ String WorldEnvironment::get_configuration_warning() const {
 	}
 
 	List<Node *> nodes;
-	get_tree()->get_nodes_in_group("_world_environment_" + itos(get_viewport()->find_world()->get_scenario().get_id()), &nodes);
+	get_tree()->get_nodes_in_group("_world_environment_" + itos(get_viewport()->find_world_2d()->get_scenario().get_id()), &nodes);
 
 	if (nodes.size() > 1) {
 		if (warning != String()) {

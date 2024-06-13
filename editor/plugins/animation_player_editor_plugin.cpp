@@ -23,7 +23,6 @@
 #include "core/math/geometry.h"
 #include "scene/resources/font.h"
 #include "scene/resources/mesh.h"
-#include "scene/resources/surface_tool.h"
 #include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
 #include "scene/gui/panel_container.h"

@@ -8,7 +8,6 @@
 #include "core/io/resource_saver.h"
 #include "core/os/file_access.h"
 #include "scene/main/node.h"
-#include "scene/resources/surface_tool.h"
 
 uint32_t EditorOBJImporter::get_import_flags() const {
 	return IMPORT_SCENE;
@@ -191,8 +190,6 @@ static Error _parse_obj(const String &p_path, List<Ref<Mesh>> &r_meshes, bool p_
 
 	Map<String, Map<String, Ref<SpatialMaterial>>> material_map;
 
-	Ref<SurfaceTool> surf_tool = memnew(SurfaceTool);
-	surf_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
 
 	String current_material_library;
 	String current_material;
@@ -235,130 +232,6 @@ static Error _parse_obj(const String &p_path, List<Ref<Mesh>> &r_meshes, bool p_
 			nrm.y = v[2].to_float();
 			nrm.z = v[3].to_float();
 			normals.push_back(nrm);
-		} else if (l.begins_with("f ")) {
-			//vertex
-
-			Vector<String> v = l.split(" ", false);
-			ERR_FAIL_COND_V(v.size() < 4, ERR_FILE_CORRUPT);
-
-			//not very fast, could be sped up
-
-			Vector<String> face[3];
-			face[0] = v[1].split("/");
-			face[1] = v[2].split("/");
-			ERR_FAIL_COND_V(face[0].size() == 0, ERR_FILE_CORRUPT);
-
-			ERR_FAIL_COND_V(face[0].size() != face[1].size(), ERR_FILE_CORRUPT);
-			for (int i = 2; i < v.size() - 1; i++) {
-				face[2] = v[i + 1].split("/");
-
-				ERR_FAIL_COND_V(face[0].size() != face[2].size(), ERR_FILE_CORRUPT);
-				for (int j = 0; j < 3; j++) {
-					int idx = j;
-
-					if (idx < 2) {
-						idx = 1 ^ idx;
-					}
-
-					if (face[idx].size() == 3) {
-						int norm = face[idx][2].to_int() - 1;
-						if (norm < 0) {
-							norm += normals.size() + 1;
-						}
-						ERR_FAIL_INDEX_V(norm, normals.size(), ERR_FILE_CORRUPT);
-						surf_tool->add_normal(normals[norm]);
-					}
-
-					if (face[idx].size() >= 2 && face[idx][1] != String()) {
-						int uv = face[idx][1].to_int() - 1;
-						if (uv < 0) {
-							uv += uvs.size() + 1;
-						}
-						ERR_FAIL_INDEX_V(uv, uvs.size(), ERR_FILE_CORRUPT);
-						surf_tool->add_uv(uvs[uv]);
-					}
-
-					int vtx = face[idx][0].to_int() - 1;
-					if (vtx < 0) {
-						vtx += vertices.size() + 1;
-					}
-					ERR_FAIL_INDEX_V(vtx, vertices.size(), ERR_FILE_CORRUPT);
-
-					Vector3 vertex = vertices[vtx];
-					//if (weld_vertices)
-					//	vertex.snap(Vector3(weld_tolerance, weld_tolerance, weld_tolerance));
-					surf_tool->add_vertex(vertex);
-				}
-
-				face[1] = face[2];
-			}
-		} else if (l.begins_with("s ")) { //smoothing
-			String what = l.substr(2, l.length()).strip_edges();
-			if (what == "off") {
-				surf_tool->add_smooth_group(false);
-			} else {
-				surf_tool->add_smooth_group(true);
-			}
-		} else if (/*l.begins_with("g ") ||*/ l.begins_with("usemtl ") || (l.begins_with("o ") || f->eof_reached())) { //commit group to mesh
-			//groups are too annoying
-			if (surf_tool->get_vertex_array().size()) {
-				//another group going on, commit it
-				if (normals.size() == 0) {
-					surf_tool->generate_normals();
-				}
-
-				if (generate_tangents && uvs.size()) {
-					surf_tool->generate_tangents();
-				}
-
-				surf_tool->index();
-
-				print_verbose("OBJ: Current material library " + current_material_library + " has " + itos(material_map.has(current_material_library)));
-				print_verbose("OBJ: Current material " + current_material + " has " + itos(material_map.has(current_material_library) && material_map[current_material_library].has(current_material)));
-
-				if (material_map.has(current_material_library) && material_map[current_material_library].has(current_material)) {
-					surf_tool->set_material(material_map[current_material_library][current_material]);
-				}
-
-				mesh = surf_tool->commit(mesh, p_compress_flags);
-
-				if (current_material != String()) {
-					mesh->surface_set_name(mesh->get_surface_count() - 1, current_material.get_basename());
-				} else if (current_group != String()) {
-					mesh->surface_set_name(mesh->get_surface_count() - 1, current_group);
-				}
-
-				print_verbose("OBJ: Added surface :" + mesh->surface_get_name(mesh->get_surface_count() - 1));
-				surf_tool->clear();
-				surf_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
-			}
-
-			if (l.begins_with("o ") || f->eof_reached()) {
-				if (!p_single_mesh) {
-					mesh->set_name(name);
-					r_meshes.push_back(mesh);
-					mesh.instance();
-					current_group = "";
-					current_material = "";
-				}
-			}
-
-			if (f->eof_reached()) {
-				break;
-			}
-
-			if (l.begins_with("o ")) {
-				name = l.substr(2, l.length()).strip_edges();
-			}
-
-			if (l.begins_with("usemtl ")) {
-				current_material = l.replace("usemtl", "").strip_edges();
-			}
-
-			if (l.begins_with("g ")) {
-				current_group = l.substr(2, l.length()).strip_edges();
-			}
-
 		} else if (l.begins_with("mtllib ")) { //parse material
 
 			current_material_library = l.replace("mtllib", "").strip_edges();

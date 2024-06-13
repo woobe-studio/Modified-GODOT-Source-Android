@@ -15,7 +15,6 @@ class Mesh : public Resource {
 	GDCLASS(Mesh, Resource);
 
 	mutable Vector<Vector3> debug_lines;
-	Size2 lightmap_size_hint;
 
 protected:
 	static void _bind_methods();
@@ -91,30 +90,12 @@ public:
 	};
 
 	virtual int get_surface_count() const = 0;
-	virtual int surface_get_array_len(int p_idx) const = 0;
-	virtual int surface_get_array_index_len(int p_idx) const = 0;
-	virtual Array surface_get_arrays(int p_surface) const = 0;
-	virtual Array surface_get_blend_shape_arrays(int p_surface) const = 0;
-	virtual uint32_t surface_get_format(int p_idx) const = 0;
-	virtual PrimitiveType surface_get_primitive_type(int p_idx) const = 0;
 	virtual void surface_set_material(int p_idx, const Ref<Material> &p_material) = 0;
 	virtual Ref<Material> surface_get_material(int p_idx) const = 0;
-	virtual int get_blend_shape_count() const = 0;
-	virtual StringName get_blend_shape_name(int p_index) const = 0;
-	virtual void set_blend_shape_name(int p_index, const StringName &p_name) = 0;
-
-	PoolVector<Face3> get_faces() const;
-
-	Ref<Mesh> create_outline(float p_margin) const;
 
 	virtual AABB get_aabb() const = 0;
 
-	void set_lightmap_size_hint(const Vector2 &p_size);
-	Size2 get_lightmap_size_hint() const;
 	void clear_cache() const;
-
-	typedef Vector<PoolVector<Vector3>> (*ConvexDecompositionFunc)(const real_t *p_vertices, int p_vertex_count, const uint32_t *p_triangles, int p_triangle_count, int p_max_convex_hulls, Vector<PoolVector<uint32_t>> *r_convex_indices);
-
 
 	Mesh();
 };
@@ -152,35 +133,18 @@ public:
 	void add_surface_from_arrays(PrimitiveType p_primitive, const Array &p_arrays, const Array &p_blend_shapes = Array(), uint32_t p_flags = ARRAY_COMPRESS_DEFAULT);
 	void add_surface(uint32_t p_format, PrimitiveType p_primitive, const PoolVector<uint8_t> &p_array, int p_vertex_count, const PoolVector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb, const Vector<PoolVector<uint8_t>> &p_blend_shapes = Vector<PoolVector<uint8_t>>(), const Vector<AABB> &p_bone_aabbs = Vector<AABB>());
 
-	Array surface_get_arrays(int p_surface) const;
-	Array surface_get_blend_shape_arrays(int p_surface) const;
-
 	void add_blend_shape(const StringName &p_name);
-	int get_blend_shape_count() const;
-	StringName get_blend_shape_name(int p_index) const;
-	void set_blend_shape_name(int p_index, const StringName &p_name);
 	void clear_blend_shapes();
 
 	void set_blend_shape_mode(BlendShapeMode p_mode);
 	BlendShapeMode get_blend_shape_mode() const;
 
-	void surface_update_region(int p_surface, int p_offset, const PoolVector<uint8_t> &p_data);
-
 	int get_surface_count() const;
 	void surface_remove(int p_idx);
-	void clear_surfaces();
-
-	void surface_set_custom_aabb(int p_idx, const AABB &p_aabb); //only recognized by driver
-
-	int surface_get_array_len(int p_idx) const;
-	int surface_get_array_index_len(int p_idx) const;
-	uint32_t surface_get_format(int p_idx) const;
-	PrimitiveType surface_get_primitive_type(int p_idx) const;
 
 	virtual void surface_set_material(int p_idx, const Ref<Material> &p_material);
 	virtual Ref<Material> surface_get_material(int p_idx) const;
 
-	int surface_find_by_name(const String &p_name) const;
 	void surface_set_name(int p_idx, const String &p_name);
 	String surface_get_name(int p_idx) const;
 
@@ -189,11 +153,6 @@ public:
 
 	AABB get_aabb() const;
 	virtual RID get_rid() const;
-
-	void regen_normalmaps();
-
-	Error lightmap_unwrap(const Transform &p_base_transform = Transform(), float p_texel_size = 0.05);
-	Error lightmap_unwrap_cached(int *&r_cache_data, unsigned int &r_cache_size, bool &r_used_cache, const Transform &p_base_transform = Transform(), float p_texel_size = 0.05);
 
 	virtual void reload_from_file();
 

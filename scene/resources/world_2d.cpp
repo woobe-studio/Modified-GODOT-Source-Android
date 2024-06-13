@@ -6,7 +6,6 @@
 #include "world_2d.h"
 
 #include "core/project_settings.h"
-#include "scene/2d/visibility_notifier_2d.h"
 #include "scene/main/viewport.h"
 #include "servers/navigation_2d_server.h"
 #include "servers/physics_2d_server.h"
@@ -46,16 +45,12 @@ struct SpatialIndexer2D {
 	};
 
 	struct CellData {
-		Map<VisibilityNotifier2D *, CellRef> notifiers;
 	};
 
 	Map<CellKey, CellData> cells;
 	int cell_size;
 
-	Map<VisibilityNotifier2D *, Rect2> notifiers;
-
 	struct ViewportData {
-		Map<VisibilityNotifier2D *, uint64_t> notifiers;
 		Rect2 rect;
 	};
 
@@ -64,80 +59,6 @@ struct SpatialIndexer2D {
 	bool changed;
 
 	uint64_t pass;
-
-	void _notifier_update_cells(VisibilityNotifier2D *p_notifier, const Rect2 &p_rect, bool p_add) {
-		Point2i begin = p_rect.position;
-		begin /= cell_size;
-		Point2i end = p_rect.position + p_rect.size;
-		end /= cell_size;
-		for (int i = begin.x; i <= end.x; i++) {
-			for (int j = begin.y; j <= end.y; j++) {
-				CellKey ck;
-				ck.x = i;
-				ck.y = j;
-				Map<CellKey, CellData>::Element *E = cells.find(ck);
-
-				if (p_add) {
-					if (!E) {
-						E = cells.insert(ck, CellData());
-					}
-					E->get().notifiers[p_notifier].inc();
-				} else {
-					ERR_CONTINUE(!E);
-					if (E->get().notifiers[p_notifier].dec() == 0) {
-						E->get().notifiers.erase(p_notifier);
-						if (E->get().notifiers.empty()) {
-							cells.erase(E);
-						}
-					}
-				}
-			}
-		}
-	}
-
-	void _notifier_add(VisibilityNotifier2D *p_notifier, const Rect2 &p_rect) {
-		ERR_FAIL_COND(notifiers.has(p_notifier));
-		notifiers[p_notifier] = p_rect;
-		_notifier_update_cells(p_notifier, p_rect, true);
-		changed = true;
-	}
-
-	void _notifier_update(VisibilityNotifier2D *p_notifier, const Rect2 &p_rect) {
-		Map<VisibilityNotifier2D *, Rect2>::Element *E = notifiers.find(p_notifier);
-		ERR_FAIL_COND(!E);
-		if (E->get() == p_rect) {
-			return;
-		}
-
-		_notifier_update_cells(p_notifier, p_rect, true);
-		_notifier_update_cells(p_notifier, E->get(), false);
-		E->get() = p_rect;
-		changed = true;
-	}
-
-	void _notifier_remove(VisibilityNotifier2D *p_notifier) {
-		Map<VisibilityNotifier2D *, Rect2>::Element *E = notifiers.find(p_notifier);
-		ERR_FAIL_COND(!E);
-		_notifier_update_cells(p_notifier, E->get(), false);
-		notifiers.erase(p_notifier);
-
-		List<Viewport *> removed;
-		for (Map<Viewport *, ViewportData>::Element *F = viewports.front(); F; F = F->next()) {
-			Map<VisibilityNotifier2D *, uint64_t>::Element *G = F->get().notifiers.find(p_notifier);
-
-			if (G) {
-				F->get().notifiers.erase(G);
-				removed.push_back(F->key());
-			}
-		}
-
-		while (!removed.empty()) {
-			p_notifier->_exit_viewport(removed.front()->get());
-			removed.pop_front();
-		}
-
-		changed = true;
-	}
 
 	void _add_viewport(Viewport *p_viewport, const Rect2 &p_rect) {
 		ERR_FAIL_COND(viewports.has(p_viewport));
@@ -159,16 +80,6 @@ struct SpatialIndexer2D {
 
 	void _remove_viewport(Viewport *p_viewport) {
 		ERR_FAIL_COND(!viewports.has(p_viewport));
-		List<VisibilityNotifier2D *> removed;
-		for (Map<VisibilityNotifier2D *, uint64_t>::Element *E = viewports[p_viewport].notifiers.front(); E; E = E->next()) {
-			removed.push_back(E->key());
-		}
-
-		while (!removed.empty()) {
-			removed.front()->get()->_exit_viewport(p_viewport);
-			removed.pop_front();
-		}
-
 		viewports.erase(p_viewport);
 	}
 
@@ -183,8 +94,6 @@ struct SpatialIndexer2D {
 			Point2i end = E->get().rect.position + E->get().rect.size;
 			end /= cell_size;
 			pass++;
-			List<VisibilityNotifier2D *> added;
-			List<VisibilityNotifier2D *> removed;
 
 			uint64_t visible_cells = (uint64_t)(end.x - begin.x) * (uint64_t)(end.y - begin.y);
 
@@ -200,17 +109,6 @@ struct SpatialIndexer2D {
 					if (ck.y < begin.y || ck.y > end.y) {
 						continue;
 					}
-
-					//notifiers in cell
-					for (Map<VisibilityNotifier2D *, CellRef>::Element *G = F->get().notifiers.front(); G; G = G->next()) {
-						Map<VisibilityNotifier2D *, uint64_t>::Element *H = E->get().notifiers.find(G->key());
-						if (!H) {
-							H = E->get().notifiers.insert(G->key(), pass);
-							added.push_back(G->key());
-						} else {
-							H->get() = pass;
-						}
-					}
 				}
 
 			} else {
@@ -225,36 +123,8 @@ struct SpatialIndexer2D {
 						if (!F) {
 							continue;
 						}
-
-						//notifiers in cell
-						for (Map<VisibilityNotifier2D *, CellRef>::Element *G = F->get().notifiers.front(); G; G = G->next()) {
-							Map<VisibilityNotifier2D *, uint64_t>::Element *H = E->get().notifiers.find(G->key());
-							if (!H) {
-								H = E->get().notifiers.insert(G->key(), pass);
-								added.push_back(G->key());
-							} else {
-								H->get() = pass;
-							}
-						}
 					}
 				}
-			}
-
-			for (Map<VisibilityNotifier2D *, uint64_t>::Element *F = E->get().notifiers.front(); F; F = F->next()) {
-				if (F->get() != pass) {
-					removed.push_back(F->key());
-				}
-			}
-
-			while (!added.empty()) {
-				added.front()->get()->_enter_viewport(E->key());
-				added.pop_front();
-			}
-
-			while (!removed.empty()) {
-				E->get().notifiers.erase(removed.front()->get());
-				removed.front()->get()->_exit_viewport(E->key());
-				removed.pop_front();
 			}
 		}
 
@@ -279,16 +149,6 @@ void World2D::_remove_viewport(Viewport *p_viewport) {
 	indexer->_remove_viewport(p_viewport);
 }
 
-void World2D::_register_notifier(VisibilityNotifier2D *p_notifier, const Rect2 &p_rect) {
-	indexer->_notifier_add(p_notifier, p_rect);
-}
-void World2D::_update_notifier(VisibilityNotifier2D *p_notifier, const Rect2 &p_rect) {
-	indexer->_notifier_update(p_notifier, p_rect);
-}
-void World2D::_remove_notifier(VisibilityNotifier2D *p_notifier) {
-	indexer->_notifier_remove(p_notifier);
-}
-
 void World2D::_update() {
 	indexer->_update();
 }
@@ -301,19 +161,69 @@ RID World2D::get_space() {
 	return space;
 }
 
+RID World2D::get_scenario() const {
+    return scenario;
+}
+
 RID World2D::get_navigation_map() const {
 	return navigation_map;
+}
+
+void World2D::set_environment(const Ref<Environment> &p_environment) {
+    if (environment == p_environment) {
+        return;
+    }
+
+    environment = p_environment;
+    if (environment.is_valid()) {
+        VS::get_singleton()->scenario_set_environment(scenario, environment->get_rid());
+    } else {
+        VS::get_singleton()->scenario_set_environment(scenario, RID());
+    }
+
+    emit_changed();
+}
+
+Ref<Environment> World2D::get_environment() const {
+    return environment;
+}
+
+void World2D::set_fallback_environment(const Ref<Environment> &p_environment) {
+    if (fallback_environment == p_environment) {
+        return;
+    }
+
+    fallback_environment = p_environment;
+    if (fallback_environment.is_valid()) {
+        VS::get_singleton()->scenario_set_fallback_environment(scenario, p_environment->get_rid());
+    } else {
+        VS::get_singleton()->scenario_set_fallback_environment(scenario, RID());
+    }
+
+    emit_changed();
+}
+
+Ref<Environment> World2D::get_fallback_environment() const {
+    return fallback_environment;
 }
 
 void World2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_canvas"), &World2D::get_canvas);
 	ClassDB::bind_method(D_METHOD("get_space"), &World2D::get_space);
-	ClassDB::bind_method(D_METHOD("get_navigation_map"), &World2D::get_navigation_map);
+    ClassDB::bind_method(D_METHOD("get_scenario"), &World2D::get_scenario);
+    ClassDB::bind_method(D_METHOD("get_navigation_map"), &World2D::get_navigation_map);
+    ClassDB::bind_method(D_METHOD("set_environment", "env"), &World2D::set_environment);
+    ClassDB::bind_method(D_METHOD("get_environment"), &World2D::get_environment);
+    ClassDB::bind_method(D_METHOD("set_fallback_environment", "env"), &World2D::set_fallback_environment);
+    ClassDB::bind_method(D_METHOD("get_fallback_environment"), &World2D::get_fallback_environment);
 
 	ClassDB::bind_method(D_METHOD("get_direct_space_state"), &World2D::get_direct_space_state);
 
 	ADD_PROPERTY(PropertyInfo(Variant::_RID, "canvas", PROPERTY_HINT_NONE, "", 0), "", "get_canvas");
-	ADD_PROPERTY(PropertyInfo(Variant::_RID, "space", PROPERTY_HINT_NONE, "", 0), "", "get_space");
+    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "environment", PROPERTY_HINT_RESOURCE_TYPE, "Environment"), "set_environment", "get_environment");
+    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "fallback_environment", PROPERTY_HINT_RESOURCE_TYPE, "Environment"), "set_fallback_environment", "get_fallback_environment");
+    ADD_PROPERTY(PropertyInfo(Variant::_RID, "space", PROPERTY_HINT_NONE, "", 0), "", "get_space");
+    ADD_PROPERTY(PropertyInfo(Variant::_RID, "scenario", PROPERTY_HINT_NONE, "", 0), "", "get_scenario");
 	ADD_PROPERTY(PropertyInfo(Variant::_RID, "navigation_map", PROPERTY_HINT_NONE, "", 0), "", "get_navigation_map");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "direct_space_state", PROPERTY_HINT_RESOURCE_TYPE, "Physics2DDirectSpaceState", 0), "", "get_direct_space_state");
 }
@@ -323,6 +233,7 @@ Physics2DDirectSpaceState *World2D::get_direct_space_state() {
 }
 
 World2D::World2D() {
+    scenario = RID_PRIME(VisualServer::get_singleton()->scenario_create());
 	canvas = RID_PRIME(VisualServer::get_singleton()->canvas_create());
 	space = RID_PRIME(Physics2DServer::get_singleton()->space_create());
 
@@ -346,6 +257,7 @@ World2D::World2D() {
 }
 
 World2D::~World2D() {
+    VisualServer::get_singleton()->free(scenario);
 	VisualServer::get_singleton()->free(canvas);
 	Physics2DServer::get_singleton()->free(space);
 	Navigation2DServer::get_singleton()->free(navigation_map);

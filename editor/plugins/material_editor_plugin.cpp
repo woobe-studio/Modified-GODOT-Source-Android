@@ -70,9 +70,9 @@ MaterialEditor::MaterialEditor() {
 	add_child(vc);
 	vc->set_anchors_and_margins_preset(PRESET_WIDE);
 	viewport = memnew(Viewport);
-	Ref<World> world;
-	world.instance();
-	viewport->set_world(world); //use own world
+	Ref<World2D> world_2d;
+	world_2d.instance();
+	viewport->set_world_2d(world_2d); //use own world
 	vc->add_child(viewport);
 	viewport->set_disable_input(true);
 	viewport->set_transparent_background(true);

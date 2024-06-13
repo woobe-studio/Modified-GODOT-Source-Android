@@ -204,8 +204,6 @@ private:
 	Map<ObjectID, uint64_t> physics_2d_mouseover;
 
 	Ref<World2D> world_2d;
-	Ref<World> world;
-	Ref<World> own_world;
 
 	StringName input_group;
 	StringName gui_input_group;
@@ -353,8 +351,6 @@ private:
 
 	void _update_canvas_items(Node *p_node);
 
-	void _own_world_changed();
-
 protected:
 	void _notification(int p_what);
 	void _process_picking(bool p_ignore_paused);
@@ -386,10 +382,7 @@ public:
 	Rect2 get_visible_rect() const;
 	RID get_viewport_rid() const;
 
-	void set_world(const Ref<World> &p_world);
 	void set_world_2d(const Ref<World2D> &p_world_2d);
-	Ref<World> get_world() const;
-	Ref<World> find_world() const;
 
 	Ref<World2D> get_world_2d() const;
 	Ref<World2D> find_world_2d() const;
@@ -449,9 +442,6 @@ public:
 
 	void set_use_32_bpc_depth(bool p_enable);
 	bool is_using_32_bpc_depth() const;
-
-	void set_use_own_world(bool p_use_own_world);
-	bool is_using_own_world() const;
 
 	void input(const Ref<InputEvent> &p_event);
 	void unhandled_input(const Ref<InputEvent> &p_event);

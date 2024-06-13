@@ -192,28 +192,6 @@ void Viewport::update_worlds() {
 	Rect2 xformed_rect = (global_canvas_transform * canvas_transform).affine_inverse().xform(abstracted_rect);
 	find_world_2d()->_update_viewport(this, xformed_rect);
 	find_world_2d()->_update();
-
-	find_world()->_update(get_tree()->get_frame());
-}
-
-void Viewport::_own_world_changed() {
-	ERR_FAIL_COND(world.is_null());
-	ERR_FAIL_COND(own_world.is_null());
-
-	if (is_inside_tree()) {
-		_propagate_exit_world(this);
-	}
-
-	own_world = world->duplicate();
-
-	if (is_inside_tree()) {
-		_propagate_enter_world(this);
-	}
-
-	if (is_inside_tree()) {
-		VisualServer::get_singleton()->viewport_set_scenario(viewport, find_world()->get_scenario());
-	}
-
 }
 
 void Viewport::_notification(int p_what) {
@@ -227,7 +205,7 @@ void Viewport::_notification(int p_what) {
 			}
 
 			current_canvas = find_world_2d()->get_canvas();
-			VisualServer::get_singleton()->viewport_set_scenario(viewport, find_world()->get_scenario());
+			VisualServer::get_singleton()->viewport_set_scenario(viewport, find_world_2d()->get_scenario());
 			VisualServer::get_singleton()->viewport_attach_canvas(viewport, current_canvas);
 
 
@@ -239,15 +217,6 @@ void Viewport::_notification(int p_what) {
 				Physics2DServer::get_singleton()->space_set_debug_contacts(find_world_2d()->get_space(), get_tree()->get_collision_debug_contact_count());
 				contact_2d_debug = RID_PRIME(VisualServer::get_singleton()->canvas_item_create());
 				VisualServer::get_singleton()->canvas_item_set_parent(contact_2d_debug, find_world_2d()->get_canvas());
-				//3D
-				contact_3d_debug_multimesh = RID_PRIME(VisualServer::get_singleton()->multimesh_create());
-				VisualServer::get_singleton()->multimesh_allocate(contact_3d_debug_multimesh, get_tree()->get_collision_debug_contact_count(), VS::MULTIMESH_TRANSFORM_3D, VS::MULTIMESH_COLOR_8BIT);
-				VisualServer::get_singleton()->multimesh_set_visible_instances(contact_3d_debug_multimesh, 0);
-				VisualServer::get_singleton()->multimesh_set_mesh(contact_3d_debug_multimesh, get_tree()->get_debug_contact_mesh()->get_rid());
-				contact_3d_debug_instance = RID_PRIME(VisualServer::get_singleton()->instance_create());
-				VisualServer::get_singleton()->instance_set_base(contact_3d_debug_instance, contact_3d_debug_multimesh);
-				VisualServer::get_singleton()->instance_set_scenario(contact_3d_debug_instance, find_world()->get_scenario());
-				//VisualServer::get_singleton()->instance_geometry_set_flag(contact_3d_debug_instance, VS::INSTANCE_FLAG_VISIBLE_IN_ALL_ROOMS, true);
 			}
 
 			VS::get_singleton()->viewport_set_active(viewport, true);
@@ -732,7 +701,7 @@ void Viewport::_propagate_enter_world(Node *p_node) {
 		} else {
 			Viewport *v = Object::cast_to<Viewport>(p_node);
 			if (v) {
-				if (v->world.is_valid() || v->own_world.is_valid()) {
+				if (v->world_2d.is_valid()) {
 					return;
 				}
 			}
@@ -766,7 +735,7 @@ void Viewport::_propagate_exit_world(Node *p_node) {
 		} else {
 			Viewport *v = Object::cast_to<Viewport>(p_node);
 			if (v) {
-				if (v->world.is_valid() || v->own_world.is_valid()) {
+				if (v->world_2d.is_valid()) {
 					return;
 				}
 			}
@@ -778,58 +747,8 @@ void Viewport::_propagate_exit_world(Node *p_node) {
 	}
 }
 
-void Viewport::set_world(const Ref<World> &p_world) {
-	if (world == p_world) {
-		return;
-	}
-
-	if (is_inside_tree()) {
-		_propagate_exit_world(this);
-	}
-
-	if (own_world.is_valid() && world.is_valid()) {
-		world->disconnect(CoreStringNames::get_singleton()->changed, this, "_own_world_changed");
-	}
-
-	world = p_world;
-
-	if (own_world.is_valid()) {
-		if (world.is_valid()) {
-			own_world = world->duplicate();
-			world->connect(CoreStringNames::get_singleton()->changed, this, "_own_world_changed");
-		} else {
-			own_world = Ref<World>(memnew(World));
-		}
-	}
-
-	if (is_inside_tree()) {
-		_propagate_enter_world(this);
-	}
-
-	if (is_inside_tree()) {
-		VisualServer::get_singleton()->viewport_set_scenario(viewport, find_world()->get_scenario());
-	}
-
-}
-
-Ref<World> Viewport::get_world() const {
-	return world;
-}
-
 Ref<World2D> Viewport::get_world_2d() const {
 	return world_2d;
-}
-
-Ref<World> Viewport::find_world() const {
-	if (own_world.is_valid()) {
-		return own_world;
-	} else if (world.is_valid()) {
-		return world;
-	} else if (parent) {
-		return parent->find_world();
-	} else {
-		return Ref<World>();
-	}
 }
 
 void Viewport::enable_camera_override(bool p_enable) {
@@ -2529,43 +2448,6 @@ void Viewport::unhandled_input(const Ref<InputEvent> &p_event) {
 	}
 }
 
-void Viewport::set_use_own_world(bool p_use_own_world) {
-	if (p_use_own_world == own_world.is_valid()) {
-		return;
-	}
-
-	if (is_inside_tree()) {
-		_propagate_exit_world(this);
-	}
-
-	if (p_use_own_world) {
-		if (world.is_valid()) {
-			own_world = world->duplicate();
-			world->connect(CoreStringNames::get_singleton()->changed, this, "_own_world_changed");
-		} else {
-			own_world = Ref<World>(memnew(World));
-		}
-	} else {
-		own_world = Ref<World>();
-		if (world.is_valid()) {
-			world->disconnect(CoreStringNames::get_singleton()->changed, this, "_own_world_changed");
-		}
-	}
-
-	if (is_inside_tree()) {
-		_propagate_enter_world(this);
-	}
-
-	if (is_inside_tree()) {
-		VisualServer::get_singleton()->viewport_set_scenario(viewport, find_world()->get_scenario());
-	}
-
-}
-
-bool Viewport::is_using_own_world() const {
-	return own_world.is_valid();
-}
-
 void Viewport::set_attach_to_screen_rect(const Rect2 &p_rect) {
 	VS::get_singleton()->viewport_attach_to_screen(viewport, p_rect);
 	to_screen_rect = p_rect;
@@ -2838,9 +2720,6 @@ void Viewport::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_world_2d", "world_2d"), &Viewport::set_world_2d);
 	ClassDB::bind_method(D_METHOD("get_world_2d"), &Viewport::get_world_2d);
 	ClassDB::bind_method(D_METHOD("find_world_2d"), &Viewport::find_world_2d);
-	ClassDB::bind_method(D_METHOD("set_world", "world"), &Viewport::set_world);
-	ClassDB::bind_method(D_METHOD("get_world"), &Viewport::get_world);
-	ClassDB::bind_method(D_METHOD("find_world"), &Viewport::find_world);
 
 	ClassDB::bind_method(D_METHOD("set_canvas_transform", "xform"), &Viewport::set_canvas_transform);
 	ClassDB::bind_method(D_METHOD("get_canvas_transform"), &Viewport::get_canvas_transform);
@@ -2909,9 +2788,6 @@ void Viewport::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("update_worlds"), &Viewport::update_worlds);
 
-	ClassDB::bind_method(D_METHOD("set_use_own_world", "enable"), &Viewport::set_use_own_world);
-	ClassDB::bind_method(D_METHOD("is_using_own_world"), &Viewport::is_using_own_world);
-
 	ClassDB::bind_method(D_METHOD("set_as_audio_listener", "enable"), &Viewport::set_as_audio_listener);
 	ClassDB::bind_method(D_METHOD("is_audio_listener"), &Viewport::is_audio_listener);
 
@@ -2961,16 +2837,12 @@ void Viewport::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("_subwindow_visibility_changed"), &Viewport::_subwindow_visibility_changed);
 
-	ClassDB::bind_method(D_METHOD("_own_world_changed"), &Viewport::_own_world_changed);
-
 	ClassDB::bind_method(D_METHOD("_process_picking", "ignore_paused"), &Viewport::_process_picking);
 
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "arvr"), "set_use_arvr", "use_arvr");
 
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "size"), "set_size", "get_size");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "size_override_stretch"), "set_size_override_stretch", "is_size_override_stretch_enabled");
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "own_world"), "set_use_own_world", "is_using_own_world");
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "world", PROPERTY_HINT_RESOURCE_TYPE, "World"), "set_world", "get_world");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "world_2d", PROPERTY_HINT_RESOURCE_TYPE, "World2D", 0), "set_world_2d", "get_world_2d");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "transparent_bg"), "set_transparent_background", "has_transparent_background");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "handle_input_locally"), "set_handle_input_locally", "is_handling_input_locally");

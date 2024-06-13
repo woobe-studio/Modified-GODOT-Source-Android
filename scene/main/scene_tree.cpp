@@ -610,7 +610,7 @@ bool SceneTree::idle(float p_time) {
 		String env_path = ProjectSettings::get_singleton()->get("rendering/environment/default_environment");
 		env_path = env_path.strip_edges(); //user may have added a space or two
 		String cpath;
-		Ref<Environment> fallback = get_root()->get_world()->get_fallback_environment();
+		Ref<Environment> fallback = get_root()->get_world_2d()->get_fallback_environment();
 		if (fallback.is_valid()) {
 			cpath = fallback->get_path();
 		}
@@ -624,7 +624,7 @@ bool SceneTree::idle(float p_time) {
 			} else {
 				fallback.unref();
 			}
-			get_root()->get_world()->set_fallback_environment(fallback);
+			get_root()->get_world_2d()->set_fallback_environment(fallback);
 		}
 	}
 
@@ -1937,8 +1937,8 @@ SceneTree::SceneTree() {
 	root = memnew(Viewport);
 	root->set_name("root");
 	root->set_handle_input_locally(false);
-	if (!root->get_world().is_valid()) {
-		root->set_world(Ref<World>(memnew(World)));
+	if (!root->get_world_2d().is_valid()) {
+		root->set_world_2d(Ref<World2D>(memnew(World2D)));
 	}
 
 	set_physics_interpolation_enabled(GLOBAL_DEF("physics/common/physics_interpolation", false));
@@ -1981,7 +1981,7 @@ SceneTree::SceneTree() {
 	const bool use_32_bpc_depth = GLOBAL_GET("rendering/quality/depth/use_32_bpc_depth");
 	root->set_use_32_bpc_depth(use_32_bpc_depth);
 
-	VS::get_singleton()->scenario_set_reflection_atlas_size(root->get_world()->get_scenario(), ref_atlas_size, ref_atlas_subdiv);
+	VS::get_singleton()->scenario_set_reflection_atlas_size(root->get_world_2d()->get_scenario(), ref_atlas_size, ref_atlas_subdiv);
 
 	{ //load default fallback environment
 		//get possible extensions
@@ -2002,7 +2002,7 @@ SceneTree::SceneTree() {
 		if (env_path != String()) {
 			Ref<Environment> env = ResourceLoader::load(env_path);
 			if (env.is_valid()) {
-				root->get_world()->set_fallback_environment(env);
+				root->get_world_2d()->set_fallback_environment(env);
 			} else {
 				if (Engine::get_singleton()->is_editor_hint()) {
 					//file was erased, clear the field.
