@@ -1559,23 +1559,9 @@ Error TextureLayered::load(const String &p_path) {
 	uint8_t header[5] = { 0, 0, 0, 0, 0 };
 	f->get_buffer(header, 4);
 
-	if (header[0] == 'G' && header[1] == 'D' && header[2] == '3' && header[3] == 'T') {
-		if (!Object::cast_to<Texture3D>(this)) {
-			f->close();
-			memdelete(f);
-			ERR_FAIL_V(ERR_INVALID_DATA);
-		}
-	} else if (header[0] == 'G' && header[1] == 'D' && header[2] == 'A' && header[3] == 'T') {
-		if (!Object::cast_to<TextureArray>(this)) {
-			f->close();
-			memdelete(f);
-			ERR_FAIL_V(ERR_INVALID_DATA);
-		}
-	} else {
-		f->close();
-		memdelete(f);
-		ERR_FAIL_V_MSG(ERR_INVALID_DATA, "Unrecognized layered texture file format: " + String((const char *)header));
-	}
+    f->close();
+    memdelete(f);
+    ERR_FAIL_V_MSG(ERR_INVALID_DATA, "Unrecognized layered texture file format: " + String((const char *)header));
 
 	int tw = f->get_32();
 	int th = f->get_32();
@@ -1835,32 +1821,14 @@ TextureLayered::~TextureLayered() {
 	}
 }
 
-void Texture3D::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("create", "width", "height", "depth", "format", "flags"), &Texture3D::create, DEFVAL(FLAGS_DEFAULT_TEXTURE_3D));
-}
-
-void TextureArray::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("create", "width", "height", "depth", "format", "flags"), &TextureArray::create, DEFVAL(FLAGS_DEFAULT_TEXTURE_ARRAY));
-}
-
 RES ResourceFormatLoaderTextureLayered::load(const String &p_path, const String &p_original_path, Error *r_error) {
 	if (r_error) {
 		*r_error = ERR_CANT_OPEN;
 	}
 
 	Ref<TextureLayered> lt;
-	Ref<Texture3D> tex3d;
-	Ref<TextureArray> texarr;
 
-	if (p_path.ends_with("tex3d")) {
-		tex3d.instance();
-		lt = tex3d;
-	} else if (p_path.ends_with("texarr")) {
-		texarr.instance();
-		lt = texarr;
-	} else {
-		ERR_FAIL_V_MSG(RES(), "Unrecognized layered texture extension.");
-	}
+    ERR_FAIL_V_MSG(RES(), "Unrecognized layered texture extension.");
 
 	Error err = lt->load(p_path);
 	if (r_error) {
@@ -1874,18 +1842,10 @@ RES ResourceFormatLoaderTextureLayered::load(const String &p_path, const String 
 }
 
 void ResourceFormatLoaderTextureLayered::get_recognized_extensions(List<String> *p_extensions) const {
-	p_extensions->push_back("tex3d");
-	p_extensions->push_back("texarr");
 }
 bool ResourceFormatLoaderTextureLayered::handles_type(const String &p_type) const {
-	return p_type == "Texture3D" || p_type == "TextureArray";
+	return p_type == "";
 }
 String ResourceFormatLoaderTextureLayered::get_resource_type(const String &p_path) const {
-	if (p_path.get_extension().to_lower() == "tex3d") {
-		return "Texture3D";
-	}
-	if (p_path.get_extension().to_lower() == "texarr") {
-		return "TextureArray";
-	}
 	return "";
 }

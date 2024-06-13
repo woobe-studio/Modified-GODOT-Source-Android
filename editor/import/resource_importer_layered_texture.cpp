@@ -16,7 +16,7 @@ String ResourceImporterLayeredTexture::get_importer_name() const {
 }
 
 String ResourceImporterLayeredTexture::get_visible_name() const {
-	return is_3d ? "Texture3D" : "TextureArray";
+	return "";
 }
 void ResourceImporterLayeredTexture::get_recognized_extensions(List<String> *p_extensions) const {
 	ImageLoader::get_recognized_extensions(p_extensions);
@@ -26,7 +26,7 @@ String ResourceImporterLayeredTexture::get_save_extension() const {
 }
 
 String ResourceImporterLayeredTexture::get_resource_type() const {
-	return is_3d ? "Texture3D" : "TextureArray";
+	return "";
 }
 
 bool ResourceImporterLayeredTexture::get_option_visibility(const String &p_option, const Map<StringName, Variant> &p_options) const {

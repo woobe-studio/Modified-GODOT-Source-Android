@@ -27,6 +27,9 @@
 #include "scene/2d/touch_screen_button.h"
 #include "scene/2d/y_sort.h"
 #include "scene/2d/text_label.h"
+#include "scene/2d/graphic_progress.h"
+#include "scene/2d/curtain.h"
+
 #include "scene/2d/world_environment.h"
 #include "scene/resources/environment.h"
 
@@ -37,9 +40,9 @@
 
 #include "scene/gui/control.h"
 #include "scene/gui/texture_progress.h" //
-#include "scene/gui/color_rect.h"
 
 #ifndef ADVANCED_GUI_DISABLED
+    #include "scene/gui/color_rect.h"
     #include "scene/gui/box_container.h"
     #include "scene/gui/button.h"
     #include "scene/gui/center_container.h" //
@@ -173,90 +176,14 @@ void register_scene_types() {
 	ClassDB::register_class<ResourcePreloader>();
 
 	/* REGISTER GUI */
-	//ClassDB::register_class<ButtonGroup>();
-	//ClassDB::register_virtual_class<BaseButton>();
 
 	OS::get_singleton()->yield(); //may take time to init
 
-	//ClassDB::register_class<ShortCut>();
 	ClassDB::register_class<Control>();
 	ClassDB::register_virtual_class<Range>();
-	ClassDB::register_class<ColorRect>();
 	ClassDB::register_class<TextureProgress>();
-	//ClassDB::register_class<Button>();
-	//ClassDB::register_virtual_class<ScrollBar>();
-	//ClassDB::register_class<HScrollBar>();
-	//ClassDB::register_class<VScrollBar>();
-	//ClassDB::register_class<ProgressBar>();
-	//ClassDB::register_virtual_class<Slider>();
-	//ClassDB::register_class<HSlider>();
-	//ClassDB::register_class<VSlider>();
-	//ClassDB::register_class<Popup>();
-	//ClassDB::register_class<PopupPanel>();
-	//ClassDB::register_class<MenuButton>();
-	//ClassDB::register_class<CheckBox>();
-	//ClassDB::register_class<CheckButton>();
-	//ClassDB::register_class<ToolButton>();
-	//ClassDB::register_class<LinkButton>();
-	//ClassDB::register_class<Panel>();
 
 	OS::get_singleton()->yield(); //may take time to init
-
-	//ClassDB::register_class<TextureRect>();
-	//ClassDB::register_class<TabContainer>();
-	//ClassDB::register_class<Tabs>();
-	//ClassDB::register_virtual_class<Separator>();
-	//ClassDB::register_class<HSeparator>();
-	//ClassDB::register_class<VSeparator>();
-	//ClassDB::register_class<TextureButton>();
-	//ClassDB::register_class<Container>();
-	// ClassDB::register_virtual_class<BoxContainer>();
-	// ClassDB::register_class<HBoxContainer>();
-	// ClassDB::register_class<VBoxContainer>();
-	// ClassDB::register_class<GridContainer>();
-	// ClassDB::register_class<CenterContainer>();
-	// ClassDB::register_class<ScrollContainer>();
-	// ClassDB::register_class<PanelContainer>();
-	// ClassDB::register_virtual_class<FlowContainer>();
-	// ClassDB::register_class<HFlowContainer>();
-	// ClassDB::register_class<VFlowContainer>();
-
-	OS::get_singleton()->yield(); //may take time to init
-
-	//ClassDB::register_class<ItemList>();
-
-	//ClassDB::register_class<LineEdit>();
-
-// #ifndef ADVANCED_GUI_DISABLED
-//
-// 	ClassDB::register_class<FileDialog>();
-//
-// 	ClassDB::register_class<PopupMenu>();
-// 	ClassDB::register_class<Tree>();
-//
-// 	ClassDB::register_class<TextEdit>();
-//
-// 	ClassDB::register_virtual_class<TreeItem>();
-// 	ClassDB::register_class<OptionButton>();
-// 	ClassDB::register_class<SpinBox>();
-// 	ClassDB::register_class<ColorPicker>();
-// 	ClassDB::register_class<ColorPickerButton>();
-// 	ClassDB::register_class<RichTextLabel>();
-// 	ClassDB::register_class<RichTextEffect>();
-// 	ClassDB::register_class<CharFXTransform>();
-// 	ClassDB::register_class<PopupDialog>();
-// 	ClassDB::register_class<WindowDialog>();
-// 	ClassDB::register_class<AcceptDialog>();
-// 	ClassDB::register_class<ConfirmationDialog>();
-// 	ClassDB::register_class<MarginContainer>();
-// 	ClassDB::register_class<ViewportContainer>();
-// 	ClassDB::register_virtual_class<SplitContainer>();
-// 	ClassDB::register_class<HSplitContainer>();
-// 	ClassDB::register_class<VSplitContainer>();
-/*
-	OS::get_singleton()->yield(); //may take time to init
-
-#endif*/
 
 	/* REGISTER 3D */
 	ClassDB::register_class<AnimationPlayer>();
@@ -297,6 +224,8 @@ void register_scene_types() {
 	ClassDB::register_class<RayCast2D>();
 	ClassDB::register_class<YSort>();
     ClassDB::register_class<TextLabel>();
+    ClassDB::register_class<GraphicProgress>();
+    ClassDB::register_class<Curtain>();
 
 	OS::get_singleton()->yield(); //may take time to init
 
@@ -331,8 +260,6 @@ void register_scene_types() {
 	ClassDB::register_class<GradientTexture2D>();
 	//ClassDB::register_class<CubeMap>();
 	//ClassDB::register_virtual_class<TextureLayered>();
-	ClassDB::register_class<Texture3D>(); //ERROR
-	ClassDB::register_class<TextureArray>();
 	ClassDB::register_class<Animation>();
 	ClassDB::register_virtual_class<Font>();
 	//ClassDB::register_class<BitmapFont>();

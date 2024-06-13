@@ -2416,20 +2416,6 @@ void RasterizerStorageGLES3::shader_get_param_list(RID p_shader, List<PropertyIn
 				pi.hint = PROPERTY_HINT_RESOURCE_TYPE;
 				pi.hint_string = "Texture";
 			} break;
-			case ShaderLanguage::TYPE_SAMPLER2DARRAY:
-			case ShaderLanguage::TYPE_ISAMPLER2DARRAY:
-			case ShaderLanguage::TYPE_USAMPLER2DARRAY: {
-				pi.type = Variant::OBJECT;
-				pi.hint = PROPERTY_HINT_RESOURCE_TYPE;
-				pi.hint_string = "TextureArray";
-			} break;
-			case ShaderLanguage::TYPE_SAMPLER3D:
-			case ShaderLanguage::TYPE_ISAMPLER3D:
-			case ShaderLanguage::TYPE_USAMPLER3D: {
-				pi.type = Variant::OBJECT;
-				pi.hint = PROPERTY_HINT_RESOURCE_TYPE;
-				pi.hint_string = "Texture3D";
-			} break;
 			case ShaderLanguage::TYPE_SAMPLERCUBE: {
 				pi.type = Variant::OBJECT;
 				pi.hint = PROPERTY_HINT_RESOURCE_TYPE;

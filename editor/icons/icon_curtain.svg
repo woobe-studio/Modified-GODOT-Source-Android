@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="334.1946 244.156 14 14" xmlns="http://www.w3.org/2000/svg">
+  <path d="m1 1v14h14v-14zm2 2h10v10h-10z" style="fill: rgb(165, 183, 243);" transform="matrix(1, 0, 0, 1, 333.1945686340332, 243.15601873397827)"/>
+  <path d="m12 1048.4h-4.8l4.8-4.8z" fill="#70bfff" transform="matrix(1, 0, 0, 1, 333.1945686340332, -793.2440056800843)"/>
+  <path d="m4 1040.4h4.8l-4.8 4.8z" fill="#ff7070" transform="matrix(1, 0, 0, 1, 333.1945686340332, -793.2440056800843)"/>
+  <path d="m4 1048.4v-3.2l4.8-4.8h3.2v3.2l-4.8 4.8z" style="fill: rgb(165, 183, 243);" transform="matrix(1, 0, 0, 1, 333.1945686340332, -793.2440056800843)"/>
+</svg>

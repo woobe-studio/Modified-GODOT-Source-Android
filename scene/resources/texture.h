@@ -404,36 +404,6 @@ public:
 
 VARIANT_ENUM_CAST(TextureLayered::Flags)
 
-class Texture3D : public TextureLayered {
-	GDCLASS(Texture3D, TextureLayered);
-
-protected:
-	static void _bind_methods();
-
-public:
-	void create(uint32_t p_width, uint32_t p_height, uint32_t p_depth, Image::Format p_format, uint32_t p_flags = FLAGS_DEFAULT_TEXTURE_3D) {
-		TextureLayered::create(p_width, p_height, p_depth, p_format, p_flags);
-	}
-
-	Texture3D() :
-			TextureLayered(true) {}
-};
-
-class TextureArray : public TextureLayered {
-	GDCLASS(TextureArray, TextureLayered);
-
-protected:
-	static void _bind_methods();
-
-public:
-	void create(uint32_t p_width, uint32_t p_height, uint32_t p_depth, Image::Format p_format, uint32_t p_flags = FLAGS_DEFAULT_TEXTURE_ARRAY) {
-		TextureLayered::create(p_width, p_height, p_depth, p_format, p_flags);
-	}
-
-	TextureArray() :
-			TextureLayered(false) {}
-};
-
 class ResourceFormatLoaderTextureLayered : public ResourceFormatLoader {
 public:
 	virtual RES load(const String &p_path, const String &p_original_path = "", Error *r_error = nullptr);
