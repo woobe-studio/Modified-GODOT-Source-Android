@@ -391,10 +391,6 @@ public:
 		ERR_FAIL_INDEX_V(p_contact_idx, body->contact_count, RID());
 		return body->contacts[p_contact_idx].collider;
 	}
-	virtual Vector2 get_contact_collider_position(int p_contact_idx) const {
-		ERR_FAIL_INDEX_V(p_contact_idx, body->contact_count, Vector2());
-		return body->contacts[p_contact_idx].collider_pos;
-	}
 	virtual ObjectID get_contact_collider_id(int p_contact_idx) const {
 		ERR_FAIL_INDEX_V(p_contact_idx, body->contact_count, 0);
 		return body->contacts[p_contact_idx].collider_instance_id;
@@ -402,12 +398,6 @@ public:
 	virtual int get_contact_collider_shape(int p_contact_idx) const {
 		ERR_FAIL_INDEX_V(p_contact_idx, body->contact_count, 0);
 		return body->contacts[p_contact_idx].collider_shape;
-	}
-	virtual Variant get_contact_collider_shape_metadata(int p_contact_idx) const;
-
-	virtual Vector2 get_contact_collider_velocity_at_position(int p_contact_idx) const {
-		ERR_FAIL_INDEX_V(p_contact_idx, body->contact_count, Vector2());
-		return body->contacts[p_contact_idx].collider_velocity_at_pos;
 	}
 
 	virtual Physics2DDirectSpaceState *get_space_state();

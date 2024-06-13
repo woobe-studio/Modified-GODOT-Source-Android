@@ -20,19 +20,15 @@ class VisualServer : public Object {
 
 	static VisualServer *singleton;
 
-	int mm_policy;
 	bool render_loop_enabled = true;
 #ifdef DEBUG_ENABLED
 	bool force_shader_fallbacks = false;
 #endif
 
-	void _camera_set_orthogonal(RID p_camera, float p_size, float p_z_near, float p_z_far);
-	void _canvas_item_add_style_box(RID p_item, const Rect2 &p_rect, const Rect2 &p_source, RID p_texture, const Vector<float> &p_margins, const Color &p_modulate = Color(1, 1, 1));
 	Array _get_array_from_surface(uint32_t p_format, PoolVector<uint8_t> p_vertex_data, int p_vertex_len, PoolVector<uint8_t> p_index_data, int p_index_len) const;
 
 protected:
 	RID _make_test_cube();
-	void _free_internal_rids();
 	RID test_texture;
 	RID white_texture;
 	RID test_material;

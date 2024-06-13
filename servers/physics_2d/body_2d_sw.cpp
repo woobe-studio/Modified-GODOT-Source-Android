@@ -667,19 +667,3 @@ Physics2DDirectSpaceState *Physics2DDirectBodyStateSW::get_space_state() {
 real_t Physics2DDirectBodyStateSW::get_step() const {
 	return body->get_space()->get_step();
 }
-
-Variant Physics2DDirectBodyStateSW::get_contact_collider_shape_metadata(int p_contact_idx) const {
-	ERR_FAIL_INDEX_V(p_contact_idx, body->contact_count, Variant());
-
-	if (!Physics2DServerSW::singletonsw->body_owner.owns(body->contacts[p_contact_idx].collider)) {
-		return Variant();
-	}
-	Body2DSW *other = Physics2DServerSW::singletonsw->body_owner.get(body->contacts[p_contact_idx].collider);
-
-	int sidx = body->contacts[p_contact_idx].collider_shape;
-	if (sidx < 0 || sidx >= other->get_shape_count()) {
-		return Variant();
-	}
-
-	return other->get_shape_metadata(sidx);
-}

@@ -38,12 +38,6 @@ void Physics2DDirectBodyState::integrate_forces() {
 	set_angular_velocity(av);
 }
 
-Object *Physics2DDirectBodyState::get_contact_collider_object(int p_contact_idx) const {
-	ObjectID objid = get_contact_collider_id(p_contact_idx);
-	Object *obj = ObjectDB::get_instance(objid);
-	return obj;
-}
-
 Physics2DServer *Physics2DServer::get_singleton() {
 	return singleton;
 }
@@ -83,12 +77,8 @@ void Physics2DDirectBodyState::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_contact_local_normal", "contact_idx"), &Physics2DDirectBodyState::get_contact_local_normal);
 	ClassDB::bind_method(D_METHOD("get_contact_local_shape", "contact_idx"), &Physics2DDirectBodyState::get_contact_local_shape);
 	ClassDB::bind_method(D_METHOD("get_contact_collider", "contact_idx"), &Physics2DDirectBodyState::get_contact_collider);
-	ClassDB::bind_method(D_METHOD("get_contact_collider_position", "contact_idx"), &Physics2DDirectBodyState::get_contact_collider_position);
 	ClassDB::bind_method(D_METHOD("get_contact_collider_id", "contact_idx"), &Physics2DDirectBodyState::get_contact_collider_id);
-	ClassDB::bind_method(D_METHOD("get_contact_collider_object", "contact_idx"), &Physics2DDirectBodyState::get_contact_collider_object);
 	ClassDB::bind_method(D_METHOD("get_contact_collider_shape", "contact_idx"), &Physics2DDirectBodyState::get_contact_collider_shape);
-	ClassDB::bind_method(D_METHOD("get_contact_collider_shape_metadata", "contact_idx"), &Physics2DDirectBodyState::get_contact_collider_shape_metadata);
-	ClassDB::bind_method(D_METHOD("get_contact_collider_velocity_at_position", "contact_idx"), &Physics2DDirectBodyState::get_contact_collider_velocity_at_position);
 	ClassDB::bind_method(D_METHOD("get_step"), &Physics2DDirectBodyState::get_step);
 	ClassDB::bind_method(D_METHOD("integrate_forces"), &Physics2DDirectBodyState::integrate_forces);
 	ClassDB::bind_method(D_METHOD("get_space_state"), &Physics2DDirectBodyState::get_space_state);

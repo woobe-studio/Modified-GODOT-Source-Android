@@ -14,7 +14,6 @@
 #include "core/variant.h"
 #include "audio/audio_effect.h"
 #include "audio/audio_stream.h"
-#include "servers/audio/effects/audio_effect_amplify.h"
 #include "audio_server.h"
 #include "core/image.h"
 #include "core/object.h"
@@ -80,7 +79,6 @@ void register_server_types() {
 	ClassDB::register_virtual_class<AudioEffect>();
 	ClassDB::register_virtual_class<AudioEffectInstance>();
 	ClassDB::register_class<AudioBusLayout>();
-    ClassDB::register_class<AudioEffectAmplify>();
 	ClassDB::register_virtual_class<Physics2DDirectBodyState>();
 	ClassDB::register_virtual_class<Physics2DDirectSpaceState>();
 	ClassDB::register_class<Physics2DTestMotionResult>();

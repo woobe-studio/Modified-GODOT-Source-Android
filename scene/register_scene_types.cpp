@@ -103,16 +103,11 @@
 #include "scene/resources/rectangle_shape_2d.h"
 #include "scene/resources/resource_format_text.h"
 #include "scene/resources/segment_shape_2d.h"
-#include "scene/resources/text_file.h"
 #include "scene/resources/texture.h"
 #include "scene/resources/tile_set.h"
 #include "scene/resources/world_2d.h"
 
 #include "scene/scene_string_names.h"
-
-#ifndef _3D_DISABLED
-
-#endif
 
 #include "modules/modules_enabled.gen.h" // For freetype.
 
@@ -324,8 +319,6 @@ void register_scene_types() {
 
 	OS::get_singleton()->yield(); //may take time to init
 
-	// ClassDB::register_virtual_class<Shape>();
-
 #endif
 	ClassDB::register_class<PhysicsMaterial>();
 	ClassDB::register_class<Environment>();
@@ -343,8 +336,6 @@ void register_scene_types() {
 	ClassDB::register_virtual_class<Font>();
 	//ClassDB::register_class<BitmapFont>();
 	ClassDB::register_class<Curve>();
-
-	//ClassDB::register_class<TextFile>();
 
 #ifdef MODULE_FREETYPE_ENABLED
 	ClassDB::register_class<DynamicFontData>();
