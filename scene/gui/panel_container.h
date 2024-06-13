@@ -1,23 +1,25 @@
-/**************************************************************************/
-/*  panel_container.h                                                     */
-/**************************************************************************/
+#ifndef ADVANCED_GUI_DISABLED
+    /**************************************************************************/
+    /*  panel_container.h                                                     */
+    /**************************************************************************/
 
 
-#ifndef PANEL_CONTAINER_H
-#define PANEL_CONTAINER_H
+    #ifndef PANEL_CONTAINER_H
+    #define PANEL_CONTAINER_H
 
-#include "scene/gui/container.h"
+    #include "scene/gui/container.h"
 
-class PanelContainer : public Container {
-	GDCLASS(PanelContainer, Container);
+    class PanelContainer : public Container {
+        GDCLASS(PanelContainer, Container);
 
-protected:
-	void _notification(int p_what);
+    protected:
+        void _notification(int p_what);
 
-public:
-	virtual Size2 get_minimum_size() const;
+    public:
+        virtual Size2 get_minimum_size() const;
 
-	PanelContainer();
-};
+        PanelContainer();
+    };
 
-#endif // PANEL_CONTAINER_H
+    #endif // PANEL_CONTAINER_H
+#endif

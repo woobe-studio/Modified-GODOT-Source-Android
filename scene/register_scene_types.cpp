@@ -35,48 +35,48 @@
 
 #include "scene/audio/audio_stream_player.h"
 
-#include "scene/gui/box_container.h"
-#include "scene/gui/button.h"
-#include "scene/gui/center_container.h" //
-#include "scene/gui/check_box.h"
-#include "scene/gui/check_button.h"
-#include "scene/gui/color_picker.h" //
-
+#include "scene/gui/control.h"
+#include "scene/gui/texture_progress.h" //
 #include "scene/gui/color_rect.h"
 
-#include "scene/gui/control.h"
-
-#include "scene/gui/dialogs.h"
-#include "scene/gui/file_dialog.h"
-#include "scene/gui/flow_container.h" //
-#include "scene/gui/grid_container.h" //
-#include "scene/gui/item_list.h" //
-#include "scene/gui/line_edit.h"
-#include "scene/gui/link_button.h" //
-#include "scene/gui/margin_container.h"
-#include "scene/gui/menu_button.h"
-#include "scene/gui/option_button.h"
-#include "scene/gui/panel.h" //
-#include "scene/gui/panel_container.h"
-#include "scene/gui/popup_menu.h"
-#include "scene/gui/progress_bar.h" //
-#include "scene/gui/rich_text_effect.h" //
-#include "scene/gui/rich_text_label.h" //
-#include "scene/gui/scroll_bar.h" //
-#include "scene/gui/scroll_container.h" //
-#include "scene/gui/separator.h" //
-#include "scene/gui/slider.h" //
-#include "scene/gui/spin_box.h"
-#include "scene/gui/split_container.h"
-#include "scene/gui/tab_container.h"
-#include "scene/gui/tabs.h" //
-#include "scene/gui/text_edit.h"
-#include "scene/gui/texture_button.h" //
-#include "scene/gui/texture_progress.h" //
-#include "scene/gui/texture_rect.h"
-#include "scene/gui/tool_button.h"
-#include "scene/gui/tree.h"
-#include "scene/gui/viewport_container.h" //
+#ifndef ADVANCED_GUI_DISABLED
+    #include "scene/gui/box_container.h"
+    #include "scene/gui/button.h"
+    #include "scene/gui/center_container.h" //
+    #include "scene/gui/check_box.h"
+    #include "scene/gui/check_button.h"
+    #include "scene/gui/color_picker.h" //
+    #include "scene/gui/dialogs.h"
+    #include "scene/gui/file_dialog.h"
+    #include "scene/gui/flow_container.h" //
+    #include "scene/gui/grid_container.h" //
+    #include "scene/gui/item_list.h" //
+    #include "scene/gui/line_edit.h"
+    #include "scene/gui/link_button.h" //
+    #include "scene/gui/margin_container.h"
+    #include "scene/gui/menu_button.h"
+    #include "scene/gui/option_button.h"
+    #include "scene/gui/panel.h" //
+    #include "scene/gui/panel_container.h"
+    #include "scene/gui/popup_menu.h"
+    #include "scene/gui/progress_bar.h" //
+    #include "scene/gui/rich_text_effect.h" //
+    #include "scene/gui/rich_text_label.h" //
+    #include "scene/gui/scroll_bar.h" //
+    #include "scene/gui/scroll_container.h" //
+    #include "scene/gui/separator.h" //
+    #include "scene/gui/slider.h" //
+    #include "scene/gui/spin_box.h"
+    #include "scene/gui/split_container.h"
+    #include "scene/gui/tab_container.h"
+    #include "scene/gui/tabs.h" //
+    #include "scene/gui/text_edit.h"
+    #include "scene/gui/texture_button.h" //
+    #include "scene/gui/texture_rect.h"
+    #include "scene/gui/tool_button.h"
+    #include "scene/gui/tree.h"
+    #include "scene/gui/viewport_container.h" //
+#endif
 
 #include "scene/main/canvas_layer.h"
 #include "scene/main/instance_placeholder.h"
@@ -180,6 +180,9 @@ void register_scene_types() {
 
 	//ClassDB::register_class<ShortCut>();
 	ClassDB::register_class<Control>();
+	ClassDB::register_virtual_class<Range>();
+	ClassDB::register_class<ColorRect>();
+	ClassDB::register_class<TextureProgress>();
 	//ClassDB::register_class<Button>();
 	//ClassDB::register_virtual_class<ScrollBar>();
 	//ClassDB::register_class<HScrollBar>();
@@ -196,12 +199,10 @@ void register_scene_types() {
 	//ClassDB::register_class<ToolButton>();
 	//ClassDB::register_class<LinkButton>();
 	//ClassDB::register_class<Panel>();
-	ClassDB::register_virtual_class<Range>();
 
 	OS::get_singleton()->yield(); //may take time to init
 
 	//ClassDB::register_class<TextureRect>();
-	ClassDB::register_class<ColorRect>();
 	//ClassDB::register_class<TabContainer>();
 	//ClassDB::register_class<Tabs>();
 	//ClassDB::register_virtual_class<Separator>();
@@ -222,7 +223,6 @@ void register_scene_types() {
 
 	OS::get_singleton()->yield(); //may take time to init
 
-	ClassDB::register_class<TextureProgress>();
 	//ClassDB::register_class<ItemList>();
 
 	//ClassDB::register_class<LineEdit>();
@@ -268,8 +268,9 @@ void register_scene_types() {
 
  	OS::get_singleton()->yield(); //may take time to init
 
-
-	AcceptDialog::set_swap_ok_cancel(GLOBAL_DEF_NOVAL("gui/common/swap_ok_cancel", bool(OS::get_singleton()->get_swap_ok_cancel())));
+    #ifndef ADVANCED_GUI_DISABLED
+	    AcceptDialog::set_swap_ok_cancel(GLOBAL_DEF_NOVAL("gui/common/swap_ok_cancel", bool(OS::get_singleton()->get_swap_ok_cancel())));
+    #endif
 
 	ClassDB::register_class<Shader>();
 

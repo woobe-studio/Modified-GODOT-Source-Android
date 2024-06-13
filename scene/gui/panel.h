@@ -1,22 +1,24 @@
-/**************************************************************************/
-/*  panel.h                                                               */
-/**************************************************************************/
+#ifndef ADVANCED_GUI_DISABLED
+    /**************************************************************************/
+    /*  panel.h                                                               */
+    /**************************************************************************/
 
 
-#ifndef PANEL_H
-#define PANEL_H
+    #ifndef PANEL_H
+    #define PANEL_H
 
-#include "scene/gui/control.h"
+    #include "scene/gui/control.h"
 
-class Panel : public Control {
-	GDCLASS(Panel, Control);
+    class Panel : public Control {
+        GDCLASS(Panel, Control);
 
-protected:
-	void _notification(int p_what);
+    protected:
+        void _notification(int p_what);
 
-public:
-	Panel();
-	~Panel();
-};
+    public:
+        Panel();
+        ~Panel();
+    };
 
-#endif // PANEL_H
+    #endif // PANEL_H
+#endif

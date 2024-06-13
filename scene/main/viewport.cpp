@@ -135,20 +135,21 @@ ViewportTexture::~ViewportTexture() {
 // TooltipPanel is also used for custom tooltips, while TooltipLabel
 // is only relevant for default tooltips.
 
-class TooltipPanel : public PanelContainer {
-	GDCLASS(TooltipPanel, PanelContainer);
+#ifndef ADVANCED_GUI_DISABLED
+    class TooltipPanel : public PanelContainer {
+        GDCLASS(TooltipPanel, PanelContainer);
 
-public:
-	TooltipPanel(){};
-};
+    public:
+        TooltipPanel(){};
+    };
 
-class TooltipLabel : public Label {
-	GDCLASS(TooltipLabel, Label);
+    class TooltipLabel : public Label {
+        GDCLASS(TooltipLabel, Label);
 
-public:
-	TooltipLabel(){};
-};
-
+    public:
+        TooltipLabel(){};
+    };
+#endif
 /////////////////////////////////////
 
 Viewport::GUI::GUI() {
@@ -524,10 +525,12 @@ void Viewport::set_size(const Size2 &p_size) {
 	size = p_size.floor();
 	VS::get_singleton()->viewport_set_size(viewport, size.width, size.height);
 
-	ViewportContainer *c = Object::cast_to<ViewportContainer>(get_parent());
-	if (c) {
-		c->minimum_size_changed();
-	}
+    #ifndef ADVANCED_GUI_DISABLED
+        ViewportContainer *c = Object::cast_to<ViewportContainer>(get_parent());
+        if (c) {
+            c->minimum_size_changed();
+        }
+    #endif
 
 	_update_stretch_transform();
 	update_configuration_warning();
@@ -1137,52 +1140,54 @@ void Viewport::_gui_show_tooltip() {
 		return;
 	}
 
-	// Controls can implement `make_custom_tooltip` to provide their own tooltip.
-	// This should be a Control node which will be added as child to the tooltip owner.
-	gui.tooltip_popup = tooltip_owner->make_custom_tooltip(tooltip_text);
+    #ifndef ADVANCED_GUI_DISABLED
+        // Controls can implement `make_custom_tooltip` to provide their own tooltip.
+        // This should be a Control node which will be added as child to the tooltip owner.
+        gui.tooltip_popup = tooltip_owner->make_custom_tooltip(tooltip_text);
 
-	// If no custom tooltip is given, use a default implementation.
-	if (!gui.tooltip_popup) {
-		gui.tooltip_popup = memnew(TooltipPanel);
-		gui.tooltip_label = memnew(TooltipLabel);
-		gui.tooltip_popup->add_child(gui.tooltip_label);
+        // If no custom tooltip is given, use a default implementation.
+        if (!gui.tooltip_popup) {
+            gui.tooltip_popup = memnew(TooltipPanel);
+            gui.tooltip_label = memnew(TooltipLabel);
+            gui.tooltip_popup->add_child(gui.tooltip_label);
 
-		Ref<StyleBox> ttp = gui.tooltip_label->get_stylebox("panel", "TooltipPanel");
+            Ref<StyleBox> ttp = gui.tooltip_label->get_stylebox("panel", "TooltipPanel");
 
-		gui.tooltip_label->set_anchor_and_margin(MARGIN_LEFT, Control::ANCHOR_BEGIN, ttp->get_margin(MARGIN_LEFT));
-		gui.tooltip_label->set_anchor_and_margin(MARGIN_TOP, Control::ANCHOR_BEGIN, ttp->get_margin(MARGIN_TOP));
-		gui.tooltip_label->set_anchor_and_margin(MARGIN_RIGHT, Control::ANCHOR_END, -ttp->get_margin(MARGIN_RIGHT));
-		gui.tooltip_label->set_anchor_and_margin(MARGIN_BOTTOM, Control::ANCHOR_END, -ttp->get_margin(MARGIN_BOTTOM));
-		gui.tooltip_label->set_text(tooltip_text);
-	}
+            gui.tooltip_label->set_anchor_and_margin(MARGIN_LEFT, Control::ANCHOR_BEGIN, ttp->get_margin(MARGIN_LEFT));
+            gui.tooltip_label->set_anchor_and_margin(MARGIN_TOP, Control::ANCHOR_BEGIN, ttp->get_margin(MARGIN_TOP));
+            gui.tooltip_label->set_anchor_and_margin(MARGIN_RIGHT, Control::ANCHOR_END, -ttp->get_margin(MARGIN_RIGHT));
+            gui.tooltip_label->set_anchor_and_margin(MARGIN_BOTTOM, Control::ANCHOR_END, -ttp->get_margin(MARGIN_BOTTOM));
+            gui.tooltip_label->set_text(tooltip_text);
+        }
 
-	tooltip_owner->add_child(gui.tooltip_popup);
-	gui.tooltip_popup->force_parent_owned();
-	gui.tooltip_popup->set_as_toplevel(true);
-	if (gui.tooltip_control) { // Avoids crash when rapidly switching controls.
-		gui.tooltip_popup->set_scale(gui.tooltip_control->get_global_transform().get_scale());
-	}
+        tooltip_owner->add_child(gui.tooltip_popup);
+        gui.tooltip_popup->force_parent_owned();
+        gui.tooltip_popup->set_as_toplevel(true);
+        if (gui.tooltip_control) { // Avoids crash when rapidly switching controls.
+            gui.tooltip_popup->set_scale(gui.tooltip_control->get_global_transform().get_scale());
+        }
 
-	Point2 tooltip_offset = ProjectSettings::get_singleton()->get("display/mouse_cursor/tooltip_position_offset");
-	Rect2 r(gui.tooltip_pos + tooltip_offset, gui.tooltip_popup->get_minimum_size());
-	Rect2 vr = gui.tooltip_popup->get_viewport_rect();
-	if (r.size.x * gui.tooltip_popup->get_scale().x + r.position.x > vr.size.x) {
-		r.position.x = vr.size.x - r.size.x * gui.tooltip_popup->get_scale().x;
-	} else if (r.position.x < 0) {
-		r.position.x = 0;
-	}
+        Point2 tooltip_offset = ProjectSettings::get_singleton()->get("display/mouse_cursor/tooltip_position_offset");
+        Rect2 r(gui.tooltip_pos + tooltip_offset, gui.tooltip_popup->get_minimum_size());
+        Rect2 vr = gui.tooltip_popup->get_viewport_rect();
+        if (r.size.x * gui.tooltip_popup->get_scale().x + r.position.x > vr.size.x) {
+            r.position.x = vr.size.x - r.size.x * gui.tooltip_popup->get_scale().x;
+        } else if (r.position.x < 0) {
+            r.position.x = 0;
+        }
 
-	if (r.size.y * gui.tooltip_popup->get_scale().y + r.position.y > vr.size.y) {
-		r.position.y = vr.size.y - r.size.y * gui.tooltip_popup->get_scale().y;
-	} else if (r.position.y < 0) {
-		r.position.y = 0;
-	}
+        if (r.size.y * gui.tooltip_popup->get_scale().y + r.position.y > vr.size.y) {
+            r.position.y = vr.size.y - r.size.y * gui.tooltip_popup->get_scale().y;
+        } else if (r.position.y < 0) {
+            r.position.y = 0;
+        }
 
-	gui.tooltip_popup->set_global_position(r.position);
-	gui.tooltip_popup->set_size(r.size);
+        gui.tooltip_popup->set_global_position(r.position);
+        gui.tooltip_popup->set_size(r.size);
 
-	gui.tooltip_popup->raise();
-	gui.tooltip_popup->show();
+        gui.tooltip_popup->raise();
+        gui.tooltip_popup->show();
+    #endif
 }
 
 void Viewport::_gui_call_input(Control *p_control, const Ref<InputEvent> &p_input) {
@@ -1708,8 +1713,8 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
 
 		if (gui.drag_data.get_type() == Variant::NIL && over && !gui.modal_stack.empty()) {
 			Control *top = gui.modal_stack.back()->get();
-
-			if (over != top && !top->is_a_parent_of(over)) {
+            #ifndef ADVANCED_GUI_DISABLED
+		    	if (over != top && !top->is_a_parent_of(over)) {
 				PopupMenu *popup_menu = Object::cast_to<PopupMenu>(top);
 				MenuButton *popup_menu_parent = nullptr;
 				MenuButton *menu_button = Object::cast_to<MenuButton>(over);
@@ -1742,6 +1747,7 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
 					over = nullptr; //nothing can be found outside the modal stack
 				}
 			}
+            #endif
 		}
 
 		if (over != gui.mouse_over) {
@@ -1789,25 +1795,25 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
 			}
 
 			bool is_tooltip_shown = false;
+            #ifndef ADVANCED_GUI_DISABLED
+                if (gui.tooltip_popup) {
+                    if (can_tooltip && gui.tooltip_control) {
+                        String tooltip = _gui_get_tooltip(over, gui.tooltip_control->get_global_transform().xform_inv(mpos));
 
-			if (gui.tooltip_popup) {
-				if (can_tooltip && gui.tooltip_control) {
-					String tooltip = _gui_get_tooltip(over, gui.tooltip_control->get_global_transform().xform_inv(mpos));
-
-					if (tooltip.length() == 0) {
-						_gui_cancel_tooltip();
-					} else if (gui.tooltip_label) {
-						if (tooltip == gui.tooltip_label->get_text()) {
-							is_tooltip_shown = true;
-						}
-					} else if (tooltip == String(gui.tooltip_popup->call("get_tooltip_text"))) {
-						is_tooltip_shown = true;
-					}
-				} else {
-					_gui_cancel_tooltip();
-				}
-			}
-
+                        if (tooltip.length() == 0) {
+                            _gui_cancel_tooltip();
+                        } else if (gui.tooltip_label) {
+                            if (tooltip == gui.tooltip_label->get_text()) {
+                                is_tooltip_shown = true;
+                            }
+                        } else if (tooltip == String(gui.tooltip_popup->call("get_tooltip_text"))) {
+                            is_tooltip_shown = true;
+                        }
+                    } else {
+                        _gui_cancel_tooltip();
+                    }
+                }
+            #endif
 			if (can_tooltip && !is_tooltip_shown && over->can_process()) {
 				if (gui.tooltip_timer.is_valid()) {
 					gui.tooltip_timer->release_connections();

@@ -1,42 +1,44 @@
-/**************************************************************************/
-/*  menu_button.h                                                         */
-/**************************************************************************/
+#ifndef ADVANCED_GUI_DISABLED
+    /**************************************************************************/
+    /*  menu_button.h                                                         */
+    /**************************************************************************/
 
 
-#ifndef MENU_BUTTON_H
-#define MENU_BUTTON_H
+    #ifndef MENU_BUTTON_H
+    #define MENU_BUTTON_H
 
-#include "scene/gui/button.h"
-#include "scene/gui/popup_menu.h"
+    #include "scene/gui/button.h"
+    #include "scene/gui/popup_menu.h"
 
-class MenuButton : public Button {
-	GDCLASS(MenuButton, Button);
+    class MenuButton : public Button {
+        GDCLASS(MenuButton, Button);
 
-	bool clicked;
-	bool switch_on_hover;
-	bool disable_shortcuts;
-	PopupMenu *popup;
+        bool clicked;
+        bool switch_on_hover;
+        bool disable_shortcuts;
+        PopupMenu *popup;
 
-	void _unhandled_key_input(Ref<InputEvent> p_event);
-	Array _get_items() const;
-	void _set_items(const Array &p_items);
+        void _unhandled_key_input(Ref<InputEvent> p_event);
+        Array _get_items() const;
+        void _set_items(const Array &p_items);
 
-	void _gui_input(Ref<InputEvent> p_event);
+        void _gui_input(Ref<InputEvent> p_event);
 
-protected:
-	void _notification(int p_what);
-	static void _bind_methods();
+    protected:
+        void _notification(int p_what);
+        static void _bind_methods();
 
-public:
-	virtual void pressed();
+    public:
+        virtual void pressed();
 
-	PopupMenu *get_popup() const;
-	void set_switch_on_hover(bool p_enabled);
-	bool is_switch_on_hover();
-	void set_disable_shortcuts(bool p_disabled);
+        PopupMenu *get_popup() const;
+        void set_switch_on_hover(bool p_enabled);
+        bool is_switch_on_hover();
+        void set_disable_shortcuts(bool p_disabled);
 
-	MenuButton();
-	~MenuButton();
-};
+        MenuButton();
+        ~MenuButton();
+    };
 
-#endif // MENU_BUTTON_H
+    #endif // MENU_BUTTON_H
+#endif

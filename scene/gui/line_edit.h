@@ -1,245 +1,247 @@
-/**************************************************************************/
-/*  line_edit.h                                                           */
-/**************************************************************************/
-
-
-#ifndef LINE_EDIT_H
-#define LINE_EDIT_H
-
-#include "scene/gui/control.h"
-#include "scene/gui/popup_menu.h"
-
-class LineEdit : public Control {
-	GDCLASS(LineEdit, Control);
-
-public:
-	enum Align {
+#ifndef ADVANCED_GUI_DISABLED
+    /**************************************************************************/
+    /*  line_edit.h                                                           */
+    /**************************************************************************/
+
+
+    #ifndef LINE_EDIT_H
+    #define LINE_EDIT_H
+
+    #include "scene/gui/control.h"
+    #include "scene/gui/popup_menu.h"
+
+    class LineEdit : public Control {
+        GDCLASS(LineEdit, Control);
+
+    public:
+        enum Align {
+
+            ALIGN_LEFT,
+            ALIGN_CENTER,
+            ALIGN_RIGHT,
+            ALIGN_FILL
+        };
+
+        enum MenuItems {
+            MENU_CUT,
+            MENU_COPY,
+            MENU_PASTE,
+            MENU_CLEAR,
+            MENU_SELECT_ALL,
+            MENU_UNDO,
+            MENU_REDO,
+            MENU_MAX
+
+        };
 
-		ALIGN_LEFT,
-		ALIGN_CENTER,
-		ALIGN_RIGHT,
-		ALIGN_FILL
-	};
-
-	enum MenuItems {
-		MENU_CUT,
-		MENU_COPY,
-		MENU_PASTE,
-		MENU_CLEAR,
-		MENU_SELECT_ALL,
-		MENU_UNDO,
-		MENU_REDO,
-		MENU_MAX
+    private:
+        Align align;
 
-	};
+        bool editable;
+        bool pass;
+        bool text_changed_dirty;
 
-private:
-	Align align;
+        String undo_text;
+        String text;
+        String placeholder;
+        String placeholder_translated;
+        String secret_character;
+        float placeholder_alpha;
+        String ime_text;
+        Point2 ime_selection;
 
-	bool editable;
-	bool pass;
-	bool text_changed_dirty;
+        bool selecting_enabled;
+        bool deselect_on_focus_loss_enabled;
+        bool popup_show = false;
 
-	String undo_text;
-	String text;
-	String placeholder;
-	String placeholder_translated;
-	String secret_character;
-	float placeholder_alpha;
-	String ime_text;
-	Point2 ime_selection;
+        bool context_menu_enabled;
+        PopupMenu *menu;
 
-	bool selecting_enabled;
-	bool deselect_on_focus_loss_enabled;
-	bool popup_show = false;
+        int cursor_pos;
+        int scroll_offset;
+        int max_length; // 0 for no maximum.
 
-	bool context_menu_enabled;
-	PopupMenu *menu;
+        int cached_width;
+        int cached_placeholder_width;
 
-	int cursor_pos;
-	int scroll_offset;
-	int max_length; // 0 for no maximum.
+        bool clear_button_enabled;
 
-	int cached_width;
-	int cached_placeholder_width;
+        bool shortcut_keys_enabled;
 
-	bool clear_button_enabled;
+        bool virtual_keyboard_enabled = true;
 
-	bool shortcut_keys_enabled;
+        bool drag_action = false;
+        bool drag_caret_force_displayed = false;
+        bool middle_mouse_paste_enabled;
 
-	bool virtual_keyboard_enabled = true;
+        Ref<Texture> right_icon;
+
+        struct Selection {
+            int begin;
+            int end;
+            int cursor_start;
+            bool enabled;
+            bool creating;
+            bool doubleclick;
+            bool drag_attempt;
+            uint64_t last_dblclk = 0;
+        } selection;
+
+        struct TextOperation {
+            int cursor_pos;
+            int scroll_offset;
+            int cached_width;
+            String text;
+        };
+        List<TextOperation> undo_stack;
+        List<TextOperation>::Element *undo_stack_pos;
+
+        struct ClearButtonStatus {
+            bool press_attempt;
+            bool pressing_inside;
+        } clear_button_status;
 
-	bool drag_action = false;
-	bool drag_caret_force_displayed = false;
-	bool middle_mouse_paste_enabled;
+        bool _is_over_clear_button(const Point2 &p_pos) const;
 
-	Ref<Texture> right_icon;
+        void _clear_undo_stack();
+        void _clear_redo();
+        void _create_undo_state();
 
-	struct Selection {
-		int begin;
-		int end;
-		int cursor_start;
-		bool enabled;
-		bool creating;
-		bool doubleclick;
-		bool drag_attempt;
-		uint64_t last_dblclk = 0;
-	} selection;
-
-	struct TextOperation {
-		int cursor_pos;
-		int scroll_offset;
-		int cached_width;
-		String text;
-	};
-	List<TextOperation> undo_stack;
-	List<TextOperation>::Element *undo_stack_pos;
-
-	struct ClearButtonStatus {
-		bool press_attempt;
-		bool pressing_inside;
-	} clear_button_status;
+        void _generate_context_menu();
 
-	bool _is_over_clear_button(const Point2 &p_pos) const;
+        Timer *caret_blink_timer;
 
-	void _clear_undo_stack();
-	void _clear_redo();
-	void _create_undo_state();
+        void _text_changed();
+        void _emit_text_change();
+        bool expand_to_text_length;
 
-	void _generate_context_menu();
+        void update_cached_width();
+        void update_placeholder_width();
 
-	Timer *caret_blink_timer;
+        bool caret_blink_enabled;
+        bool draw_caret;
+        bool window_has_focus;
 
-	void _text_changed();
-	void _emit_text_change();
-	bool expand_to_text_length;
+        void shift_selection_check_pre(bool);
+        void shift_selection_check_post(bool);
 
-	void update_cached_width();
-	void update_placeholder_width();
+        void selection_fill_at_cursor();
+        void set_scroll_offset(int p_pos);
+        int get_scroll_offset() const;
 
-	bool caret_blink_enabled;
-	bool draw_caret;
-	bool window_has_focus;
+        void set_cursor_at_pixel_pos(int p_x);
+        int get_cursor_pixel_pos();
 
-	void shift_selection_check_pre(bool);
-	void shift_selection_check_post(bool);
+        void _reset_caret_blink_timer();
+        void _toggle_draw_caret();
 
-	void selection_fill_at_cursor();
-	void set_scroll_offset(int p_pos);
-	int get_scroll_offset() const;
+        void clear_internal();
 
-	void set_cursor_at_pixel_pos(int p_x);
-	int get_cursor_pixel_pos();
+        void _editor_settings_changed();
 
-	void _reset_caret_blink_timer();
-	void _toggle_draw_caret();
+        void _gui_input(Ref<InputEvent> p_event);
+        void _notification(int p_what);
 
-	void clear_internal();
+    protected:
+        static void _bind_methods();
 
-	void _editor_settings_changed();
+    public:
+        void set_align(Align p_align);
+        Align get_align() const;
 
-	void _gui_input(Ref<InputEvent> p_event);
-	void _notification(int p_what);
+        virtual Variant get_drag_data(const Point2 &p_point);
+        virtual bool can_drop_data(const Point2 &p_point, const Variant &p_data) const;
+        virtual void drop_data(const Point2 &p_point, const Variant &p_data);
 
-protected:
-	static void _bind_methods();
+        virtual CursorShape get_cursor_shape(const Point2 &p_pos) const;
 
-public:
-	void set_align(Align p_align);
-	Align get_align() const;
+        void menu_option(int p_option);
+        void set_context_menu_enabled(bool p_enable);
+        bool is_context_menu_enabled();
+        PopupMenu *get_menu() const;
 
-	virtual Variant get_drag_data(const Point2 &p_point);
-	virtual bool can_drop_data(const Point2 &p_point, const Variant &p_data) const;
-	virtual void drop_data(const Point2 &p_point, const Variant &p_data);
+        void select(int p_from = 0, int p_to = -1);
+        void select_all();
+        void selection_delete();
+        void deselect();
+        bool has_selection() const;
+        int get_selection_from_column() const;
+        int get_selection_to_column() const;
 
-	virtual CursorShape get_cursor_shape(const Point2 &p_pos) const;
+        void delete_char();
+        void delete_text(int p_from_column, int p_to_column);
+        void set_text(String p_text);
+        String get_text() const;
+        void set_placeholder(String p_text);
+        String get_placeholder() const;
+        void set_placeholder_alpha(float p_alpha);
+        float get_placeholder_alpha() const;
+        void set_cursor_position(int p_pos);
+        int get_cursor_position() const;
+        void set_max_length(int p_max_length);
+        int get_max_length() const;
+        void append_at_cursor(String p_text);
+        void clear();
 
-	void menu_option(int p_option);
-	void set_context_menu_enabled(bool p_enable);
-	bool is_context_menu_enabled();
-	PopupMenu *get_menu() const;
+        bool cursor_get_blink_enabled() const;
+        void cursor_set_blink_enabled(const bool p_enabled);
 
-	void select(int p_from = 0, int p_to = -1);
-	void select_all();
-	void selection_delete();
-	void deselect();
-	bool has_selection() const;
-	int get_selection_from_column() const;
-	int get_selection_to_column() const;
+        float cursor_get_blink_speed() const;
+        void cursor_set_blink_speed(const float p_speed);
 
-	void delete_char();
-	void delete_text(int p_from_column, int p_to_column);
-	void set_text(String p_text);
-	String get_text() const;
-	void set_placeholder(String p_text);
-	String get_placeholder() const;
-	void set_placeholder_alpha(float p_alpha);
-	float get_placeholder_alpha() const;
-	void set_cursor_position(int p_pos);
-	int get_cursor_position() const;
-	void set_max_length(int p_max_length);
-	int get_max_length() const;
-	void append_at_cursor(String p_text);
-	void clear();
+        void copy_text();
+        void cut_text();
+        void paste_text();
+        bool has_undo() const;
+        bool has_redo() const;
+        void undo();
+        void redo();
 
-	bool cursor_get_blink_enabled() const;
-	void cursor_set_blink_enabled(const bool p_enabled);
+        void set_editable(bool p_editable);
+        bool is_editable() const;
 
-	float cursor_get_blink_speed() const;
-	void cursor_set_blink_speed(const float p_speed);
+        void set_secret(bool p_secret);
+        bool is_secret() const;
 
-	void copy_text();
-	void cut_text();
-	void paste_text();
-	bool has_undo() const;
-	bool has_redo() const;
-	void undo();
-	void redo();
+        void set_secret_character(const String &p_string);
+        String get_secret_character() const;
 
-	void set_editable(bool p_editable);
-	bool is_editable() const;
+        virtual Size2 get_minimum_size() const;
 
-	void set_secret(bool p_secret);
-	bool is_secret() const;
+        void set_expand_to_text_length(bool p_enabled);
+        bool get_expand_to_text_length() const;
 
-	void set_secret_character(const String &p_string);
-	String get_secret_character() const;
+        void set_clear_button_enabled(bool p_enabled);
+        bool is_clear_button_enabled() const;
 
-	virtual Size2 get_minimum_size() const;
+        void set_shortcut_keys_enabled(bool p_enabled);
+        bool is_shortcut_keys_enabled() const;
 
-	void set_expand_to_text_length(bool p_enabled);
-	bool get_expand_to_text_length() const;
+        void set_virtual_keyboard_enabled(bool p_enable);
+        bool is_virtual_keyboard_enabled() const;
 
-	void set_clear_button_enabled(bool p_enabled);
-	bool is_clear_button_enabled() const;
+        void set_middle_mouse_paste_enabled(bool p_enabled);
+        bool is_middle_mouse_paste_enabled() const;
 
-	void set_shortcut_keys_enabled(bool p_enabled);
-	bool is_shortcut_keys_enabled() const;
+        void set_selecting_enabled(bool p_enabled);
+        bool is_selecting_enabled() const;
 
-	void set_virtual_keyboard_enabled(bool p_enable);
-	bool is_virtual_keyboard_enabled() const;
+        void set_deselect_on_focus_loss_enabled(const bool p_enabled);
+        bool is_deselect_on_focus_loss_enabled() const;
 
-	void set_middle_mouse_paste_enabled(bool p_enabled);
-	bool is_middle_mouse_paste_enabled() const;
+        void set_right_icon(const Ref<Texture> &p_icon);
+        Ref<Texture> get_right_icon();
 
-	void set_selecting_enabled(bool p_enabled);
-	bool is_selecting_enabled() const;
+        virtual bool is_text_field() const;
 
-	void set_deselect_on_focus_loss_enabled(const bool p_enabled);
-	bool is_deselect_on_focus_loss_enabled() const;
+        void show_virtual_keyboard();
 
-	void set_right_icon(const Ref<Texture> &p_icon);
-	Ref<Texture> get_right_icon();
+        LineEdit();
+        ~LineEdit();
+    };
 
-	virtual bool is_text_field() const;
+    VARIANT_ENUM_CAST(LineEdit::Align);
+    VARIANT_ENUM_CAST(LineEdit::MenuItems);
 
-	void show_virtual_keyboard();
-
-	LineEdit();
-	~LineEdit();
-};
-
-VARIANT_ENUM_CAST(LineEdit::Align);
-VARIANT_ENUM_CAST(LineEdit::MenuItems);
-
-#endif // LINE_EDIT_H
+    #endif // LINE_EDIT_H
+#endif

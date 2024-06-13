@@ -1,28 +1,30 @@
-/**************************************************************************/
-/*  grid_container.h                                                      */
-/**************************************************************************/
+#ifndef ADVANCED_GUI_DISABLED
+    /**************************************************************************/
+    /*  grid_container.h                                                      */
+    /**************************************************************************/
 
 
-#ifndef GRID_CONTAINER_H
-#define GRID_CONTAINER_H
+    #ifndef GRID_CONTAINER_H
+    #define GRID_CONTAINER_H
 
-#include "scene/gui/container.h"
+    #include "scene/gui/container.h"
 
-class GridContainer : public Container {
-	GDCLASS(GridContainer, Container);
+    class GridContainer : public Container {
+        GDCLASS(GridContainer, Container);
 
-	int columns;
+        int columns;
 
-protected:
-	void _notification(int p_what);
-	static void _bind_methods();
+    protected:
+        void _notification(int p_what);
+        static void _bind_methods();
 
-public:
-	void set_columns(int p_columns);
-	int get_columns() const;
-	virtual Size2 get_minimum_size() const;
+    public:
+        void set_columns(int p_columns);
+        int get_columns() const;
+        virtual Size2 get_minimum_size() const;
 
-	GridContainer();
-};
+        GridContainer();
+    };
 
-#endif // GRID_CONTAINER_H
+    #endif // GRID_CONTAINER_H
+#endif
