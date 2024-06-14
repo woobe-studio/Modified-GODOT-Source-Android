@@ -39,10 +39,10 @@
 
 #include "scene/audio/audio_stream_player.h"
 
-#include "scene/gui/control.h"
-#include "scene/gui/texture_progress.h" //
 
 #ifndef ADVANCED_GUI_DISABLED
+    #include "scene/gui/control.h"
+    #include "scene/gui/texture_progress.h" //
     #include "scene/gui/color_rect.h"
     #include "scene/gui/box_container.h"
     #include "scene/gui/button.h"
@@ -173,12 +173,6 @@ void register_scene_types() {
 	ClassDB::register_class<ResourcePreloader>();
 
 	/* REGISTER GUI */
-
-	OS::get_singleton()->yield(); //may take time to init
-
-	ClassDB::register_class<Control>();
-	ClassDB::register_virtual_class<Range>();
-	ClassDB::register_class<TextureProgress>();
 
 	OS::get_singleton()->yield(); //may take time to init
 

@@ -30,6 +30,7 @@ public:
     int get_position_preset() const;
 
     void update_position();
+    void on_viewport_size_changed();
 
     Centralizer();
     ~Centralizer();

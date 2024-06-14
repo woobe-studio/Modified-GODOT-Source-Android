@@ -8,12 +8,24 @@
 
 void Centralizer::_notification(int p_what) {
     switch (p_what) {
-        case NOTIFICATION_ENTER_TREE:
+        case NOTIFICATION_ENTER_TREE: {
             set_position_preset(current_preset);
-            add_to_group("Centralizer");
+            Viewport *viewport = Object::cast_to<Viewport>(get_viewport());
+            if (viewport) {
+                Error err = viewport->connect("size_changed", this, "on_viewport_size_changed");
+                if (err != OK) {
+                    ERR_PRINT("Failed to connect signal 'size_changed in Centralizer'.");
+                }
+            } else {
+                ERR_PRINT("Viewport is not available to Centralizer.");
+            }
             break;
+        }
         case NOTIFICATION_EXIT_TREE:
-            remove_from_group("Centralizer");
+            Viewport *viewport = Object::cast_to<Viewport>(get_viewport());
+            if (viewport) {
+                viewport->disconnect("size_changed", this, "on_viewport_size_changed");
+            }
             break;
     }
 }
@@ -56,10 +68,15 @@ int Centralizer::get_position_preset() const {
     return current_preset;
 }
 
+void Centralizer::on_viewport_size_changed() {
+    update_position();
+}
+
 void Centralizer::_bind_methods() {
     ClassDB::bind_method(D_METHOD("set_position_preset", "preset"), &Centralizer::set_position_preset);
     ClassDB::bind_method(D_METHOD("get_position_preset"), &Centralizer::get_position_preset);
     ClassDB::bind_method(D_METHOD("update_position"), &Centralizer::update_position);
+    ClassDB::bind_method(D_METHOD("on_viewport_size_changed"), &Centralizer::on_viewport_size_changed);
 
     ADD_PROPERTY(PropertyInfo(Variant::INT, "preset", PROPERTY_HINT_ENUM, "Top Left,Top Right,Bottom Left,Bottom Right,Center"), "set_position_preset", "get_position_preset");
 }
