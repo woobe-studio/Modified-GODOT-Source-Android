@@ -122,7 +122,6 @@ static Ref<ResourceFormatLoaderDynamicFont> resource_loader_dynamic_font;
 #endif // MODULE_FREETYPE_ENABLED
 
 static Ref<ResourceFormatLoaderStreamTexture> resource_loader_stream_texture;
-static Ref<ResourceFormatLoaderTextureLayered> resource_loader_texture_layered;
 
 static Ref<ResourceFormatLoaderBMFont> resource_loader_bmfont;
 
@@ -143,9 +142,6 @@ void register_scene_types() {
 
 	resource_loader_stream_texture.instance();
 	ResourceLoader::add_resource_format_loader(resource_loader_stream_texture);
-
-	resource_loader_texture_layered.instance();
-	ResourceLoader::add_resource_format_loader(resource_loader_texture_layered);
 
 	resource_saver_text.instance();
 	ResourceSaver::add_resource_format_saver(resource_saver_text, true);
@@ -258,8 +254,6 @@ void register_scene_types() {
 	ClassDB::register_class<ImageTexture>();
 	ClassDB::register_class<AtlasTexture>();
 	ClassDB::register_class<GradientTexture2D>();
-	//ClassDB::register_class<CubeMap>();
-	//ClassDB::register_virtual_class<TextureLayered>();
 	ClassDB::register_class<Animation>();
 	ClassDB::register_virtual_class<Font>();
 	//ClassDB::register_class<BitmapFont>();
@@ -371,9 +365,6 @@ void unregister_scene_types() {
 
 	DynamicFont::finish_dynamic_fonts();
 #endif // MODULE_FREETYPE_ENABLED
-
-	ResourceLoader::remove_resource_format_loader(resource_loader_texture_layered);
-	resource_loader_texture_layered.unref();
 
 	ResourceLoader::remove_resource_format_loader(resource_loader_stream_texture);
 	resource_loader_stream_texture.unref();

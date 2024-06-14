@@ -2416,11 +2416,6 @@ void RasterizerStorageGLES3::shader_get_param_list(RID p_shader, List<PropertyIn
 				pi.hint = PROPERTY_HINT_RESOURCE_TYPE;
 				pi.hint_string = "Texture";
 			} break;
-			case ShaderLanguage::TYPE_SAMPLERCUBE: {
-				pi.type = Variant::OBJECT;
-				pi.hint = PROPERTY_HINT_RESOURCE_TYPE;
-				pi.hint_string = "CubeMap";
-			} break;
 			default: {
 			}
 		};
