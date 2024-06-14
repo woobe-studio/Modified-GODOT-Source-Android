@@ -29,6 +29,7 @@
 #include "scene/2d/text_label.h"
 #include "scene/2d/graphic_progress.h"
 #include "scene/2d/curtain.h"
+#include "scene/2d/centralizer.h"
 
 #include "scene/2d/world_environment.h"
 #include "scene/resources/environment.h"
@@ -222,6 +223,7 @@ void register_scene_types() {
     ClassDB::register_class<TextLabel>();
     ClassDB::register_class<GraphicProgress>();
     ClassDB::register_class<Curtain>();
+    ClassDB::register_class<Centralizer>();
 
 	OS::get_singleton()->yield(); //may take time to init
 

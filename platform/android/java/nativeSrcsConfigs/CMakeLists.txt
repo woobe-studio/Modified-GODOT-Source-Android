@@ -15,7 +15,8 @@ file(GLOB_RECURSE HEADERS ${GODOT_ROOT_DIR}/*.h**)
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS}
         ../../../../scene/2d/text_label.cpp
         ../../../../scene/2d/graphic_progress.cpp
-        ../../../../scene/2d/curtain.cpp)
+        ../../../../scene/2d/curtain.cpp
+        ../../../../scene/2d/centralizer.cpp)
 target_include_directories(${PROJECT_NAME}
         SYSTEM PUBLIC
         ${GODOT_ROOT_DIR}
