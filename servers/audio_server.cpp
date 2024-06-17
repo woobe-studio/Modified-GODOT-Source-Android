@@ -95,21 +95,6 @@ AudioDriver::SpeakerMode AudioDriver::get_speaker_mode_by_total_channels(int p_c
 	return SPEAKER_MODE_STEREO;
 }
 
-int AudioDriver::get_total_channels_by_speaker_mode(AudioDriver::SpeakerMode p_mode) const {
-	switch (p_mode) {
-		case SPEAKER_MODE_STEREO:
-			return 2;
-		case SPEAKER_SURROUND_31:
-			return 4;
-		case SPEAKER_SURROUND_51:
-			return 6;
-		case SPEAKER_SURROUND_71:
-			return 8;
-	}
-
-	ERR_FAIL_V(2);
-}
-
 Array AudioDriver::get_device_list() {
 	Array list;
 
@@ -1037,10 +1022,6 @@ float AudioServer::get_mix_rate() const {
 	return AudioDriver::get_singleton()->get_mix_rate();
 }
 
-float AudioServer::read_output_peak_db() const {
-	return 0;
-}
-
 AudioServer *AudioServer::get_singleton() {
 	return singleton;
 }
@@ -1088,13 +1069,6 @@ void AudioServer::audio_data_free(void *p_data) {
 	audio_data_lock.unlock();
 }
 
-size_t AudioServer::audio_data_get_total_memory_usage() const {
-	return audio_data_total_mem;
-}
-size_t AudioServer::audio_data_get_max_memory_usage() const {
-	return audio_data_max_mem;
-}
-
 void AudioServer::add_callback(AudioCallback p_callback, void *p_userdata) {
 	lock();
 	CallbackItem ci;
@@ -1110,24 +1084,6 @@ void AudioServer::remove_callback(AudioCallback p_callback, void *p_userdata) {
 	ci.callback = p_callback;
 	ci.userdata = p_userdata;
 	callbacks.erase(ci);
-	unlock();
-}
-
-void AudioServer::add_update_callback(AudioCallback p_callback, void *p_userdata) {
-	lock();
-	CallbackItem ci;
-	ci.callback = p_callback;
-	ci.userdata = p_userdata;
-	update_callbacks.insert(ci);
-	unlock();
-}
-
-void AudioServer::remove_update_callback(AudioCallback p_callback, void *p_userdata) {
-	lock();
-	CallbackItem ci;
-	ci.callback = p_callback;
-	ci.userdata = p_userdata;
-	update_callbacks.erase(ci);
 	unlock();
 }
 

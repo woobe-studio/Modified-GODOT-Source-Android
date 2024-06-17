@@ -15,19 +15,7 @@ void AudioStreamPlayer::_mix_to_bus(const AudioFrame *p_frames, int p_amount) {
 	if (AudioServer::get_singleton()->get_speaker_mode() == AudioServer::SPEAKER_MODE_STEREO) {
 		targets[0] = AudioServer::get_singleton()->thread_get_channel_mix_buffer(bus_index, 0);
 	} else {
-		switch (mix_target) {
-			case MIX_TARGET_STEREO: {
-				targets[0] = AudioServer::get_singleton()->thread_get_channel_mix_buffer(bus_index, 0);
-			} break;
-			case MIX_TARGET_SURROUND: {
-				for (int i = 0; i < AudioServer::get_singleton()->get_channel_count(); i++) {
-					targets[i] = AudioServer::get_singleton()->thread_get_channel_mix_buffer(bus_index, i);
-				}
-			} break;
-			case MIX_TARGET_CENTER: {
-				targets[0] = AudioServer::get_singleton()->thread_get_channel_mix_buffer(bus_index, 1);
-			} break;
-		}
+        targets[0] = AudioServer::get_singleton()->thread_get_channel_mix_buffer(bus_index, 0);
 	}
 
 	for (int c = 0; c < 4; c++) {
@@ -50,7 +38,7 @@ void AudioStreamPlayer::_mix_internal(bool p_fadeout) {
 		buffer_size = MIN(buffer_size, 128);
 	}
 
-	stream_playback->mix(buffer, pitch_scale, buffer_size);
+	stream_playback->mix(buffer, 1.0, buffer_size);
 
 	//multiply volume interpolating to avoid clicks if this changes
 	float target_volume = p_fadeout ? -80.0 : volume_db;
@@ -157,7 +145,7 @@ void AudioStreamPlayer::set_stream(Ref<AudioStream> p_stream) {
 		AudioFrame *buffer = fadeout_buffer.ptrw();
 		int buffer_size = fadeout_buffer.size();
 
-		stream_playback->mix(buffer, pitch_scale, buffer_size);
+		stream_playback->mix(buffer, 1.0, buffer_size);
 
 		//multiply volume interpolating to avoid clicks if this changes
 		float target_volume = -80.0;
@@ -199,18 +187,13 @@ Ref<AudioStream> AudioStreamPlayer::get_stream() const {
 }
 
 void AudioStreamPlayer::set_volume_db(float p_volume) {
-	volume_db = p_volume;
+    if (p_volume > 0.0)
+        volume_db = 0.0;
+    else
+	    volume_db = p_volume;
 }
 float AudioStreamPlayer::get_volume_db() const {
 	return volume_db;
-}
-
-void AudioStreamPlayer::set_pitch_scale(float p_pitch_scale) {
-	ERR_FAIL_COND(p_pitch_scale <= 0.0);
-	pitch_scale = p_pitch_scale;
-}
-float AudioStreamPlayer::get_pitch_scale() const {
-	return pitch_scale;
 }
 
 void AudioStreamPlayer::play(float p_from_pos) {
@@ -278,14 +261,6 @@ bool AudioStreamPlayer::is_autoplay_enabled() {
 	return autoplay;
 }
 
-void AudioStreamPlayer::set_mix_target(MixTarget p_target) {
-	mix_target = p_target;
-}
-
-AudioStreamPlayer::MixTarget AudioStreamPlayer::get_mix_target() const {
-	return mix_target;
-}
-
 void AudioStreamPlayer::_set_playing(bool p_enable) {
 	if (p_enable) {
 		play();
@@ -338,9 +313,6 @@ void AudioStreamPlayer::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_volume_db", "volume_db"), &AudioStreamPlayer::set_volume_db);
 	ClassDB::bind_method(D_METHOD("get_volume_db"), &AudioStreamPlayer::get_volume_db);
 
-	ClassDB::bind_method(D_METHOD("set_pitch_scale", "pitch_scale"), &AudioStreamPlayer::set_pitch_scale);
-	ClassDB::bind_method(D_METHOD("get_pitch_scale"), &AudioStreamPlayer::get_pitch_scale);
-
 	ClassDB::bind_method(D_METHOD("play", "from_position"), &AudioStreamPlayer::play, DEFVAL(0.0));
 	ClassDB::bind_method(D_METHOD("seek", "to_position"), &AudioStreamPlayer::seek);
 	ClassDB::bind_method(D_METHOD("stop"), &AudioStreamPlayer::stop);
@@ -354,9 +326,6 @@ void AudioStreamPlayer::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_autoplay", "enable"), &AudioStreamPlayer::set_autoplay);
 	ClassDB::bind_method(D_METHOD("is_autoplay_enabled"), &AudioStreamPlayer::is_autoplay_enabled);
 
-	ClassDB::bind_method(D_METHOD("set_mix_target", "mix_target"), &AudioStreamPlayer::set_mix_target);
-	ClassDB::bind_method(D_METHOD("get_mix_target"), &AudioStreamPlayer::get_mix_target);
-
 	ClassDB::bind_method(D_METHOD("_set_playing", "enable"), &AudioStreamPlayer::_set_playing);
 	ClassDB::bind_method(D_METHOD("_is_active"), &AudioStreamPlayer::_is_active);
 
@@ -368,30 +337,23 @@ void AudioStreamPlayer::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_stream_playback"), &AudioStreamPlayer::get_stream_playback);
 
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "stream", PROPERTY_HINT_RESOURCE_TYPE, "AudioStream"), "set_stream", "get_stream");
-	ADD_PROPERTY(PropertyInfo(Variant::REAL, "volume_db", PROPERTY_HINT_RANGE, "-80,24"), "set_volume_db", "get_volume_db");
-	ADD_PROPERTY(PropertyInfo(Variant::REAL, "pitch_scale", PROPERTY_HINT_RANGE, "0.01,4,0.01,or_greater"), "set_pitch_scale", "get_pitch_scale");
+	ADD_PROPERTY(PropertyInfo(Variant::REAL, "volume_db", PROPERTY_HINT_RANGE, "-80,0.0"), "set_volume_db", "get_volume_db");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "playing", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "_set_playing", "is_playing");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "autoplay"), "set_autoplay", "is_autoplay_enabled");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "stream_paused", PROPERTY_HINT_NONE, ""), "set_stream_paused", "get_stream_paused");
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "mix_target", PROPERTY_HINT_ENUM, "Stereo,Surround,Center"), "set_mix_target", "get_mix_target");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING, "bus", PROPERTY_HINT_ENUM, ""), "set_bus", "get_bus");
 
 	ADD_SIGNAL(MethodInfo("finished"));
 
-	BIND_ENUM_CONSTANT(MIX_TARGET_STEREO);
-	BIND_ENUM_CONSTANT(MIX_TARGET_SURROUND);
-	BIND_ENUM_CONSTANT(MIX_TARGET_CENTER);
 }
 
 AudioStreamPlayer::AudioStreamPlayer() {
-	mix_volume_db = 0;
-	pitch_scale = 1.0;
-	volume_db = 0;
+	mix_volume_db = 0.0;
+	volume_db = 0.0;
 	autoplay = false;
 	setseek.set(-1);
 	stream_paused = false;
 	stream_paused_fade = false;
-	mix_target = MIX_TARGET_STEREO;
 	fadeout_buffer.resize(512);
 	use_fadeout = false;
 

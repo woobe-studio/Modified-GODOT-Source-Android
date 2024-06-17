@@ -89,7 +89,6 @@
 #include "scene/main/timer.h"
 #include "scene/main/viewport.h"
 
-#include "scene/resources/audio_stream_sample.h"
 #include "scene/resources/bit_map.h"
 #include "scene/resources/capsule_shape_2d.h"
 #include "scene/resources/circle_shape_2d.h"
@@ -275,7 +274,6 @@ void register_scene_types() {
 	OS::get_singleton()->yield(); //may take time to init
 
 	ClassDB::register_class<AudioStreamPlayer>();
-	ClassDB::register_class<AudioStreamSample>();
 
 	OS::get_singleton()->yield(); //may take time to init
 

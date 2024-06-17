@@ -10,7 +10,9 @@
 #include "core/os/os.h"
 
 #include "core/print_string.h"
-#include "scene/gui/control.h"
+#ifndef ADVANCED_GUI_DISABLED
+    #include "scene/gui/control.h"
+#endif
 #include "servers/visual/shader_language.h"
 #include "servers/visual/shader_types.h"
 

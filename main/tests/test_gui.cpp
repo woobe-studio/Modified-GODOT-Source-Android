@@ -9,7 +9,9 @@
 
 #include "core/print_string.h"
 #include "scene/gui/button.h"
-#include "scene/gui/control.h"
+#ifndef ADVANCED_GUI_DISABLED
+    #include "scene/gui/control.h"
+#endif
 #include "scene/gui/label.h"
 #include "scene/gui/line_edit.h"
 #include "scene/gui/menu_button.h"
@@ -37,8 +39,10 @@ public:
 		SceneTree::init();
 
 		Panel *frame = memnew(Panel);
+#ifndef ADVANCED_GUI_DISABLED
 		frame->set_anchor(MARGIN_RIGHT, Control::ANCHOR_END);
 		frame->set_anchor(MARGIN_BOTTOM, Control::ANCHOR_END);
+#endif
 		frame->set_end(Point2(0, 0));
 
 		Ref<Theme> t = memnew(Theme);
@@ -169,8 +173,9 @@ public:
 
 		richtext->set_position(Point2(600, 210));
 		richtext->set_size(Point2(180, 250));
+#ifndef ADVANCED_GUI_DISABLED
 		richtext->set_anchor_and_margin(MARGIN_RIGHT, Control::ANCHOR_END, -20);
-
+#endif
 		frame->add_child(richtext);
 
 		richtext->add_text("Hello, My Friends!\n\nWelcome to the amazing world of ");
@@ -201,7 +206,7 @@ public:
 		richtext->add_text("This allows to test for the scrolling capabilities ");
 		richtext->pop();
 		richtext->add_text("of the rich text label for huge text (not like this text will really be huge but, you know).\nAs long as it is so long that it will work nicely for a test/demo, then it's welcomed in my book...\nChanging subject, the day is cloudy today and I'm wondering if I'll get che chance to travel somewhere nice. Sometimes, watching the clouds from satellite images may give a nice insight about how pressure zones in our planet work, although it also makes it pretty obvious to see why most weather forecasts get it wrong so often.\nClouds are so difficult to predict!\nBut it's pretty cool how our civilization has adapted to having water falling from the sky each time it rains...");
-
+#ifndef ADVANCED_GUI_DISABLED
 		TabContainer *tabc = memnew(TabContainer);
 
 		Control *ctl = memnew(Control);
@@ -229,6 +234,7 @@ public:
 
 		tabc->set_position(Point2(400, 210));
 		tabc->set_size(Point2(180, 250));
+#endif
 	}
 };
 

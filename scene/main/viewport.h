@@ -13,7 +13,9 @@
 #include "servers/visual_server.h"
 
 class Camera2D;
+#ifndef ADVANCED_GUI_DISABLED
 class Control;
+#endif
 class CanvasItem;
 class CanvasLayer;
 class Panel;
@@ -21,7 +23,6 @@ class Label;
 class Timer;
 class Viewport;
 class SceneTreeTimer;
-
 class ViewportTexture : public Texture {
 	GDCLASS(ViewportTexture, Texture);
 
@@ -244,14 +245,16 @@ private:
 		// info used when this is a window
 
 		bool key_event_accepted;
+#ifndef ADVANCED_GUI_DISABLED
 		Control *mouse_focus;
 		Control *last_mouse_focus;
 		Control *mouse_click_grabber;
-		int mouse_focus_mask;
 		Control *key_focus;
 		Control *mouse_over;
 		Control *tooltip_control;
 		Control *tooltip_popup;
+#endif
+		int mouse_focus_mask;
 		Label *tooltip_label;
 		Point2 tooltip_pos;
 		Point2 last_mouse_pos;
@@ -261,14 +264,16 @@ private:
 		ObjectID drag_preview_id;
 		Ref<SceneTreeTimer> tooltip_timer;
 		float tooltip_delay;
-		List<Control *> modal_stack;
 		Transform2D focus_inv_xform;
 		bool subwindow_order_dirty;
 		bool subwindow_visibility_dirty;
+#ifndef ADVANCED_GUI_DISABLED
+		List<Control *> modal_stack;
 		List<Control *> subwindows; // visible subwindows
 		List<Control *> all_known_subwindows;
-		bool roots_order_dirty;
 		List<Control *> roots;
+#endif
+		bool roots_order_dirty;
 		int canvas_sort_index; //for sorting items with canvas as root
 		bool dragging;
 		bool drag_successful;
@@ -277,16 +282,16 @@ private:
 	} gui;
 
 	bool disable_input;
-
+#ifndef ADVANCED_GUI_DISABLED
 	void _gui_call_input(Control *p_control, const Ref<InputEvent> &p_input);
 	void _gui_call_notification(Control *p_control, int p_what);
-
+	Control *_gui_find_control(const Point2 &p_global);
+	Control *_gui_find_control_at_pos(CanvasItem *p_node, const Point2 &p_global, const Transform2D &p_xform, Transform2D &r_inv_xform);
+#endif
 	void _gui_prepare_subwindows();
 	void _gui_sort_subwindows();
 	void _gui_sort_roots();
 	void _gui_sort_modal_stack();
-	Control *_gui_find_control(const Point2 &p_global);
-	Control *_gui_find_control_at_pos(CanvasItem *p_node, const Point2 &p_global, const Transform2D &p_xform, Transform2D &r_inv_xform);
 
 	void _gui_input_event(Ref<InputEvent> p_event);
 	void _gui_cleanup_internal_state(Ref<InputEvent> p_event);
@@ -299,7 +304,7 @@ private:
 	void _vp_input_text(const String &p_text);
 	void _vp_unhandled_input(const Ref<InputEvent> &p_ev);
 	Ref<InputEvent> _make_input_local(const Ref<InputEvent> &ev);
-
+#ifndef ADVANCED_GUI_DISABLED
 	friend class Control;
 
 	List<Control *>::Element *_gui_add_root_control(Control *p_control);
@@ -337,10 +342,10 @@ private:
 
 	Control *_gui_get_focus_owner();
 
-	Vector2 _get_window_offset() const;
 
 	bool _gui_drop(Control *p_at_control, Point2 p_at_pos, bool p_just_check);
-
+#endif
+	Vector2 _get_window_offset() const;
 	friend class CanvasLayer;
 	void _canvas_layer_add(CanvasLayer *p_canvas_layer);
 	void _canvas_layer_remove(CanvasLayer *p_canvas_layer);
@@ -467,11 +472,12 @@ public:
 	void set_physics_object_picking(bool p_enable);
 	bool get_physics_object_picking();
 
-	bool gui_has_modal_stack() const;
 
 	Variant gui_get_drag_data() const;
+#ifndef ADVANCED_GUI_DISABLED
+	bool gui_has_modal_stack() const;
 	Control *get_modal_stack_top() const;
-
+#endif
 	void gui_reset_canvas_sort_index();
 	int gui_get_canvas_sort_index();
 

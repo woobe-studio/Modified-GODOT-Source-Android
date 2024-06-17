@@ -11,7 +11,9 @@
 #include "core/object_rc.h"
 #include "core/print_string.h"
 #include "core/variant_parser.h"
-#include "scene/gui/control.h"
+#ifndef ADVANCED_GUI_DISABLED
+    #include "scene/gui/control.h"
+#endif
 #include "scene/main/node.h"
 
 String Variant::get_type_name(Variant::Type p_type) {
@@ -1665,6 +1667,7 @@ Variant::operator Node *() const {
 	}
 	return nullptr;
 }
+#ifndef ADVANCED_GUI_DISABLED
 Variant::operator Control *() const {
 	if (type == OBJECT) {
 		Object *obj = _get_obj().rc ? _get_obj().rc->get_ptr() : nullptr;
@@ -1672,7 +1675,7 @@ Variant::operator Control *() const {
 	}
 	return nullptr;
 }
-
+#endif
 Variant::operator Dictionary() const {
 	if (type == DICTIONARY) {
 		return *reinterpret_cast<const Dictionary *>(_data._mem);

@@ -118,8 +118,6 @@ void EditorAssetInstaller::open(const String &p_path, int p_depth) {
 		extension_guess["tga"] = tree->get_icon("ImageTexture", "EditorIcons");
 		extension_guess["webp"] = tree->get_icon("ImageTexture", "EditorIcons");
 
-		extension_guess["wav"] = tree->get_icon("AudioStreamSample", "EditorIcons");
-		extension_guess["ogg"] = tree->get_icon("AudioStreamOGGVorbis", "EditorIcons");
 		extension_guess["mp3"] = tree->get_icon("AudioStreamMP3", "EditorIcons");
 
 		extension_guess["scn"] = tree->get_icon("PackedScene", "EditorIcons");

@@ -14,7 +14,6 @@
 
 class AudioDriverDummy;
 class AudioStream;
-class AudioStreamSample;
 
 class AudioDriver {
 	static AudioDriver *singleton;
@@ -80,11 +79,6 @@ public:
 	virtual float get_latency() { return 0; }
 
 	SpeakerMode get_speaker_mode_by_total_channels(int p_channels) const;
-	int get_total_channels_by_speaker_mode(SpeakerMode) const;
-
-	Vector<int32_t> get_input_buffer() { return input_buffer; }
-	unsigned int get_input_position() { return input_position; }
-	unsigned int get_input_size() { return input_size; }
 
 #ifdef DEBUG_ENABLED
 	uint64_t get_profiling_time() const { return prof_time; }
@@ -316,8 +310,6 @@ public:
 	virtual SpeakerMode get_speaker_mode() const;
 	virtual float get_mix_rate() const;
 
-	virtual float read_output_peak_db() const;
-
 	static AudioServer *get_singleton();
 
 	virtual double get_output_latency() const;
@@ -327,14 +319,8 @@ public:
 	void *audio_data_alloc(uint32_t p_data_len, const uint8_t *p_from_data = nullptr);
 	void audio_data_free(void *p_data);
 
-	size_t audio_data_get_total_memory_usage() const;
-	size_t audio_data_get_max_memory_usage() const;
-
 	void add_callback(AudioCallback p_callback, void *p_userdata);
 	void remove_callback(AudioCallback p_callback, void *p_userdata);
-
-	void add_update_callback(AudioCallback p_callback, void *p_userdata);
-	void remove_update_callback(AudioCallback p_callback, void *p_userdata);
 
 	void set_bus_layout(const Ref<AudioBusLayout> &p_bus_layout);
 	Ref<AudioBusLayout> generate_bus_layout() const;

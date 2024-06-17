@@ -108,6 +108,7 @@ struct VariantObjectClassChecker<Node *> {
 	}
 };
 
+#ifndef ADVANCED_GUI_DISABLED
 template <>
 struct VariantObjectClassChecker<Control *> {
 	static _FORCE_INLINE_ bool check(const Variant &p_variant) {
@@ -116,7 +117,7 @@ struct VariantObjectClassChecker<Control *> {
 		return control || !obj;
 	}
 };
-
+#endif
 #define CHECK_ARG(m_arg)                                                            \
 	if ((m_arg - 1) < p_arg_count) {                                                \
 		Variant::Type argtype = get_argument_type(m_arg - 1);                       \

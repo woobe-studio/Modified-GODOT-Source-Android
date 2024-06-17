@@ -28,8 +28,9 @@
 class Object;
 class ObjectRC;
 class Node; // helper
-class Control; // helper
-
+#ifndef ADVANCED_GUI_DISABLED
+    class Control; // helper
+#endif
 struct PropertyInfo;
 struct MethodInfo;
 
@@ -193,8 +194,9 @@ public:
 
 	operator Object *() const;
 	operator Node *() const;
+#ifndef ADVANCED_GUI_DISABLED
 	operator Control *() const;
-
+#endif
 	operator Dictionary() const;
 	operator Array() const;
 

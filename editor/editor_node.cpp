@@ -73,7 +73,6 @@
     #include "editor/import/resource_importer_scene.h"
     #include "editor/import/resource_importer_texture.h"
     #include "editor/import/resource_importer_texture_atlas.h"
-    #include "editor/import/resource_importer_wav.h"
     #include "editor/import_dock.h"
     #include "editor/multi_node_edit.h"
     #include "editor/node_dock.h"
@@ -5832,10 +5831,6 @@
             Ref<ResourceImporterCSVTranslation> import_csv_translation;
             import_csv_translation.instance();
             ResourceFormatImporter::get_singleton()->add_importer(import_csv_translation);
-
-            Ref<ResourceImporterWAV> import_wav;
-            import_wav.instance();
-            ResourceFormatImporter::get_singleton()->add_importer(import_wav);
 
             Ref<ResourceImporterOBJ> import_obj;
             import_obj.instance();

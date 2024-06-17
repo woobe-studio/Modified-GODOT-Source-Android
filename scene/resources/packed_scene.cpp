@@ -11,7 +11,9 @@
 #include "core/project_settings.h"
 #include "scene/2d/node_2d.h"
 #include "scene/main/node.h"
-#include "scene/gui/control.h"
+#ifndef ADVANCED_GUI_DISABLED
+    #include "scene/gui/control.h"
+#endif
 #include "scene/main/instance_placeholder.h"
 #include "scene/property_utils.h"
 
@@ -164,9 +166,7 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
 				}
 				WARN_PRINT(vformat("Node %s of type %s cannot be created. A placeholder will be created instead.", snames[n.name], snames[n.type]).ascii().get_data());
 				if (n.parent >= 0 && n.parent < nc && ret_nodes[n.parent]) {
-					if (Object::cast_to<Control>(ret_nodes[n.parent])) {
-						obj = memnew(Control);
-					} else if (Object::cast_to<Node2D>(ret_nodes[n.parent])) {
+					if (Object::cast_to<Node2D>(ret_nodes[n.parent])) {
 						obj = memnew(Node2D);
 					}
 				}
