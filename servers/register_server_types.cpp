@@ -9,10 +9,8 @@
 
 #include "scene/main/viewport.h"
 #include "core/os/os.h"
-#include "core/reference.h"
 #include "core/rid.h"
 #include "core/variant.h"
-#include "audio/audio_effect.h"
 #include "audio/audio_stream.h"
 #include "audio_server.h"
 #include "core/image.h"
@@ -75,9 +73,6 @@ void register_server_types() {
 	ClassDB::register_virtual_class<AudioStream>();
 	ClassDB::register_virtual_class<AudioStreamPlayback>();
 	ClassDB::register_virtual_class<AudioStreamPlaybackResampled>();
-	ClassDB::register_class<AudioStreamRandomPitch>();
-	ClassDB::register_virtual_class<AudioEffect>();
-	ClassDB::register_virtual_class<AudioEffectInstance>();
 	ClassDB::register_class<AudioBusLayout>();
 	ClassDB::register_virtual_class<Physics2DDirectBodyState>();
 	ClassDB::register_virtual_class<Physics2DDirectSpaceState>();
