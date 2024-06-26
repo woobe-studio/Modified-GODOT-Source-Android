@@ -17,11 +17,15 @@ protected:
 
 public:
     enum LayoutPreset {
+        PRESET_TOP,
+        PRESET_LEFT,
+        PRESET_RIGHT,
+        PRESET_CENTER,
+        PRESET_BOTTOM,
         PRESET_TOP_LEFT,
         PRESET_TOP_RIGHT,
         PRESET_BOTTOM_LEFT,
         PRESET_BOTTOM_RIGHT,
-        PRESET_CENTER,
     };
 
     LayoutPreset current_preset;

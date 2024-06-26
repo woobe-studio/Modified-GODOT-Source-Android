@@ -44,6 +44,21 @@ void Centralizer::set_position_preset(LayoutPreset p_preset) {
     Vector2 position;
 
     switch (p_preset) {
+        case PRESET_TOP:
+            position = Vector2(viewport_size.x * 0.5, 0);
+            break;
+        case PRESET_LEFT:
+            position = Vector2(0, viewport_size.y * 0.5);
+            break;
+        case PRESET_RIGHT:
+            position = Vector2(viewport_size.x, viewport_size.y * 0.5);
+            break;
+        case PRESET_BOTTOM:
+            position = Vector2(viewport_size.x * 0.5, viewport_size.y);
+            break;
+        case PRESET_CENTER:
+            position = Vector2(viewport_size.x * 0.5, viewport_size.y * 0.5);
+            break;
         case PRESET_TOP_LEFT:
             position = Vector2(0, 0);
             break;
@@ -55,9 +70,6 @@ void Centralizer::set_position_preset(LayoutPreset p_preset) {
             break;
         case PRESET_BOTTOM_RIGHT:
             position = Vector2(viewport_size.x, viewport_size.y);
-            break;
-        case PRESET_CENTER:
-            position = viewport_size * 0.5;
             break;
     }
 
@@ -78,7 +90,7 @@ void Centralizer::_bind_methods() {
     ClassDB::bind_method(D_METHOD("update_position"), &Centralizer::update_position);
     ClassDB::bind_method(D_METHOD("on_viewport_size_changed"), &Centralizer::on_viewport_size_changed);
 
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "preset", PROPERTY_HINT_ENUM, "Top Left,Top Right,Bottom Left,Bottom Right,Center"), "set_position_preset", "get_position_preset");
+    ADD_PROPERTY(PropertyInfo(Variant::INT, "preset", PROPERTY_HINT_ENUM, "Top, Left, Right, Center, Bottom, Top Left,Top Right,Bottom Left,Bottom Right"), "set_position_preset", "get_position_preset");
 }
 
 Centralizer::Centralizer() {

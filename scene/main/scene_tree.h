@@ -13,6 +13,7 @@
 #include "scene/resources/mesh.h"
 #include "scene/resources/world_2d.h"
 
+
 class PackedScene;
 class Node;
 class Viewport;
@@ -25,6 +26,8 @@ class SceneTreeTimer : public Reference {
 	float time_left;
 	bool process_pause;
 	bool ignore_time_scale = false;
+    Node *owner;
+
 
 protected:
 	static void _bind_methods();
@@ -40,6 +43,9 @@ public:
 	bool is_ignore_time_scale();
 
 	void release_connections();
+
+    void set_owner(Object *p_owner);
+    Node *get_owner() const;
 
 	SceneTreeTimer();
 };
@@ -346,9 +352,9 @@ public:
 	Error change_scene_to(const Ref<PackedScene> &p_scene);
 	Error reload_current_scene();
 
-	Ref<SceneTreeTimer> create_timer(float p_delay_sec, bool p_process_pause = true);
+    Ref<SceneTreeTimer> create_timer(float p_delay_sec, bool p_process_pause = true, Node *p_owner = nullptr);
 
-	//used by Main::start, don't use otherwise
+    //used by Main::start, don't use otherwise
 	void add_current_scene(Node *p_current);
 
 	static SceneTree *get_singleton() { return singleton; }

@@ -173,20 +173,37 @@ Transform2D Camera2D::get_camera_transform() {
 	Rect2 screen_rect(-screen_offset + ret_camera_pos, screen_size * zoom);
 
 	if (!smoothing_enabled || !limit_smoothing_enabled) {
+		bool is_resizing_left = false;
+		bool is_resizing_right = false;
+		bool is_resizing_top = false;
+		bool is_resizing_bottom = false;
+
 		if (screen_rect.position.x < limit[MARGIN_LEFT]) {
+			is_resizing_left = true;
 			screen_rect.position.x = limit[MARGIN_LEFT];
 		}
 
 		if (screen_rect.position.x + screen_rect.size.x > limit[MARGIN_RIGHT]) {
+			is_resizing_right = true;
 			screen_rect.position.x = limit[MARGIN_RIGHT] - screen_rect.size.x;
 		}
 
+		if (is_resizing_left && is_resizing_right) {
+			screen_rect.position.x = (limit[MARGIN_LEFT] + limit[MARGIN_RIGHT] - screen_rect.size.x) * 0.5;
+		}
+
 		if (screen_rect.position.y + screen_rect.size.y > limit[MARGIN_BOTTOM]) {
+			is_resizing_bottom = true;
 			screen_rect.position.y = limit[MARGIN_BOTTOM] - screen_rect.size.y;
 		}
 
 		if (screen_rect.position.y < limit[MARGIN_TOP]) {
+			is_resizing_top = true;
 			screen_rect.position.y = limit[MARGIN_TOP];
+		}
+
+		if (is_resizing_top && is_resizing_bottom) {
+			screen_rect.position.y = (limit[MARGIN_TOP] + limit[MARGIN_BOTTOM] - screen_rect.size.y) * 0.5;
 		}
 	}
 

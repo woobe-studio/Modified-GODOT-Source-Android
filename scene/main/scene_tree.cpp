@@ -33,6 +33,8 @@
 void SceneTreeTimer::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_time_left", "time"), &SceneTreeTimer::set_time_left);
 	ClassDB::bind_method(D_METHOD("get_time_left"), &SceneTreeTimer::get_time_left);
+    ClassDB::bind_method(D_METHOD("set_owner", "owner"), &SceneTreeTimer::set_owner);
+    ClassDB::bind_method(D_METHOD("get_owner"), &SceneTreeTimer::get_owner);
 
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "time_left"), "set_time_left", "get_time_left");
 
@@ -72,6 +74,19 @@ void SceneTreeTimer::release_connections() {
 		disconnect(connection.signal, connection.target, connection.method);
 	}
 }
+
+void SceneTreeTimer::set_owner(Object *p_owner) {
+    owner = Object::cast_to<Node>(p_owner);
+    if (!owner) {
+        owner = nullptr;
+    }
+}
+
+Node *SceneTreeTimer::get_owner() const {
+    return owner;
+}
+
+
 
 SceneTreeTimer::SceneTreeTimer() {
 	time_left = 0;
@@ -588,7 +603,9 @@ bool SceneTree::idle(float p_time) {
 		E->get()->set_time_left(time_left);
 
 		if (time_left < 0) {
-			E->get()->emit_signal("timeout");
+            if (E->get()->get_owner() && E->get()->get_owner()->is_inside_tree() ) {
+                E->get()->emit_signal("timeout");
+            }
 			timers.erase(E);
 		}
 		if (E == L) {
@@ -1704,13 +1721,14 @@ void SceneTree::global_menu_action(const Variant &p_id, const Variant &p_meta) {
 	MainLoop::global_menu_action(p_id, p_meta);
 }
 
-Ref<SceneTreeTimer> SceneTree::create_timer(float p_delay_sec, bool p_process_pause) {
-	Ref<SceneTreeTimer> stt;
-	stt.instance();
-	stt->set_pause_mode_process(p_process_pause);
-	stt->set_time_left(p_delay_sec);
-	timers.push_back(stt);
-	return stt;
+Ref<SceneTreeTimer> SceneTree::create_timer(float p_delay_sec, bool p_process_pause, Node *p_owner) {
+    Ref<SceneTreeTimer> stt;
+    stt.instance();
+    stt->set_pause_mode_process(p_process_pause);
+    stt->set_time_left(p_delay_sec);
+    stt->set_owner(p_owner);
+    timers.push_back(stt);
+    return stt;
 }
 
 void SceneTree::_bind_methods() {
@@ -1735,7 +1753,7 @@ void SceneTree::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_input_as_handled"), &SceneTree::set_input_as_handled);
 	ClassDB::bind_method(D_METHOD("is_input_handled"), &SceneTree::is_input_handled);
 
-	ClassDB::bind_method(D_METHOD("create_timer", "time_sec", "pause_mode_process"), &SceneTree::create_timer, DEFVAL(true));
+	ClassDB::bind_method(D_METHOD("create_timer", "time_sec", "pause_mode_process", "owner"), &SceneTree::create_timer, DEFVAL(true));
 
 	ClassDB::bind_method(D_METHOD("get_node_count"), &SceneTree::get_node_count);
 	ClassDB::bind_method(D_METHOD("get_frame"), &SceneTree::get_frame);

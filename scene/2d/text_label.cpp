@@ -176,7 +176,7 @@ void TextLabel::update_text() {
                 if (operative_index == max_chars_per_line - 1) {
                     can_switch_line = true;
                 } else if (operative_text.empty() == false) {
-                    if (operative_index + (chars_to_display - char_pos -1)  > max_chars_per_line)
+                    if (operative_index + (chars_to_display - char_pos)  > max_chars_per_line)
                         can_switch_line = true;
                     else
                         can_add_text = true;
