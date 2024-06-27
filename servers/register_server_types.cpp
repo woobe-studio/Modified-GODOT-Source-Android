@@ -23,6 +23,7 @@
 #include "physics_2d_server.h"
 #include "scene/debugger/script_debugger_remote.h"
 #include "visual/shader_types.h"
+#include "servers/audio/effects/audio_effect_amplify.h"
 
 static void _debugger_get_resource_usage(List<ScriptDebuggerRemote::ResourceUsage> *r_usage) {
 	List<VS::TextureInfo> tinfo;
@@ -78,6 +79,8 @@ void register_server_types() {
 	ClassDB::register_virtual_class<Physics2DDirectSpaceState>();
 	ClassDB::register_class<Physics2DTestMotionResult>();
 	ClassDB::register_class<Physics2DShapeQueryParameters>();
+
+	ClassDB::register_class<AudioEffectAmplify>();
 
 	ScriptDebuggerRemote::resource_usage_func = _debugger_get_resource_usage;
 

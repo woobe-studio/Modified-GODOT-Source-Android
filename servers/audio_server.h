@@ -10,9 +10,11 @@
 #include "core/object.h"
 #include "core/os/os.h"
 #include "core/variant.h"
+#include "servers/audio/audio_effect.h"
 
 class AudioDriverDummy;
 class AudioStream;
+class AudioStreamSample;
 
 class AudioDriver {
 	static AudioDriver *singleton;
@@ -78,6 +80,11 @@ public:
 	virtual float get_latency() { return 0; }
 
 	SpeakerMode get_speaker_mode_by_total_channels(int p_channels) const;
+	int get_total_channels_by_speaker_mode(SpeakerMode) const;
+
+	Vector<int32_t> get_input_buffer() { return input_buffer; }
+	unsigned int get_input_position() { return input_position; }
+	unsigned int get_input_size() { return input_size; }
 
 #ifdef DEBUG_ENABLED
 	uint64_t get_profiling_time() const { return prof_time; }
@@ -162,6 +169,7 @@ private:
 			bool active;
 			AudioFrame peak_volume;
 			Vector<AudioFrame> buffer;
+			Vector<Ref<AudioEffectInstance>> effect_instances;
 			uint64_t last_mix_with_audio;
 			Channel() {
 				last_mix_with_audio = 0;
@@ -173,6 +181,15 @@ private:
 
 		Vector<Channel> channels;
 
+		struct Effect {
+			Ref<AudioEffect> effect;
+			bool enabled;
+#ifdef DEBUG_ENABLED
+			uint64_t prof_time;
+#endif
+		};
+
+		Vector<Effect> effects;
 		float volume_db;
 		StringName send;
 		int index_cache;
@@ -181,6 +198,8 @@ private:
 	Vector<Vector<AudioFrame>> temp_buffer; //temp_buffer for each level
 	Vector<Bus *> buses;
 	Map<StringName, Bus *> bus_map;
+
+	void _update_bus_effects(int p_bus);
 
 	static AudioServer *singleton;
 
@@ -261,6 +280,21 @@ public:
 	void set_bus_mute(int p_bus, bool p_enable);
 	bool is_bus_mute(int p_bus) const;
 
+	void set_bus_bypass_effects(int p_bus, bool p_enable);
+	bool is_bus_bypassing_effects(int p_bus) const;
+
+	void add_bus_effect(int p_bus, const Ref<AudioEffect> &p_effect, int p_at_pos = -1);
+	void remove_bus_effect(int p_bus, int p_effect);
+
+	int get_bus_effect_count(int p_bus);
+	Ref<AudioEffect> get_bus_effect(int p_bus, int p_effect);
+	Ref<AudioEffectInstance> get_bus_effect_instance(int p_bus, int p_effect, int p_channel = 0);
+
+	void swap_bus_effects(int p_bus, int p_effect, int p_by_effect);
+
+	void set_bus_effect_enabled(int p_bus, int p_effect, bool p_enabled);
+	bool is_bus_effect_enabled(int p_bus, int p_effect) const;
+
 	float get_bus_peak_volume_left_db(int p_bus, int p_channel) const;
 	float get_bus_peak_volume_right_db(int p_bus, int p_channel) const;
 
@@ -282,6 +316,8 @@ public:
 	virtual SpeakerMode get_speaker_mode() const;
 	virtual float get_mix_rate() const;
 
+	virtual float read_output_peak_db() const;
+
 	static AudioServer *get_singleton();
 
 	virtual double get_output_latency() const;
@@ -291,8 +327,14 @@ public:
 	void *audio_data_alloc(uint32_t p_data_len, const uint8_t *p_from_data = nullptr);
 	void audio_data_free(void *p_data);
 
+	size_t audio_data_get_total_memory_usage() const;
+	size_t audio_data_get_max_memory_usage() const;
+
 	void add_callback(AudioCallback p_callback, void *p_userdata);
 	void remove_callback(AudioCallback p_callback, void *p_userdata);
+
+	void add_update_callback(AudioCallback p_callback, void *p_userdata);
+	void remove_update_callback(AudioCallback p_callback, void *p_userdata);
 
 	void set_bus_layout(const Ref<AudioBusLayout> &p_bus_layout);
 	Ref<AudioBusLayout> generate_bus_layout() const;
@@ -321,6 +363,13 @@ class AudioBusLayout : public Resource {
 		bool solo;
 		bool mute;
 		bool bypass;
+
+		struct Effect {
+			Ref<AudioEffect> effect;
+			bool enabled;
+		};
+
+		Vector<Effect> effects;
 
 		float volume_db;
 		StringName send;
