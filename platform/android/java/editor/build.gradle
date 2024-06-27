@@ -9,13 +9,15 @@ dependencies {
     implementation libraries.androidxFragment
     implementation project(":lib")
 
-    implementation "androidx.window:window:1.0.0"
+    implementation "androidx.window:window:1.2.0"
 }
 
 android {
     compileSdkVersion versions.compileSdk
     buildToolsVersion versions.buildTools
     ndkVersion versions.ndkVersion
+
+    namespace = "org.godotengine.editor"
 
     defaultConfig {
         // The 'applicationId' suffix allows to install Godot 3.x(v3) and 4.x(v4) on the same device
@@ -28,9 +30,17 @@ android {
         missingDimensionStrategy 'products', 'editor'
     }
 
+    base {
+        archivesName = "android_editor"
+    }
+
     compileOptions {
         sourceCompatibility versions.javaVersion
         targetCompatibility versions.javaVersion
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     kotlinOptions {

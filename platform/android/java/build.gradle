@@ -1,29 +1,19 @@
-buildscript {
-    apply from: 'app/config.gradle'
-
-    repositories {
-        google()
-        mavenCentral()
-        maven { url "https://plugins.gradle.org/m2/" }
-    }
-    dependencies {
-        classpath libraries.androidGradlePlugin
-        classpath libraries.kotlinGradlePlugin
-        classpath 'io.github.gradle-nexus:publish-plugin:1.1.0'
-    }
-}
-
 plugins {
     id 'io.github.gradle-nexus.publish-plugin'
 }
-
 apply from: 'app/config.gradle'
 apply from: 'scripts/publish-root.gradle'
-
+ext {
+    PUBLISH_VERSION = getGodotPublishVersion()
+}
+group = ossrhGroupId
+version = PUBLISH_VERSION
 allprojects {
     repositories {
         google()
         mavenCentral()
+        gradlePluginPortal()
+        maven { url "https://plugins.gradle.org/m2/" }
     }
 }
 
@@ -273,7 +263,7 @@ task generateGodotTemplates {
  */
 task generateDevTemplate {
     // add parameter to set symbols to true
-    gradle.startParameter.projectProperties += [doNotStrip: true]
+    gradle.startParameter.projectProperties += [doNotStrip: "true"]
 
     gradle.startParameter.excludedTaskNames += templateExcludedBuildTask()
     dependsOn = templateBuildTasks()
