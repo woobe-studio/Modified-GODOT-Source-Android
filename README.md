@@ -1,4 +1,4 @@
-# Godot Engine
+# Modified Godot Engine ( size of apks reduced by over 50%)
 
 <p align="center">
   <a href="https://godotengine.org">
@@ -77,3 +77,28 @@ for more information.
 [![Translate on Weblate](https://hosted.weblate.org/widgets/godot-engine/-/godot/svg-badge.svg)](https://hosted.weblate.org/engage/godot-engine/?utm_source=widget)
 [![Total alerts on LGTM](https://img.shields.io/lgtm/alerts/g/godotengine/godot.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/godotengine/godot/alerts)
 [![TODOs](https://badgen.net/https/api.tickgit.com/badgen/github.com/godotengine/godot)](https://www.tickgit.com/browse?repo=github.com/godotengine/godot)
+
+# Build instructions
+
+## To build the editor for Windows:
+scons platform=windows --config=force
+
+## To build images for Android (release_debug and release):
+scons --config=force xml=no minizip=no deprecated=no disabled_3d=yes disable_advanced_gui=yes builtin_zlib=no builtin_zstd=no module_svg_enabled=no optimize=size platform=android tools=no android_arch=arm64v8 target=release_debug
+
+scons --config=force xml=no minizip=no deprecated=no disabled_3d=yes disable_advanced_gui=yes builtin_zlib=no builtin_zstd=no module_svg_enabled=no optimize=size platform=android tools=no android_arch=arm64v8 target=release
+
+## To clean Android images or Windows editor, add -c at the end:
+scons platform=windows --config=force -c
+
+scons --config=force xml=no minizip=no deprecated=no disabled_3d=yes disable_advanced_gui=yes builtin_zlib=no builtin_zstd=no module_svg_enabled=no optimize=size platform=android tools=no android_arch=arm64v8 target=release_debug -c
+
+scons --config=force xml=no minizip=no deprecated=no disabled_3d=yes disable_advanced_gui=yes builtin_zlib=no builtin_zstd=no module_svg_enabled=no optimize=size platform=android tools=no android_arch=arm64v8 target=release -c
+
+## Then go to the Android platform directory:
+cd platform/android/java
+
+## And build the .apk files:
+./gradlew generateGodotTemplates --refresh-dependencies --rerun-tasks
+
+
