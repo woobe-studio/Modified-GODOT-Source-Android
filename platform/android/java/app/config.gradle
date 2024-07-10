@@ -1,7 +1,7 @@
 ext.versions = [
     androidGradlePlugin: '8.2.0',
     compileSdk         : 34,
-    minSdk             : 19, // Also update 'platform/android/export/export_plugin.cpp#DEFAULT_MIN_SDK_VERSION'
+    minSdk             : 21, // Also update 'platform/android/export/export_plugin.cpp#DEFAULT_MIN_SDK_VERSION'
     targetSdk          : 34, // Also update 'platform/android/export/export_plugin.cpp#DEFAULT_TARGET_SDK_VERSION'
     buildTools         : '34.0.0',
     kotlinVersion      : '1.9.20',
