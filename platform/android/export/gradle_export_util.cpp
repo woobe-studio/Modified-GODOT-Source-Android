@@ -165,7 +165,8 @@ String bool_to_string(bool v) {
 }
 
 String _get_gles_tag() {
-	bool min_gles3 = ProjectSettings::get_singleton()->get("rendering/quality/driver/driver_name") == "GLES3" ;
+	bool min_gles3 = ProjectSettings::get_singleton()->get("rendering/quality/driver/driver_name") == "GLES3" &&
+		!ProjectSettings::get_singleton()->get("rendering/quality/driver/fallback_to_gles2");
 	return min_gles3 ? "    <uses-feature android:glEsVersion=\"0x00030000\" android:required=\"true\" />\n" : "";
 }
 

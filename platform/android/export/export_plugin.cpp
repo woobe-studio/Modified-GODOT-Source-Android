@@ -812,7 +812,8 @@ void EditorExportPlatformAndroid::_fix_manifest(const Ref<EditorExportPreset> &p
 	const int screen_orientation = _get_android_orientation_value(
 			OS::get_singleton()->get_screen_orientation_from_string(GLOBAL_GET("display/window/handheld/orientation")));
 
-	bool min_gles3 = ProjectSettings::get_singleton()->get("rendering/quality/driver/driver_name") == "GLES3";
+	bool min_gles3 = ProjectSettings::get_singleton()->get("rendering/quality/driver/driver_name") == "GLES3" &&
+		!ProjectSettings::get_singleton()->get("rendering/quality/driver/fallback_to_gles2");
 	bool screen_support_small = p_preset->get("screen/support_small");
 	bool screen_support_normal = p_preset->get("screen/support_normal");
 	bool screen_support_large = p_preset->get("screen/support_large");
@@ -1652,8 +1653,13 @@ Vector<String> EditorExportPlatformAndroid::get_enabled_abis(const Ref<EditorExp
 
 void EditorExportPlatformAndroid::get_preset_features(const Ref<EditorExportPreset> &p_preset, List<String> *r_features) {
 	String driver = ProjectSettings::get_singleton()->get("rendering/quality/driver/driver_name");
-    if (driver == "GLES3") {
+	if (driver == "GLES2") {
+		r_features->push_back("etc");
+	} else if (driver == "GLES3") {
 		r_features->push_back("etc2");
+		if (ProjectSettings::get_singleton()->get("rendering/quality/driver/fallback_to_gles2")) {
+			r_features->push_back("etc");
+		}
 	}
 
 	Vector<String> abis = get_enabled_abis(p_preset);

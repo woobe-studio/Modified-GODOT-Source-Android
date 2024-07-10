@@ -436,6 +436,10 @@ private:
 					ProjectSettings::CustomMap initial_settings;
 					if (rasterizer_button_group->get_pressed_button()->get_meta("driver_name") == "GLES3") {
 						initial_settings["rendering/quality/driver/driver_name"] = "GLES3";
+					} else {
+						initial_settings["rendering/quality/driver/driver_name"] = "GLES2";
+						initial_settings["rendering/vram_compression/import_etc2"] = false;
+						initial_settings["rendering/vram_compression/import_etc"] = true;
 					}
 					initial_settings["application/config/name"] = project_name->get_text().strip_edges();
 					initial_settings["application/config/icon"] = "res://icon.png";
@@ -854,6 +858,19 @@ public:
 		rvb->add_child(l);
 
 		rshb->add_child(memnew(VSeparator));
+
+		rvb = memnew(VBoxContainer);
+		rvb->set_h_size_flags(SIZE_EXPAND_FILL);
+		rshb->add_child(rvb);
+		rs_button = memnew(CheckBox);
+		rs_button->set_button_group(rasterizer_button_group);
+		rs_button->set_text(TTR("OpenGL ES 2.0"));
+		rs_button->set_meta("driver_name", "GLES2");
+		rs_button->set_pressed(!gles3_viable);
+		rvb->add_child(rs_button);
+		l = memnew(Label);
+		l->set_text(TTR("Lower visual quality\nSome features not available\nWorks on most hardware\nRecommended for web games"));
+		rvb->add_child(l);
 
 		l = memnew(Label);
 		l->set_text(TTR("Renderer can be changed later, but scenes may need to be adjusted."));

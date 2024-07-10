@@ -8,6 +8,7 @@
 #include "core/io/marshalls.h"
 #include "core/math/geometry.h"
 #include "core/version_generated.gen.h"
+#include "drivers/gles2/rasterizer_gles2.h"
 #include "drivers/gles3/rasterizer_gles3.h"
 #include "drivers/unix/net_socket_posix.h"
 #include "drivers/windows/dir_access_windows.h"
@@ -1495,6 +1496,9 @@ Error OS_Windows::initialize(const VideoMode &p_desired, int p_video_driver, int
 #if defined(OPENGL_ENABLED)
 
 	bool gles3_context = true;
+	if (p_video_driver == VIDEO_DRIVER_GLES2) {
+		gles3_context = false;
+	}
 
 	bool editor = Engine::get_singleton()->is_editor_hint();
 	bool gl_initialization_error = false;
@@ -1506,8 +1510,13 @@ Error OS_Windows::initialize(const VideoMode &p_desired, int p_video_driver, int
 		if (gl_context->initialize() != OK) {
 			memdelete(gl_context);
 			gl_context = NULL;
+			if (GLOBAL_GET("rendering/quality/driver/fallback_to_gles2") || editor) {
+				if (p_video_driver == VIDEO_DRIVER_GLES2) {
+					gl_initialization_error = true;
+					break;
+				}
 
-			if (editor) {
+				p_video_driver = VIDEO_DRIVER_GLES2;
 				gles3_context = false;
 			} else {
 				gl_initialization_error = true;
@@ -1523,7 +1532,8 @@ Error OS_Windows::initialize(const VideoMode &p_desired, int p_video_driver, int
 				RasterizerGLES3::make_current();
 				break;
 			} else {
-				if (editor) {
+				if (GLOBAL_GET("rendering/quality/driver/fallback_to_gles2") || editor) {
+					p_video_driver = VIDEO_DRIVER_GLES2;
 					gles3_context = false;
 					continue;
 				} else {
@@ -1532,8 +1542,14 @@ Error OS_Windows::initialize(const VideoMode &p_desired, int p_video_driver, int
 				}
 			}
 		} else {
+			if (RasterizerGLES2::is_viable() == OK) {
+				RasterizerGLES2::register_config();
+				RasterizerGLES2::make_current();
+				break;
+			} else {
 				gl_initialization_error = true;
 				break;
+			}
 		}
 	}
 
