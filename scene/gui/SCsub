@@ -3,16 +3,16 @@ Import("env")
 import os
 
 class Color:
-    RED = '\033[91m'
-    GREEN = '\033[92m'
-    YELLOW = '\033[93m'
-    BLUE = '\033[94m'
-    MAGENTA = '\033[95m'
-    CYAN = '\033[96m'
-    WHITE = '\033[97m'
-    RESET = '\033[0m'
+    RED = "\033[91m"
+    GREEN = "\033[92m"
+    YELLOW = "\033[93m"
+    BLUE = "\033[94m"
+    MAGENTA = "\033[95m"
+    CYAN = "\033[96m"
+    WHITE = "\033[97m"
+    RESET = "\033[0m"
 
-editor_tools_enabled = env['tools']
+editor_tools_enabled = env["tools"]
 
 def color_text(text, color):
     return f"{color}{text}{Color.RESET}"
@@ -25,9 +25,13 @@ def should_compile(file_path):
     if editor_tools_enabled == True:  # Check if building for the editor
         return True
     try:
-        with open(file_path, 'r') as file:
+        with open(file_path, "r") as file:
             lines = file.readlines()
-            if len(lines) >= 2 and lines[0].strip().startswith('#ifndef ADVANCED_GUI_DISABLED') and lines[-1].strip() == '#endif':
+            if (
+                    len(lines) >= 2
+                    and lines[0].strip().startswith("#ifndef ADVANCED_GUI_DISABLED")
+                    and lines[-1].strip() == "#endif"
+            ):
                 print(color_text(f"Skipping compilation for {file_path}", Color.GREEN))
                 return False
     except Exception as e:
@@ -36,8 +40,8 @@ def should_compile(file_path):
 
     return True
 
-base_path = env.Dir('.').abspath
-source_files = env.Glob('*.cpp')
+base_path = env.Dir(".").abspath
+source_files = env.Glob("*.cpp")
 
 filtered_files = [f for f in source_files if should_compile(os.path.join(base_path, f.name))]
 
