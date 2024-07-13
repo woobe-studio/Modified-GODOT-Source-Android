@@ -880,3 +880,4 @@ public:
 };
 
 #endif // TEXT_EDIT_H
+

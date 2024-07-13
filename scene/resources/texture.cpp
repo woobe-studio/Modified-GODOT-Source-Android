@@ -1343,4 +1343,3 @@ void GradientTexture2D::_bind_methods() {
 	BIND_ENUM_CONSTANT(REPEAT);
 	BIND_ENUM_CONSTANT(REPEAT_MIRROR);
 }
-///////////////////////////////
