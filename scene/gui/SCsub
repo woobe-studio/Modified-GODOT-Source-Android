@@ -27,7 +27,7 @@ def should_compile(file_path):
         return True
 
     try:
-        with (open(file_path, "r") as file):
+        with open(file_path, "r") as file:
             lines = file.readlines()
             if (
                 len(lines) >= 2
