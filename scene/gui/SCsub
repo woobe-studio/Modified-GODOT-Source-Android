@@ -24,7 +24,6 @@ def should_compile(file_path):
     """
     if editor_tools_enabled == True:  # Check if building for the editor
         return True
-    
     try:
         with open(file_path, 'r') as file:
             lines = file.readlines()
