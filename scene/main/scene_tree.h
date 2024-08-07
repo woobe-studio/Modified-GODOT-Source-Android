@@ -44,7 +44,7 @@ public:
 
 	void release_connections();
 
-    void set_owner(Object *p_owner);
+    void set_owner(Node *p_owner);
     Node *get_owner() const;
 
 	SceneTreeTimer();

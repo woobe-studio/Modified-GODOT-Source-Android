@@ -75,11 +75,8 @@ void SceneTreeTimer::release_connections() {
 	}
 }
 
-void SceneTreeTimer::set_owner(Object *p_owner) {
+void SceneTreeTimer::set_owner(Node *p_owner) {
     owner = Object::cast_to<Node>(p_owner);
-    if (!owner) {
-        owner = nullptr;
-    }
 }
 
 Node *SceneTreeTimer::get_owner() const {
